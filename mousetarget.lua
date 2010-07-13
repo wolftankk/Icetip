@@ -27,7 +27,7 @@ local UnitReactionColor = {
 local function GetTargetLine(unit)
 	if not UnitExists(unit) then return end
 	if UnitIsUnit(unit, "player") then
-		return L["|cffff0000>你<|r"];
+		return L["|cffff0000>YOU<|r"];
 	elseif UnitIsPlayer(unit) then
 		return "|cff"..CLASS_COLORS[select(2, UnitClass(unit))]..UnitName(unit).."|r"
 	else
@@ -50,7 +50,7 @@ function mod:SetUnit()
 	end
 	
 	if unit then
-		GameTooltip:AddLine(L["[目标] "]..GetTargetLine(unit.."target"));
+		GameTooltip:AddLine(L["[Target] "]..GetTargetLine(unit.."target"));
 		targetLine = GameTooltip:NumLines()
 	end
 end
@@ -66,12 +66,12 @@ function mod:Update(elapsed)
 			for i = 1, GameTooltip:NumLines() do
 				if (_G["GameTooltipTextLeft"..i]:GetText()) then
 					if (_G["GameTooltipTextLeft"..i]:GetText():find(TARGET)) then
-						_G["GameTooltipTextLeft"..i]:SetText(L["[目标] "]..GetTargetLine(unit.."target"))
+						_G["GameTooltipTextLeft"..i]:SetText(L["[Target] "]..GetTargetLine(unit.."target"))
 						GameTooltip:Show()
 						break;
 					end
 				elseif i == GameTooltip:NumLines() then
-					GameTooltip:AddLine(L["[目标] "]..GetTargetLine(unit.."target"))
+					GameTooltip:AddLine(L["[Target] "]..GetTargetLine(unit.."target"))
 					GameTooltip:Show()
 				end
 			end
@@ -188,7 +188,7 @@ function mod:MouseOverInfo(unit)
 				--print(factionLabel)
 				tmpString = format("%s |cffFFFFFF%s|r %s" , tmpString, creatureType, factionLabel)
 				--print(tmpString)
-			elseif creatureType == L["未指定"] then
+			elseif creatureType == L["Not Specified"] then
 				tmpString = format("%s %s", tmpString, UNKNOWN);
 			else
 				tmpString = format("%s %s", tmpString, creatureType);
@@ -209,9 +209,9 @@ function mod:MouseOverInfo(unit)
 				elseif classType == "worldboss" then
 					tmpString = format("|cffFF0000(%s)|r", BOSS);
 				elseif classType == "rare" then
-					tmpString = format("|cffFF66FF(%s)|r", L["稀有"]);
+					tmpString = format("|cffFF66FF(%s)|r", L["Rare"]);
 				elseif classType == "rareelite" then
-					tmpString = (L["|cffFFAAFF(稀有精英)|r"]);
+					tmpString = (L["|cffFFAAFF(Rare Boss)|r"]);
 				else
 					tmpString = classType
 				end
@@ -366,9 +366,9 @@ function mod:INSPECT_TALENT_READY()
 
 	local tooltipunit = GameTooltip:GetUnit()
 	if UnitExists("mouseover") and Icetip_InspectTalent[tooltipunit] then
-		GameTooltip:AddDoubleLine(L["当前天赋: "], talent_name);
+		GameTooltip:AddDoubleLine(L["Active Talent: "], talent_name);
 		if (talent_name2 ~= _G["NONE"] and talent_text2 ~= _G["NONE"]) then
-			GameTooltip:AddDoubleLine(L["第二天赋: "], talent_name2);
+			GameTooltip:AddDoubleLine(L["Sec Talent: "], talent_name2);
 		end
 		GameTooltip:Show();
 

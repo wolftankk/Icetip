@@ -15,9 +15,10 @@
 #libs#
 embeds.xml
 
+locale\enUS.lua
 locale\zhCN.lua
 locale\zhTW.lua
-locale\enUS.lua
+
 
 core.lua
 appstyle.lua

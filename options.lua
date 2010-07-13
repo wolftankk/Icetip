@@ -1,4 +1,4 @@
-assert(Icetip, "Icetip没有找到")
+assert(Icetip, "Cant't find Icetip")
 local Icetip = _G.Icetip
 local SM = LibStub("LibSharedMedia-3.0");
 local L = LibStub("AceLocale-3.0"):GetLocale("Icetip")
@@ -21,49 +21,49 @@ local function order()
 end
 
 local hidetype = {
-	["hide"] = L["立刻隐藏"],
-	["fade"] = L["渐隐"],
+	["hide"] = L["Hide"],
+	["fade"] = L["Fadeout"],
 }
 
 local anchorType = {
-	["CURSOR_BOTTOM"] = L["鼠标上边"],
-	["CURSOR_TOP"] = L["鼠标下边"],
-	["CURSOR_RIGHT"] = L["鼠标左边"],
-	["CURSOR_LEFT"] = L["鼠标右边"],
-	["CURSOR_TOPLEFT"] = L["鼠标右下"],
-	["CURSOR_BOTTOMLEFT"] = L["鼠标右上"],
-	["CURSOR_TOPRIGHT"] = L["鼠标左下"],
-	["CURSOR_BOTTOMRIGHT"] = L["鼠标左上"],
-	["BOTTOM"] = L["下部"],
-	["TOP"] = L["上部"],
-	["RIGHT"] = L["右边"],
-	["LEFT"] = L["左边"],
-	["BOTTOMRIGHT"] = L["右下"],
-	["BOTTOMLEFT"] = L["左下"],
-	["TOPRIGHT"] = L["右上"],
-	["TOPLEFT"] = L["左上"],
-	["CENTER"] = L["居中"],
-	["PARENT_TOP"] = L["主框体下部"],
-	["PARENT_BOTTOM"] = L["主框体上部"],
-	["PARENT_RIGHT"] = L["主框体左边"],
-	["PARENT_LEFT"] = L["主框体右边"],
-	["PARENT_TOPLEFT"] = L["主框体左下"],
-	["PARENT_TOPRIGHT"] = L["主框体右下"],
-	["PARENT_BOTTOMLEFT"] = L["主框体左上"],
-	["PARENT_BOTTOMRIGHT"] = L["主框体右上"],
+	["CURSOR_BOTTOM"] = L["Mouse Top"],
+	["CURSOR_TOP"] = L["Mouse Bottom"],
+	["CURSOR_RIGHT"] = L["Mouse Left"],
+	["CURSOR_LEFT"] = L["Mouse Right"],
+	["CURSOR_TOPLEFT"] = L["Mouse Bottom Right"],
+	["CURSOR_BOTTOMLEFT"] = L["Mouse Top Right"],
+	["CURSOR_TOPRIGHT"] = L["Mouse Bottom Left"],
+	["CURSOR_BOTTOMRIGHT"] = L["Mouse Top Left"],
+	["BOTTOM"] = L["Bottom"],
+	["TOP"] = L["Top"],
+	["RIGHT"] = L["Right"],
+	["LEFT"] = L["Left"],
+	["BOTTOMRIGHT"] = L["Bottom Right"],
+	["BOTTOMLEFT"] = L["Bottom Left"],
+	["TOPRIGHT"] = L["Top Right"],
+	["TOPLEFT"] = L["Top Left"],
+	["CENTER"] = L["Center"],
+	["PARENT_TOP"] = L["Parent Bottom"],
+	["PARENT_BOTTOM"] = L["Parent Top"],
+	["PARENT_RIGHT"] = L["Parent Left"],
+	["PARENT_LEFT"] = L["Parent Right"],
+	["PARENT_TOPLEFT"] = L["Parent Bottom Left"],
+	["PARENT_TOPRIGHT"] = L["Parent Bottom Right"],
+	["PARENT_BOTTOMLEFT"] = L["Parent Top Left"],
+	["PARENT_BOTTOMRIGHT"] = L["Parent Top Right"],
 }
 
 local barPosition = {
-	["TOP"] = L["鼠标上边"],
-	["BOTTOM"] = L["鼠标下边"],
+	["TOP"] = L["Tooltip Top"],
+	["BOTTOM"] = L["Tooltip Bottom"],
 	--["LEFT"] = L["鼠标左边"],
 	--["RIGHT"] = L["鼠标右边"],
 }
 
 local bartextStyle = {
-	["number"] = L["数值"],
-	["percent"] = L["百分比"],
-	["pernumber"] = L["数值(百分比)"],
+	["number"] = L["Num"],
+	["percent"] = L["Percent"],
+	["pernumber"] = L["Num(precent)"],
 }
 
 local function CreateOption()
@@ -77,19 +77,19 @@ local function CreateOption()
 				version = {
 					type = "description",
 					order = order(),
-					name = L["鼠标提示增强"]..L["|cffffd200版本: "]..Icetip.vesion.."|r",
+					name = L["Icetip"]..L["|cffffd200Version: "]..Icetip.vesion.."|r",
 				},
 				general = {
 					type = "group",
-					name = L["样式设定"],
-					desc = L["鼠标提示样式设定"],
+					name = L["Style Setting"],
+					desc = L["Tooltip's style setting"],
 					order = order(),
 					args = {
 						tot = {
 							type = "toggle",
 							order = order(),
-							name = L["启用显示目标的目标"],
-							desc = L["显示鼠标目标的目标"],
+							name = L["Toggle show target of target"],
+							desc = L["Enable/Disable show target of target"],
 							width = "full",
 							get = function() return db["mousetarget"].showTarget end,
 							set = function(_, v)
@@ -99,9 +99,9 @@ local function CreateOption()
 						showtalent = {
 							type = "toggle",
 							order = order(),
-							name = L["启用显示目标的天赋"],
+							name = L["Toggle show target's talent"],
 							width = "full",
-							desc = L["显示目标的天赋"],
+							desc = L["Enable/Disable show target's talent"],
 							get = function() return db["mousetarget"].showTalent end,
 							set = function(_, v)
 								db["mousetarget"].showTalent = v
@@ -110,16 +110,16 @@ local function CreateOption()
 						itemborder = {
 							type = "toggle",
 							order = order(),
-							name = L["物品提示边框着色"],
-							desc = L["当查看一件物品时, 提示边框会以当前物品的材质着色"],
+							name = L["Colored up item tooltip border"],
+							desc = L["When you see a item, tooltip colored up by item's quality color"],
 							get = function() return db.itemQBorder end,
 							set = function(_, v) db.itemQBorder = v end,
 						},
 						showfaction = {
 							type = "toggle",
 							order = order(),
-							name = L["显示目标声望信息"],
-							desc = L["显示目标NPC与你之间的声望信息"],
+							name = L["Toggle show npc's faction"],
+							desc = L["Enable/Disable show npc's reputation infomation with you"],
 							get = function() return db["mousetarget"].showFaction end,
 							set = function(_, v)
 								db["mousetarget"].showFaction = v
@@ -128,15 +128,15 @@ local function CreateOption()
 						tooltipBG = {
 							type = "group",
 							order = order(),
-							name = "鼠标提示样式",
-							desc = "设定鼠标提示样式",
+							name = L["Tooltip's style setting"],
+							desc = L["Set tooltip's style"],
 							inline = true,
 							args = {
 								bgtexture = {
 									type = "select",
 									dialogControl = "LSM30_Background",
 									order = order(),
-									name = L["鼠标提示背景材质"],
+									name = L["Tooltip background texture"],
 									desc = L["设定鼠标提示背景材质.\n\n注意：你可能要更改背景颜色为白色才可以使得部分背景看起来正常。"],
 									values = AceGUIWidgetLSMlists.background,
 									get = function() return db["tooltipStyle"].bgTexture end,

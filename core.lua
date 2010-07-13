@@ -13,7 +13,6 @@ Icetip.vesion = 3.33
 Icetip.revision = tonumber(("$Revision: 3295 $"):match("%d+"));
 local modules = {};
 Icetip.modules = modules;
-local L = LibStub("AceLocale-3.0"):GetLocale("Icetip");
 local SM = LibStub("LibSharedMedia-3.0")
 local tooltips = {
         GameTooltip,

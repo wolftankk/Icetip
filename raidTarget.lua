@@ -3,7 +3,6 @@ assert(Icetip, "没有找到Icetip!");
 local Icetip = _G.Icetip;
 local mod = Icetip:NewModule("RaidTarget");
 local db
-local L = LibStub("AceLocale-3.0"):GetLocale("Icetip")
 local raidTargetIcon
 
 function mod:OnEnable()

@@ -3,7 +3,6 @@ assert(Icetip, "can't find Icetip!");
 local mod = Icetip:NewModule("PowerBar");
 local db
 local SM = LibStub("LibSharedMedia-3.0")
-local L = LibStub("AceLocale-3.0"):GetLocale("Icetip")
 local format = string.format
 local powerbar, pbtext;
 
