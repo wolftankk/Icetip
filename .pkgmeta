@@ -1,4 +1,4 @@
-package-as: CooldownTimers3
+package-as: Icetip
 
 externals:
         Libs/LibStub: svn://svn.wowace.com/wow/ace3/mainline/trunk/LibStub
