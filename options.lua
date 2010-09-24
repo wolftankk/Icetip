@@ -119,7 +119,7 @@ local function CreateOption()
 							type = "toggle",
 							order = order(),
 							name = L["Toggle show npc's faction"],
-							desc = L["Enable/Disable show npc's reputation infomation with you"],
+							desc = L["Enable/Disable to show a npc's reputation information between you"],
 							get = function() return db["mousetarget"].showFaction end,
 							set = function(_, v)
 								db["mousetarget"].showFaction = v
@@ -136,8 +136,8 @@ local function CreateOption()
 									type = "select",
 									dialogControl = "LSM30_Background",
 									order = order(),
-									name = L["Tooltip background texture"],
-									desc = L["设定鼠标提示背景材质.\n\n注意：你可能要更改背景颜色为白色才可以使得部分背景看起来正常。"],
+									name = L["Tooltip's background texture"],
+									desc = L["Set tooltip's background texture.\n\n\Note: Change the background-color to white that you can make some background seems fine."],
 									values = AceGUIWidgetLSMlists.background,
 									get = function() return db["tooltipStyle"].bgTexture end,
 									set = function(_, v)
@@ -149,8 +149,8 @@ local function CreateOption()
 									type = "select",
 									dialogControl = "LSM30_Border",
 									order = order(),
-									name = L["鼠标提示边框材质"],
-									desc = L["设定鼠标提示边框材质.\n\n注意：你可能要更改背景颜色为白色才可以使边框着色正常功能。"],
+									name = L["Tooltip's border texture"],
+									desc = L["Set Tooltip's border texture.\n\nNote: Change the background-color to white that you can make some background seems fine."],
 									values = AceGUIWidgetLSMlists.border,
 									get = function() return db["tooltipStyle"].borderTexture end,
 									set = function(_, v)
@@ -161,8 +161,8 @@ local function CreateOption()
 								bgcolor = {
 									type = "toggle",
 									order = order(),
-									name = L["自定义背景颜色"],
-									desc = L["启用/禁用自定义背景颜色"],
+									name = L["Toggle Custom background color"],
+									desc = L["Enable/Disable custom background color"],
 									get = function() return db["tooltipStyle"].customColor end,
 									set = function(_, v)
 										db["tooltipStyle"].customColor = v
@@ -171,8 +171,8 @@ local function CreateOption()
 								bordercolor = {
 									type = "color",
 									order = order(),
-									name = L["边框颜色"],
-									desc = L["鼠标提示框边框颜色"],
+									name = L["Border color"],
+									desc = L["Set the border color of tooltip"],
 									hasAlpha = true,
 									get = function() return db.border_color.r, db.border_color.g, db.border_color.b, db.border_color.a end,
 									set = function(_, r, g, b, a)
@@ -182,8 +182,8 @@ local function CreateOption()
 								tile = {
 									type = "toggle",
 									order = order(),
-									name = L["背景拼贴"],
-									desc = L["背景材质拼贴"],
+									name = L["Background tile"],
+									desc = L["set backgound texture tile"],
 									get = function() return db["tooltipStyle"].tile end,
 									set = function(_, v)
 										db["tooltipStyle"].tile = v
@@ -193,8 +193,8 @@ local function CreateOption()
 								tilesize = {
 									type = "range",
 									order = order(),
-									name = L["背景材质拼贴尺寸"],
-									desc = L["设定背景材质拼贴尺寸"],
+									name = L["Size of backgroud texture tile"],
+									desc = L["Set the size of backgroud texture tile"],
 									min = 4,
 									max = 256,
 									step = 1,
@@ -208,8 +208,8 @@ local function CreateOption()
 								edgesize = {
 									type = "range",
 									order = order(),
-									name = L["边框厚度"],
-									desc = L["设定鼠标提示边框厚度"],
+									name = L["Border edge"],
+									desc = L["set the border edge of tooltip"],
 									min = 8,
 									max = 32,
 									step = 1,
@@ -222,8 +222,8 @@ local function CreateOption()
 								tooltipScale = {
 									type = "range",
 									order = order(),
-									name = L["显示比例"],
-									desc = L["鼠标提示框显示比例"],
+									name = L["Show the scale"],
+									desc = L["Show the size of sazle of tooltip"],
 									min = 0,
 									max = 2,
 									isPercent = true,
