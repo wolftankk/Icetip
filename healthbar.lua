@@ -1,5 +1,4 @@
-assert(Icetip, "can't find Icetip!");
-
+local _, Icetip = ...
 local mod = Icetip:NewModule("HealthBar");
 local db
 local GameTooltipStatusBar = _G.GameTooltipStatusBar

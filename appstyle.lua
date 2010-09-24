@@ -1,5 +1,4 @@
-assert(Icetip, "can't find Icetip");
-local Icetip = _G.Icetip;
+local _, Icetip = ...
 local SM = LibStub("LibSharedMedia-3.0");
 local Appstyle = Icetip:NewModule("Appstyle");
 

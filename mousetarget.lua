@@ -1,6 +1,4 @@
-assert(Icetip, "Icetip没有找到!");
-
-local Icetip = _G.Icetip
+local _, Icetip = ...
 local mod = Icetip:NewModule("MouseTarget");
 local db
 local GameTooltipStatusBar = _G.GameTooltipStatusBar

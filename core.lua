@@ -1,19 +1,20 @@
 ------------------------------------------------
 --Icetip
---描述: wow提示增强插件.
---作者: 月色狼影
+--Description: wow tooltip
+--Author: 月色狼影@cwdg
 --$Rev: 3295 $
 --$Id: core.lua 3295 2010-07-12 03:16:20Z 月色狼影 $
 ------------------------------------------------
-local Icetip = CreateFrame("Frame");
+local _, Icetip = ...
+Icetip.frame = CreateFrame("Frame");
 Icetip = LibStub("AceHook-3.0"):Embed(Icetip);
 Icetip = LibStub("AceTimer-3.0"):Embed(Icetip);
-_G.Icetip = Icetip
-Icetip.vesion = 3.33
+Icetip.vesion = 3.35
 Icetip.revision = tonumber(("$Revision: 3295 $"):match("%d+"));
 local modules = {};
 Icetip.modules = modules;
 local SM = LibStub("LibSharedMedia-3.0")
+
 local tooltips = {
         GameTooltip,
         ItemRefTooltip,
@@ -195,13 +196,14 @@ function Icetip:GetModules()
 end
 
 ----------------------------------------------------------------
---- *** --------------------------------------------------------
+--- init addon  --------------------------------------------------------
 ----------------------------------------------------------------
 
-function Icetip:OnInitialize(event, addon)
-        SM:Register("border", "Blank", [[Interface\AddOns\Wowshell_Icetip\media\blank.tga]]);
-        SM:Register("background", "Blank", [[Interface\AddOns\Wowshell_Icetip\media\blank.tga]]);
-        if event == "ADDON_LOADED" and addon == "Wowshell_Icetip" then
+function Icetip:OnInitialize(event, ...)
+        local addon = ...;
+        if event == "ADDON_LOADED" and addon == "Icetip" then
+            SM:Register("border", "Blank", [[Interface\AddOns\Icetip\media\blank.tga]]);
+            SM:Register("background", "Blank", [[Interface\AddOns\Icetip\media\blank.tga]]);
             if IcetipDB == nil or not next(IcetipDB) or not IcetipDB.vesion then
               IcetipDB = self:GetDefaultConfig()
               IcetipDB.vesion = tonumber(self.vesion);
@@ -213,9 +215,9 @@ function Icetip:OnInitialize(event, addon)
             --IcetipDB = self:GetDefaultConfig()
             self.db = IcetipDB
 	elseif event == "PLAYER_LOGIN" then
-		self:OnEnable()
+	    self:OnEnable()
 	elseif event == "CURSOR_UPDATE" then
-		self:CURSOR_UPDATE();
+	    self:CURSOR_UPDATE();
 	end
 end
 
@@ -254,7 +256,7 @@ function Icetip:OnEnable()
 			previousDead = nil
 		end
 	end, 0.05)
-	self:RegisterEvent("CURSOR_UPDATE")
+	self.frame:RegisterEvent("CURSOR_UPDATE")
 end
 
 local forgetNextOnTooltipMethod = false
@@ -630,6 +632,8 @@ function Icetip:CURSOR_UPDATE(...)
 end
 
 --method
-Icetip:RegisterEvent("ADDON_LOADED")
-Icetip:RegisterEvent("PLAYER_LOGIN")
-Icetip:SetScript("OnEvent", Icetip.OnInitialize)
+Icetip.frmae:RegisterEvent("ADDON_LOADED")
+Icetip.frame:RegisterEvent("PLAYER_LOGIN")
+Icetip.frame:SetScript("OnEvent", function(self, event, ...)
+    Icetip:OnInitialize(event, ...)
+end)

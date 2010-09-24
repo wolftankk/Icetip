@@ -1,5 +1,5 @@
-assert(Icetip, "Cant't find Icetip")
-local Icetip = _G.Icetip
+local _, Icetip = ...
+
 local SM = LibStub("LibSharedMedia-3.0");
 local L = LibStub("AceLocale-3.0"):GetLocale("Icetip")
 local optionFrame = Icetip:NewModule("OptionFrame") 

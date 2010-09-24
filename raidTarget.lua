@@ -1,6 +1,5 @@
-assert(Icetip, "没有找到Icetip!");
+local _, Icetip = ...
 
-local Icetip = _G.Icetip;
 local mod = Icetip:NewModule("RaidTarget");
 local db
 local raidTargetIcon

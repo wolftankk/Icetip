@@ -1,4 +1,4 @@
-assert(Icetip, "can't find Icetip!");
+local _, Icetip = ...
 
 local mod = Icetip:NewModule("PowerBar");
 local db
