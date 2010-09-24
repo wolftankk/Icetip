@@ -19,7 +19,6 @@ locale\enUS.lua
 locale\zhCN.lua
 locale\zhTW.lua
 
-
 core.lua
 appstyle.lua
 healthbar.lua

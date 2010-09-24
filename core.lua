@@ -26,108 +26,105 @@ local tooltips = {
         BNToastFrame.tooltip
 }
 --db
-local options
 function Icetip:GetDefaultConfig()
-	if not options then
-		options = {
-			--main func
-			scale = 1,
-			bgColor = {
-				guild = {0, 0.15, 0, 1},
-				faction = {0.25, 0.25, 0, 1},
-				hostilePC = {0.25, 0, 0, 1},
-				hostileNPC = {0.15, 0, 0, 1},
-				neutralNPC = {0.15, 0.15, 0, 1},
-				friendlyPC = {0, 0, 0.25, 1},
-				friendlyNPC = {0, 0, 0.15, 1},
-				other = {0, 0, 0, 1},
-				dead = {0.15, 0.15, 0.15, 1},
-				tapped = {0.25, 0.25, 0.25, 1},
-			},
-			--默认
-			border_color = {
-				r = 1,
-				g = 1,
-				b = 1,
-				a = 1,
-			},
-			--style
-			tooltipStyle = {
-				bgTexture = "Blizzard Tooltip",
-				borderTexture = "Blizzard Tooltip",
-				tile = false,
-				tileSize = 8,
-				EdgeSize = 16,
-				customColor = true,
-			},
-			itemQBorder = true,--物品材质框
-			--鼠标提示位置设定
-			setAnchor = {
-				unitAnchor = "CURSOR_BOTTOM",
-				unitOffsetX = 0,
-				unitOffsetY = 0,
-				frameAnchor = "BOTTOMRIGHT",
-				frameOffsetX = -93,
-				frameOffsetY = 110,
-			},
-			--渐隐
-			tooltipFade = {
-				units = "hide",
-				objects ="fade",
-				unitFrames = "fade",
-				otherFrames = "hide",
-			},
-			--healthbar
-			healthbar = {
-				texture = "Blizzard",
-				size = 5,
-				position = "BOTTOM",
-				enable = true,
+        local preconfig = {
+                --main func
+                scale = 1,
+                bgColor = {
+                        guild = {0, 0.15, 0, 1},
+                        faction = {0.25, 0.25, 0, 1},
+                        hostilePC = {0.25, 0, 0, 1},
+                        hostileNPC = {0.15, 0, 0, 1},
+                        neutralNPC = {0.15, 0.15, 0, 1},
+                        friendlyPC = {0, 0, 0.25, 1},
+                        friendlyNPC = {0, 0, 0.15, 1},
+                        other = {0, 0, 0, 1},
+                        dead = {0.15, 0.15, 0.15, 1},
+                        tapped = {0.25, 0.25, 0.25, 1},
+                },
+                --默认
+                border_color = {
+                        r = 1,
+                        g = 1,
+                        b = 1,
+                        a = 1,
+                },
+                --style
+                tooltipStyle = {
+                        bgTexture = "Blizzard Tooltip",
+                        borderTexture = "Blizzard Tooltip",
+                        tile = false,
+                        tileSize = 8,
+                        EdgeSize = 16,
+                        customColor = true,
+                },
+                itemQBorder = true,--物品材质框
+                --鼠标提示位置设定
+                setAnchor = {
+                        unitAnchor = "CURSOR_BOTTOM",
+                        unitOffsetX = 0,
+                        unitOffsetY = 0,
+                        frameAnchor = "BOTTOMRIGHT",
+                        frameOffsetX = -93,
+                        frameOffsetY = 110,
+                },
+                --渐隐
+                tooltipFade = {
+                        units = "hide",
+                        objects ="fade",
+                        unitFrames = "fade",
+                        otherFrames = "hide",
+                },
+                --healthbar
+                healthbar = {
+                        texture = "Blizzard",
+                        size = 5,
+                        position = "BOTTOM",
+                        enable = true,
 
-				showText = false,
-				font = "Friz Quadrata TT",
-				fontSize = 9,
-				fontflag = "Outline",
-				style = "number",--数值, 百分比, 数值(百分比)
-			},
-			powerbar = {
-				texture = "Blizzard",
-				size = 5,
-				position = "BOTTOM",
-				enable = true,
+                        showText = false,
+                        font = "Friz Quadrata TT",
+                        fontSize = 9,
+                        fontflag = "Outline",
+                        style = "number",--数值, 百分比, 数值(百分比)
+                },
+                powerbar = {
+                        texture = "Blizzard",
+                        size = 5,
+                        position = "BOTTOM",
+                        enable = true,
 
-				showText = false,
-				font = "Friz Quadrata TT",
-				fontSize = 9,
-				fontflag = "Outline",
-				style = "number",--数值, 百分比, 数值(百分比) number, percent, pernumber
-			},
-			--mouse
-			mousetarget = {
-				showTalent = true,
-				showTarget = true,
-				showFaction = true,
-				showServer = true,
-				SGuildColor = {
-					r = 0.9,
-					g = 0.45,
-					b = 0.7,
-				},
-				DGuildColor = {
-					r = 0.8,
-					g = 0.8,
-					b = 0.8,
-				}
-			},
-			--raid target
-			raidtarget = {
-				enable = false,
-				position = "TOP",
-				size = 20,
-			},
-		}
-	end
-	return options
+                        showText = false,
+                        font = "Friz Quadrata TT",
+                        fontSize = 9,
+                        fontflag = "Outline",
+                        style = "number",--数值, 百分比, 数值(百分比) number, percent, pernumber
+                },
+                --mouse
+                mousetarget = {
+                        showTalent = true,
+                        showTarget = true,
+                        showFaction = true,
+                        showServer = true,
+                        SGuildColor = {
+                                r = 0.9,
+                                g = 0.45,
+                                b = 0.7,
+                        },
+                        DGuildColor = {
+                                r = 0.8,
+                                g = 0.8,
+                                b = 0.8,
+                        }
+                },
+                --raid target
+                raidtarget = {
+                        enable = false,
+                        position = "TOP",
+                        size = 20,
+                },
+        }
+	return preconfig
 end
 
 local function ItemQualityBorder()
@@ -199,26 +196,19 @@ end
 --- init addon  --------------------------------------------------------
 ----------------------------------------------------------------
 
-function Icetip:OnInitialize(event, ...)
-        local addon = ...;
-        if event == "ADDON_LOADED" and addon == "Icetip" then
-            SM:Register("border", "Blank", [[Interface\AddOns\Icetip\media\blank.tga]]);
-            SM:Register("background", "Blank", [[Interface\AddOns\Icetip\media\blank.tga]]);
-            if IcetipDB == nil or not next(IcetipDB) or not IcetipDB.vesion then
-              IcetipDB = self:GetDefaultConfig()
-              IcetipDB.vesion = tonumber(self.vesion);
-            end
-            if tonumber(IcetipDB.vesion) < tonumber(Icetip.vesion) then
-              IcetipDB = self:GetDefaultConfig()
-              IcetipDB.vesion = tonumber(self.vesion);
-            end
-            --IcetipDB = self:GetDefaultConfig()
-            self.db = IcetipDB
-	elseif event == "PLAYER_LOGIN" then
-	    self:OnEnable()
-	elseif event == "CURSOR_UPDATE" then
-	    self:CURSOR_UPDATE();
-	end
+function Icetip:OnInitialize()
+        SM:Register("border", "Blank", [[Interface\AddOns\Icetip\media\blank.tga]]);
+        SM:Register("background", "Blank", [[Interface\AddOns\Icetip\media\blank.tga]]);
+        if IcetipDB == nil or not next(IcetipDB) or not IcetipDB.vesion then
+          IcetipDB = self:GetDefaultConfig()
+          IcetipDB.vesion = tonumber(self.vesion);
+        end
+        if tonumber(IcetipDB.vesion) < tonumber(Icetip.vesion) then
+          IcetipDB = self:GetDefaultConfig()
+          IcetipDB.vesion = tonumber(self.vesion);
+        end
+        --IcetipDB = self:GetDefaultConfig()
+        self.db = IcetipDB
 end
 
 function Icetip:OnEnable()
@@ -635,5 +625,12 @@ end
 Icetip.frmae:RegisterEvent("ADDON_LOADED")
 Icetip.frame:RegisterEvent("PLAYER_LOGIN")
 Icetip.frame:SetScript("OnEvent", function(self, event, ...)
-    Icetip:OnInitialize(event, ...)
+    local addon = ...;
+    if event == "ADDON_LOADED" and addon == "Icetip" then
+        Icetip:OnInitialize(...)
+    elseif event == "PLAYER_LOGIN" then
+        Icetip:OnEnable();
+    else
+        Icetip[event](Icetip, event, ...)
+    end
 end)
