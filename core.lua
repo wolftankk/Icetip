@@ -235,7 +235,7 @@ function Icetip:OnEnable()
 			previousDead = nil
 		end
 	end, 0.05)
-	self.frame:RegisterEvent("CURSOR_UPDATE")
+	self:RegisterEvent("CURSOR_UPDATE")
 end
 
 local forgetNextOnTooltipMethod = false
