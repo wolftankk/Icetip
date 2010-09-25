@@ -241,7 +241,7 @@ end
 local forgetNextOnTooltipMethod = false
 
 --update db
-function Icetip:PorfileChanged(db)
+function Icetip:ProfileChanged(db)
 	
 end
 
@@ -360,10 +360,10 @@ end
 function Icetip:GameTooltip_OnShow(tooltip, ...)
         modules["Appstyle"]:Tooltip_OnShow(tooltip, ...);
         --Icetip.Appstyle:Tooltip_OnShow(tooltip, ...)
-	if IcetipDB.itemQBorder and tooltip:GetItem() then
+	if self.db.itemQBorder and tooltip:GetItem() then
 		ItemQualityBorder()
         else
-		tooltip:SetBackdropBorderColor(IcetipDB["border_color"].r, IcetipDB["border_color"].g, IcetipDB["border_color"].b, IcetipDB["border_color"].a);
+		tooltip:SetBackdropBorderColor(self.db["border_color"].r, self.db["border_color"].g, self.db["border_color"].b, self.db["border_color"].a);
 	end
 
 	if tooltip:GetUnit() then
@@ -379,10 +379,10 @@ function Icetip:GameTooltip_OnShow(tooltip, ...)
 	elseif tooltip:GetSpell() then
 
 	end
-	if IcetipDB["tooltipStyle"].customColor then
+	if self.db["tooltipStyle"].customColor then
 		self:SetBackgroundColor()
 	end
-	self:SetTooltipScale(nil, IcetipDB.scale)
+	self:SetTooltipScale(nil, self.db.scale)
 
 	self.hooks[tooltip].OnShow(tooltip, ...)
 	self:OnTooltipShow();
@@ -554,7 +554,7 @@ local function checkAlphaFrame()
 	if GameTooltip:GetAlpha() < 1 then
 		Icetip:CancelTimer(Icetip_Fade_checkUnitExistance, true)
 		local kind
-		local db = IcetipDB["tooltipFade"]
+		local db = self.db["tooltipFade"]
 		if GameTooltip:IsOwned(UIParent) then
 			kind = db.objects
 		else
@@ -592,7 +592,7 @@ function Icetip:OnTooltipSetUnit()
 end
 
 local function runHide()
-	local db = IcetipDB["tooltipFade"]
+	local db = self.db["tooltipFade"]
 	if db.objects == "fade" then
 		GameTooltip:FadeOut()
 	else
