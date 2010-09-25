@@ -825,34 +825,11 @@ local function CreateOption()
 						},
 					},
 				},
-				profile = {
-					type = "group",
-					order = order(),
-					name = L["配置文件"],
-					desc = L["管理配置文件, 你可以重置, 复制等工作"],
-					args = {
-						desc = {
-							type = "description",
-							order = order(),
-							name = L[""],
-						},
-						resetButton = {
-							type = "execute",
-							order = order(),
-							name = L["重置"],
-							desc = L["点击重置Icetip鼠标提示配置\n\n需要重载界面"],
-							func = function()
-								local db = Icetip:GetDefaultConfig()
-								IcetipDB = nil
-								IcetipDB = {}
-								IcetipDB = db
-								ReloadUI()
-							end
-						},
-					},
-				},
 			},
 		}
+
+                options.args.profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(db);
+                options.args.profile.order = 9999;
 	end
 
 	return options
@@ -868,6 +845,7 @@ function optionFrame:OnEnable()
 	SLASH_ICETIP1 = "/icetip";
 
 	--register wowshell
+        --[[
 	if wsRegisterOption then
 		wsRegisterOption(
 			"Others",
@@ -967,4 +945,5 @@ function optionFrame:OnEnable()
 			10
 		);
 	end
+        ]]
 end
