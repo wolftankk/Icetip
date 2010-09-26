@@ -827,8 +827,8 @@ local function CreateOption()
 			},
 		}
 
-                options.args.profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(db);
-                options.args.profile.order = 9999;
+		options.args.profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(Icetip.acedb);
+		options.args.profile.order = 9999;
 	end
 
 	return options

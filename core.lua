@@ -193,10 +193,11 @@ end
 function Icetip:OnInitialize()
         SM:Register("border", "Blank", [[Interface\AddOns\Icetip\media\blank.tga]]);
         SM:Register("background", "Blank", [[Interface\AddOns\Icetip\media\blank.tga]]);
-        local db = LibStub("AceDB-3.0"):New("IcetipDB", default, true);
+        local db = LibStub("AceDB-3.0"):New("IcetipDB", default, "Default");
         db.RegisterCallback(self, "OnProfileChanged", "ProfileChanged");
         db.RegisterCallback(self, "OnProfileCopied", "ProfileChanged");
         db.RegisterCallback(self, "OnProfileReset", "ProfileChanged");
+		self.acedb = db;
         self.db = db.profile;
 end
 
