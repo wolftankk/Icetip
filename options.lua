@@ -56,8 +56,8 @@ local anchorType = {
 local barPosition = {
 	["TOP"] = L["Tooltip Top"],
 	["BOTTOM"] = L["Tooltip Bottom"],
-	--["LEFT"] = L["鼠标左边"],
-	--["RIGHT"] = L["鼠标右边"],
+	--["LEFT"] = L["Tooltip Left"],
+	--["RIGHT"] = L["Tooltip Right"],
 }
 
 local bartextStyle = {
@@ -81,8 +81,8 @@ local function CreateOption()
 				},
 				general = {
 					type = "group",
-					name = L["Style Setting"],
-					desc = L["Tooltip's style setting"],
+					name = L["General"],
+					desc = L["Change how the tooltip appearance in grneral."],
 					order = order(),
 					args = {
 						tot = {
@@ -110,15 +110,15 @@ local function CreateOption()
 						itemborder = {
 							type = "toggle",
 							order = order(),
-							name = L["Colored up item tooltip border"],
-							desc = L["When you see a item, tooltip colored up by item's quality color"],
+							name = L["Colored tooltip border"],
+							desc = L["When you watch a item, colored tooltip by item's quality color"],
 							get = function() return db.itemQBorder end,
 							set = function(_, v) db.itemQBorder = v end,
 						},
 						showfaction = {
 							type = "toggle",
 							order = order(),
-							name = L["Toggle show npc's faction"],
+							name = L["Toggle show npc faction"],
 							desc = L["Enable/Disable to show a npc's reputation information between you"],
 							get = function() return db["mousetarget"].showFaction end,
 							set = function(_, v)
@@ -128,16 +128,16 @@ local function CreateOption()
 						tooltipBG = {
 							type = "group",
 							order = order(),
-							name = L["Tooltip's style setting"],
-							desc = L["Set tooltip's style"],
+							name = L["Tooltip's style configure"],
+							desc = L["Sets the tooltip's style"],
 							inline = true,
 							args = {
 								bgtexture = {
 									type = "select",
 									dialogControl = "LSM30_Background",
 									order = order(),
-									name = L["Tooltip's background texture"],
-									desc = L["Set tooltip's background texture.\n\n\Note: Change the background-color to white that you can make some background seems fine."],
+									name = L["Background style"],
+									desc = L["Change the background texture.\n\n\Note:You may need to change the Background color to white to see some of the backgrounds properly."],
 									values = AceGUIWidgetLSMlists.background,
 									get = function() return db["tooltipStyle"].bgTexture end,
 									set = function(_, v)
@@ -149,8 +149,8 @@ local function CreateOption()
 									type = "select",
 									dialogControl = "LSM30_Border",
 									order = order(),
-									name = L["Tooltip's border texture"],
-									desc = L["Set Tooltip's border texture.\n\nNote: Change the background-color to white that you can make some background seems fine."],
+									name = L["Border style"],
+									desc = L["Change the border texture.\n\nNote: You may need to change the Background color to white to see some of the backgrounds properly."],
 									values = AceGUIWidgetLSMlists.border,
 									get = function() return db["tooltipStyle"].borderTexture end,
 									set = function(_, v)
@@ -161,7 +161,7 @@ local function CreateOption()
 								bgcolor = {
 									type = "toggle",
 									order = order(),
-									name = L["Toggle Custom background color"],
+									name = L["Toggle custom background color"],
 									desc = L["Enable/Disable custom background color"],
 									get = function() return db["tooltipStyle"].customColor end,
 									set = function(_, v)
@@ -172,7 +172,7 @@ local function CreateOption()
 									type = "color",
 									order = order(),
 									name = L["Border color"],
-									desc = L["Set the border color of tooltip"],
+									desc = L["Sets what color the tooltip's border is."],
 									hasAlpha = true,
 									get = function() return db.border_color.r, db.border_color.g, db.border_color.b, db.border_color.a end,
 									set = function(_, r, g, b, a)
@@ -183,7 +183,7 @@ local function CreateOption()
 									type = "toggle",
 									order = order(),
 									name = L["Background tile"],
-									desc = L["set backgound texture tile"],
+									desc = L["Sets what texture tile the tooltip's background is."],
 									get = function() return db["tooltipStyle"].tile end,
 									set = function(_, v)
 										db["tooltipStyle"].tile = v
@@ -193,8 +193,8 @@ local function CreateOption()
 								tilesize = {
 									type = "range",
 									order = order(),
-									name = L["Size of backgroud texture tile"],
-									desc = L["Set the size of backgroud texture tile"],
+									name = L["Tile size"],
+									desc = L["Sets what size the tooltip's backgroud texture tile"],
 									min = 4,
 									max = 256,
 									step = 1,
@@ -208,8 +208,8 @@ local function CreateOption()
 								edgesize = {
 									type = "range",
 									order = order(),
-									name = L["Border edge"],
-									desc = L["set the border edge of tooltip"],
+									name = L["Border size"],
+									desc = L["The size the border takes up."],
 									min = 8,
 									max = 32,
 									step = 1,
@@ -222,8 +222,8 @@ local function CreateOption()
 								tooltipScale = {
 									type = "range",
 									order = order(),
-									name = L["Show the scale"],
-									desc = L["Show the size of sazle of tooltip"],
+									name = L["Scale"],
+									desc = L["Set how large the tooltip is."],
 									min = 0,
 									max = 2,
 									isPercent = true,
@@ -236,15 +236,15 @@ local function CreateOption()
 						fadeout = {
 							type = "group",
 							inline = true,
-							name = L["提示框消失设定"],
-							desc = L["设定提示信息框消失的形式"],
+							name = L["Fadeout configure"],
+							desc = L["Change how the tooltip fades."],
 							order = order(),
 							args = {
 								unit = {
 									type = "select",
 									order = order(),
-									name = L["世界单位"],
-									desc = L["世界中其他玩家或者NPC的提示信息消失的形式"],
+									name = L["World units"],
+									desc = L["What kind of fade to use for world units (other players, NPC in the world, etc.)"],
 									values = hidetype,
 									get = function() return db["tooltipFade"].units end,
 									set = function(_, v)
@@ -254,8 +254,8 @@ local function CreateOption()
 								objframe = {
 									type = "select",
 									order = order(),
-									name = L["世界物品"],
-									desc = L["世界中各种物体, 例如邮箱, 尸体等的提示信息消失的形式"],
+									name = L["World objects"],
+									desc = L["What kind of fade to use for world objects (mailbox, corpse, etc.)"],
 									values = hidetype,
 									get = function() return db["tooltipFade"].objects end,
 									set = function(_, v)
@@ -265,8 +265,8 @@ local function CreateOption()
 								unitframe = {
 									type = "select",
 									order = order(),
-									name = L["对象框架"],
-									desc = L["自己或者队友等的提示信息消失的形式"],
+									name = L["Unit frames"],
+									desc = L["What kind of fade to use for unit frames (myself, target, party member, etc.)"],
 									values = hidetype,
 									get = function() return db["tooltipFade"].unitFrames end,
 									set = function(_, v)
@@ -276,8 +276,8 @@ local function CreateOption()
 								otherframe = {
 									type = "select",
 									order = order(),
-									name = L["非对象框架"],
-									desc = L["法术或者背包内物品等的提示信息消失的形式"],
+									name = L["Non-unit frames"],
+									desc = L["What kind of fade to use for non-unit frames (spells, items, etc.)"],
 									values = hidetype,
 									get = function() return db["tooltipFade"].otherFrames end,
 									set = function(_, v)
@@ -290,25 +290,25 @@ local function CreateOption()
 				},
 				position = {
 					type = "group",
-					name = L["显示位置设定"],
-					desc = L["设置鼠标提示显示位置."],
+					name = L["Position"],
+					desc = L["Change where is the tooltip is showed."],
 					order = order(),
 					args = {
 						header1 = {
 							type = "header",
 							order = order(),
-							name = L["单位鼠标提示位置"],
+							name = L["Unit"],
 						},
 						desc_1 = {
 							type = "description",
-							name = L["鼠标悬停在某对象(例如: Npc, 目标以及玩家)上时的提示信息框的设置"],
+							name = L["Options for unit mouseover tooltips(NPC, target, player, etc.)"],
 							order = order(),
 						},
 						unitAnchor = {
 							type = "select",
 							order = order(),
-							name = L["对象鼠标锚点位置"],
-							desc = L["选择对象鼠标锚点显示位置"],
+							name = L["Anchor"],
+							desc = L["The anchor with which the tooltips are showed."],
 							values = anchorType,
 							get = function() return db["setAnchor"].unitAnchor end,
 							set = function(_, v)
@@ -317,14 +317,14 @@ local function CreateOption()
 						},
 						space_1 = {
 							type = "description",
-							name = L["微调显示位置"],
+							name = L["Sets anchor offset"],
 							order = order(),
 						},
 						unitPosX = {
 							type = "range",
 							order = order(),
-							name = L["调整水平方向位置"],
-							desc = L["调整水平方向显示位置"],
+							name = L["Horizontal offset"],
+							desc = L["Sets offset of the X"],
 							min = tonumber(-(floor(GetScreenWidth()/5 + 0.5) * 5)),
 							max = tonumber(floor(GetScreenWidth()/5 + 0.5) * 5),
 							step = 1,
@@ -336,8 +336,8 @@ local function CreateOption()
 						unitPoxY = {
 							type = "range",
 							order = order(),
-							name = L["调整垂直方向位置"],
-							desc = L["调整垂直方向显示位置"],
+							name = L["Vertical offset"],
+							desc = L["Sets offset of the Y"],
 							min = tonumber(-(floor(GetScreenHeight()/5 + 0.5) * 5)),
 							max = tonumber(floor(GetScreenHeight()/5 + 0.5) * 5),
 							step = 1,
@@ -355,18 +355,18 @@ local function CreateOption()
 						header2 = {
 							type = "header",
 							order = order(),
-							name = L["框体鼠标提示位置"],
+							name = L["Frame"],
 						},
 						desc_2 = {
 							type = "description",
-							name = L["鼠标悬停在某框体(例如: 技能, 玩家头像)上时的提示信息框的设置"],
+							name = L["Options for the frame mouseover tooltips(spells, items, etc.)"],
 							order = order(),
 						},
 						frameAnchor = {
 							type = "select",
 							order = order(),
-							name = L["框体鼠标锚点位置"],
-							desc = L["选择框体鼠标锚点显示位置"],
+							name = L["Anchor"],
+							desc = L["The anchor with which the tooltips are showed."],
 							values = anchorType,
 							get = function() return db["setAnchor"].frameAnchor end,
 							set = function(_, v)
@@ -375,14 +375,14 @@ local function CreateOption()
 						},
 						space_2 = {
 							type = "description",
-							name = L["微调显示位置"],
+							name = L["Sets anchor offset"],
 							order = order(),
 						},
 						framePosX = {
 							type = "range",
 							order = order(),
-							name = L["调整水平方向位置"],
-							desc = L["调整水平方向显示位置"],
+							name = L["Horizontal offset"],
+							desc = L["Sets offset of the X"],
 							min = tonumber(-(floor(GetScreenWidth()/5 + 0.5) * 5)),
 							max = tonumber(floor(GetScreenWidth()/5 + 0.5) * 5),
 							step = 1,
@@ -394,8 +394,8 @@ local function CreateOption()
 						framePoxY = {
 							type = "range",
 							order = order(),
-							name = L["调整垂直方向位置"],
-							desc = L["调整垂直方向显示位置"],
+							name = L["Vertical offset"],
+							desc = L["Sets offset of the Y"],
 							min = tonumber(-(floor(GetScreenHeight()/5 + 0.5) * 5)),
 							max = tonumber(floor(GetScreenHeight()/5 + 0.5) * 5),
 							step = 1,
@@ -414,14 +414,14 @@ local function CreateOption()
 				color = {
 					type = "group",
 					order = order(),
-					name = L["颜色设定"],
-					desc = L["鼠标提示框背景颜色设定"],
+					name = L["Background color"],
+					desc = L["Sets what color the tooltip's background is."],
 					disabled = function() return not db["tooltipStyle"].customColor end,
 					args = {
 						guild = {
 							type = "color",
-							name = L["公会和好友"],
-							desc = L["设置同一公会或好友时鼠标提示背景颜色"],
+							name = L["Guild and friends"],
+							desc = L["Background color for your guildmates and friends."],
 							order = order(),
 							hasAlpha = true,
 							get = function() return unpack(db.bgColor.guild) end,
@@ -432,8 +432,8 @@ local function CreateOption()
 						hostilePC = {
 							type = "color",
 							order = order(),
-							name = L["敌对玩家背景颜色"],
-							desc = L["设置敌对玩家鼠标提示背景颜色"],
+							name = L["Hostile players"],
+							desc = L["Background color for hostile players."],
 							hasAlpha = true,
 							get = function() return unpack(db.bgColor.hostilePC) end,
 							set = function(_, r, g, b, a)
@@ -444,8 +444,8 @@ local function CreateOption()
 							type = "color",
 							order = order(),
 							hasAlpha = true,
-							name = L["敌对NPC背景颜色"],
-							desc = L["敌对NPC背景颜色"],
+							name = L["Hostile NPCs"],
+							desc = L["Background color for hostile NPCs."],
 							get = function() return unpack(db.bgColor.hostileNPC) end,
 							set = function(_, r, g, b, a)
 								db.bgColor.hostileNPC[1], db.bgColor.hostileNPC[2], db.bgColor.hostileNPC[3], db.bgColor.hostileNPC[4] = r,g,b,a
@@ -455,8 +455,8 @@ local function CreateOption()
 							type = "color",
 							order = order(),
 							hasAlpha = true,
-							name = L["中立NPC背景颜色"],
-							desc = L["设置中立NPC鼠标提示背景颜色"],
+							name = L["Neutral NPCs"],
+							desc = L["Background color for neutral NPCs."],
 							get = function() return unpack(db.bgColor.neutralNPC) end,
 							set = function(_, r, g, b, a)
 								db.bgColor.neutralNPC[1], db.bgColor.neutralNPC[2], db.bgColor.neutralNPC[3], db.bgColor.neutralNPC[4] = r,g,b,a
@@ -465,8 +465,8 @@ local function CreateOption()
 						faction = {
 							type = "color",
 							order = order(),
-							name = L["当前正跟踪的阵营"],
-							desc = L["目标如果属于你当前正跟踪的阵营时的背景颜色"],
+							name = L["Currently watched faction"],
+							desc = L["Background color for the currently watched faction."],
 							hasAlpha = true,
 							get = function() return unpack(db.bgColor.faction) end,
 							set = function(_, r, g, b, a)
@@ -476,8 +476,8 @@ local function CreateOption()
 						friendPC = {
 							type = "color",
 							order = order(),
-							name = L["同阵营背景颜色"],
-							desc = L["目标是同阵营鼠标提示背景颜色"],
+							name = L["Friendly players"],
+							desc = L["Background color for the friendly players."],
 							hasAlpha = true,
 							get = function() return unpack(db.bgColor.friendlyPC) end,
 							set = function(_, r, g, b, a)
@@ -487,8 +487,8 @@ local function CreateOption()
 						friendlyNPC = {
 							type = "color",
 							order = order(),
-							name = L["同阵营NPC背景颜色"],
-							desc = L["目标是同阵营NPC鼠标提示背景颜色"],
+							name = L["Friendly NPCs"],
+							desc = L["Background color for the friendly NPCs."],
 							hasAlpha = true,
 							get = function() return unpack(db.bgColor.friendlyNPC) end,
 							set = function(_, r, g, b, a)
@@ -498,8 +498,8 @@ local function CreateOption()
 						other = {
 							type = "color",
 							order = order(),
-							name = L["其他背景颜色"],
-							desc = L["目标属于静态物件时的背景颜色"],
+							name = L["Other"],
+							desc = L["Background color for non-units."],
 							hasAlpha = true,
 							get = function() return unpack(db.bgColor.other) end,
 							set = function(_, r, g, b, a)
@@ -509,8 +509,8 @@ local function CreateOption()
 						dead = {
 							type = "color",
 							order = order(),
-							name = L["目标死亡背景颜色"],
-							desc = L["设置目标死亡鼠标提示背景颜色"],
+							name = L["Dead"],
+							desc = L["Background color for dead units."],
 							hasAlpha = true,
 							get = function() return unpack(db.bgColor.dead) end,
 							set = function(_, r, g, b, a)
@@ -520,8 +520,8 @@ local function CreateOption()
 						tapped = {
 							type = "color",
 							order = order(),
-							name = L["目标被攻击背景颜色"],
-							desc = L["设置目标被攻击鼠标提示背景颜色"],
+							name = L["Tapped"],
+							desc = L["Background color for when a unit is tapped by another."],
 							hasAlpha = true,
 							get = function() return unpack(db.bgColor.tapped) end,
 							set = function(_, r, g, b, a)
@@ -532,14 +532,14 @@ local function CreateOption()
 				},
 				raidIcon = {
 					type = "group",
-					name = L["团队标记"],
-					desc = L["在鼠标提示上显示团队标记"],
+					name = L["Raid target icon"],
+					desc = L["Change how the raid target icon shows."],
 					order = order(),
 					args = {
 						enable = {
 							type = "toggle",
-							name = L["启用团队标记"],
-							desc = L["在鼠标提示上显示目标的团队标记"],
+							name = L["Enable"],
+							desc = L["Toggle show the raid target icon on the tooltip."],
 							order = order(),
 							width = "full",
 							get = function() return db["raidtarget"].enable end,
@@ -548,16 +548,16 @@ local function CreateOption()
 						showPos = {
 							type = "select",
 							order = order(),
-							name = L["设置团队标记显示位置"],
-							desc = L["设定团队标记在鼠标提示上的显示位置"],
-							values = {LEFT = L["鼠标左边"],
-									RIGHT = L["鼠标右边"],
-									TOP = L["鼠标上边"],
-									BOTTOM = L["鼠标下边"],
-									TOPLEFT = L["鼠标左上"],
-									TOPRIGHT = L["鼠标右上"],
-									BOTTOMLEFT = L["鼠标左下"],
-									BOTTOMRIGHT = L["鼠标右下"]},
+							name = L["Position"],
+							desc = L["Position of the raid target icon."],
+							values = {LEFT = L["Left"],
+									RIGHT = L["Right"],
+									TOP = L["Top"],
+									BOTTOM = L["Bottom"],
+									TOPLEFT = L["Top-left"],
+									TOPRIGHT = L["Top-right"],
+									BOTTOMLEFT = L["Bottom-left"],
+									BOTTOMRIGHT = L["Bottom-right"]},
 							disabled = function() return not db["raidtarget"].enable end,
 							get = function() return db["raidtarget"].position end,
 							set = function(_, v)
@@ -567,8 +567,8 @@ local function CreateOption()
 						size = {
 							type = "range",
 							order = order(),
-							name = L["团队标记尺寸"],
-							desc = L["设置团队标记显示的大小"],
+							name = L["Size"],
+							desc = L["Size of the raid target icon."],
 							min = 5,
 							max = 50,
 							step = 1,
@@ -583,21 +583,21 @@ local function CreateOption()
 				statusbar = {
 					type = "group",
 					order =order(),
-					name = L["状态条"],
-					desc = L["设定鼠标提示上的状态条样式"],
+					name = L["Status bar"],
+					desc = L["Options for the tooltip's status bar."],
 					args = {
 						--healbar
 						healbarHeader = {
 							type = "group",
 							order = order(),
-							name = L["血量条设定"],
+							name = L["Health bar"],
 							inline = true,
 							args = {
 								healbar = {
 									type = "toggle",
 									order = order(),
-									name = L["启用血量条"],
-									desc = L["在鼠标提示框上显示鼠标目标的血量条"],
+									name = L["Enable"],
+									desc = L["Toggle the health bar on the tooltip."],
 									get = function() return db["healthbar"].enable end,
 									set = function(_, v)
 										db["healthbar"].enable = v
@@ -608,8 +608,8 @@ local function CreateOption()
 								texture = {
 									type = "select",
 									order = order(),
-									name = L["材质"],
-									desc = L["设定血量条材质"],
+									name = L["Texture"],
+									desc = L["The texture which the health bar uses."],
 									disabled = function() return not db["healthbar"].enable end,
 									dialogControl = "LSM30_Statusbar",
 									values = AceGUIWidgetLSMlists.statusbar,
@@ -622,8 +622,8 @@ local function CreateOption()
 								size = {
 									type = "range",
 									order = order(),
-									name = L["尺寸"],
-									desc = L["设定血量条宽度"],
+									name = L["Size"],
+									desc = L["The size of the health bar"],
 									disabled = function() return not db["healthbar"].enable end,
 									min = 1,
 									max = 20,
@@ -637,8 +637,8 @@ local function CreateOption()
 								position = {
 									type = "select",
 									order = order(),
-									name = L["显示位置"],
-									desc = L["设置血量条显示位置"],
+									name = L["Position"],
+									desc = L["The position of the health bar relative to the tooltip."],
 									disabled = function() return not db["healthbar"].enable end,
 									values = barPosition,
 									get = function() return db["healthbar"].position end,
@@ -651,8 +651,8 @@ local function CreateOption()
 								showhbtext = {
 									type = "toggle",
 									order = order(),
-									name = L["显示状态条文字"],
-									desc = L["在状态条显示具体生命值信息"],
+									name = L["Health bar text"],
+									desc = L["Toggle show the status text on the health bar."],
 									disabled = function() return not db["healthbar"].enable end,
 									get = function() return db["healthbar"].showText end,
 									set = function(_, v)
@@ -662,8 +662,8 @@ local function CreateOption()
 								hbfont = {
 									type = "select",
 									order = order(),
-									name = L["设定字体样式"],
-									desc = L["设置生命条字体样式"],
+									name = L["Font"],
+									desc = L["What font face to use."],
 									disabled = function() return not db["healthbar"].enable end,
 									hidden = function() return not db["healthbar"].showText end,
 									dialogControl = "LSM30_Font",
@@ -677,8 +677,8 @@ local function CreateOption()
 								hbfontsize = {
 									type = "range",
 									order = order(),
-									name = L["字体尺寸"],
-									desc = L["设定生命条字体的尺寸"],
+									name = L["Font size"],
+									desc = L["Change what size is the font."],
 									disabled = function() return not db["healthbar"].enable end,
 									hidden = function() return not db["healthbar"].showText end,
 									min = 8,
@@ -693,8 +693,8 @@ local function CreateOption()
 								hbtextstyle = {
 									type = "select",
 									order = order(),
-									name = L["显示样式"],
-									desc = L["设定文字信息显示的样式"],
+									name = L["Text style"],
+									desc = L["Sets the text style."],
 									disabled = function() return not db["healthbar"].enable end,
 									hidden = function() return not db["healthbar"].showText end,
 									values = bartextStyle,
@@ -708,14 +708,14 @@ local function CreateOption()
 						manabarHeader = {
 							type = "group",
 							order = order(),
-							name = L["能量条设定"],
+							name = L["Power bar"],
 							inline = true,
 							args = {
 								powerbar = {
 									type = "toggle",
 									order = order(),
-									name = L["启用能量条"],
-									desc = L["在鼠标提示框上显示鼠标目标的能量条(法力, 能力, 快乐度, 符文之力, 怒气等)"],
+									name = L["Enable"],
+									desc = L["Toggle the power bar on the tooltip."],
 									get = function() return db["powerbar"].enable end,
 									set = function(_, v)
 										db["powerbar"].enable = v
@@ -726,8 +726,8 @@ local function CreateOption()
 								texture = {
 									type = "select",
 									order = order(),
-									name = L["材质"],
-									desc = L["设定能量条材质"],
+									name = L["Texture"],
+									desc = L["The texture which the power bar uses."],
 									disabled = function() return not db["powerbar"].enable end,
 									dialogControl = "LSM30_Statusbar",
 									values = AceGUIWidgetLSMlists.statusbar,
@@ -740,8 +740,8 @@ local function CreateOption()
 								size = {
 									type = "range",
 									order = order(),
-									name = L["尺寸"],
-									desc = L["设定能量条宽度"],
+									name = L["Size"],
+									desc = L["The size of the power bar."],
 									disabled = function() return not db["powerbar"].enable end,
 									min = 1,
 									max = 20,
@@ -755,8 +755,8 @@ local function CreateOption()
 								position = {
 									type = "select",
 									order = order(),
-									name = L["显示位置"],
-									desc = L["设置能量条显示位置"],
+									name = L["Position"],
+									desc = L["The position of the power bar relative to the tooltip."],
 									disabled = function() return not db["powerbar"].enable end,
 									values = barPosition,
 									get = function() return db["powerbar"].position end,
@@ -765,12 +765,11 @@ local function CreateOption()
 										Icetip_PowerBar:SetBarPoint()
 									end,
 								},
-
-								showhbtext = {
+								showpbtext = {
 									type = "toggle",
 									order = order(),
-									name = L["显示状态条文字"],
-									desc = L["在状态条显示具体生命值信息"],
+									name = L["Power bar text"],
+									desc = L["Show the status text on the power bar."],
 									disabled = function() return not db["powerbar"].enable end,
 									get = function() return db["powerbar"].showText end,
 									set = function(_, v)
@@ -780,8 +779,8 @@ local function CreateOption()
 								pbfont = {
 									type = "select",
 									order = order(),
-									name = L["设定字体样式"],
-									desc = L["设置能量条字体样式"],
+									name = L["Font"],
+									desc = L["What font face to use."],
 									disabled = function() return not db["powerbar"].enable end,
 									hidden = function() return not db["powerbar"].showText end,
 									dialogControl = "LSM30_Font",
@@ -795,8 +794,8 @@ local function CreateOption()
 								pbfontsize = {
 									type = "range",
 									order = order(),
-									name = L["字体尺寸"],
-									desc = L["设定能量条字体的尺寸"],
+									name = L["Font size"],
+									desc = L["Change what size is the font."],
 									disabled = function() return not db["powerbar"].enable end,
 									hidden = function() return not db["powerbar"].showText end,
 									min = 8,
@@ -811,8 +810,8 @@ local function CreateOption()
 								pbtextstyle = {
 									type = "select",
 									order = order(),
-									name = L["显示样式"],
-									desc = L["设定文字信息显示的样式"],
+									name = L["Text style"],
+									desc = L["Sets the text style."],
 									disabled = function() return not db["powerbar"].enable end,
 									hidden = function() return not db["powerbar"].showText end,
 									values = bartextStyle,
