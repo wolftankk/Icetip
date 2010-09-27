@@ -21,10 +21,10 @@ locale\zhCN.lua
 locale\zhTW.lua
 
 core.lua
-appstyle.lua
-healthbar.lua
-powerbar.lua
-mousetarget.lua
-raidTarget.lua
+modules\appstyle.lua
+modules\healthbar.lua
+modules\powerbar.lua
+modules\mousetarget.lua
+modules\raidTarget.lua
 
 options.lua
