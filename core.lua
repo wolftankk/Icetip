@@ -2,13 +2,13 @@
 --Icetip
 --Description: wow tooltip
 --Author: 月色狼影@cwdg
---$Rev: 3295 $
+--$Rev$
 --$Id: core.lua 3295 2010-07-12 03:16:20Z 月色狼影 $
 ------------------------------------------------
 local _, Icetip = ...
 Icetip = LibStub("AceAddon-3.0"):NewAddon(Icetip, "Icetip", "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0");
 Icetip.vesion = 3.35
-Icetip.revision = tonumber(("$Revision: 3295 $"):match("%d+"));
+Icetip.revision = tonumber(("$Revision$"):match("%d+"));
 local modules = {};
 Icetip.modules = modules;
 local SM = LibStub("LibSharedMedia-3.0")
