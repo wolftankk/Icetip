@@ -12,6 +12,8 @@
 ## X-URL: http://cwowaddon.com
 ## SavedVariables: IcetipDB
 ## X-Category: Tooltip
+## X-Min-Interface: 30000
+## X-Max-Interface: 40000
 
 #libs#
 embeds.xml
