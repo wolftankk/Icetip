@@ -38,7 +38,7 @@ local function GetTargetLine(unit)
 end
 
 function mod:SetUnit()
-	local unit = select(2, GameTooltip:GetUnit());
+        local _, unit = GameTooltip:GetUnit();
 	if not Icetip.db["mousetarget"].showTarget then return end
 	if not unit or not GameTooltip:IsVisible() then return end
 
@@ -47,7 +47,7 @@ function mod:SetUnit()
 		return
 	end
 	
-	if unit then
+	if unit and UnitExists(unit) then
 		GameTooltip:AddLine(L["[Target] "]..GetTargetLine(unit.."target"));
 		targetLine = GameTooltip:NumLines()
 	end
