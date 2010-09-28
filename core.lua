@@ -593,7 +593,7 @@ function Icetip:OnTooltipSetUnit()
 end
 
 local function runHide()
-	local db = self.db["tooltipFade"]
+	local db = Icetip.db["tooltipFade"]
 	if db.objects == "fade" then
 		GameTooltip:FadeOut()
 	else

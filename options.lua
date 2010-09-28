@@ -187,7 +187,7 @@ local function CreateOption()
 									get = function() return db["tooltipStyle"].tile end,
 									set = function(_, v)
 										db["tooltipStyle"].tile = v
-										Icetip_Appstyle:UpdateBackdrop()
+										Icetip_AppStyle:UpdateBackdrop()
 									end,
 								},
 								tilesize = {
@@ -202,7 +202,7 @@ local function CreateOption()
 									get = function() return db["tooltipStyle"].tileSize end,
 									set = function(_, v)
 										db["tooltipStyle"].tileSize = v
-										Icetip_Appstyle:UpdateBackdrop()
+										Icetip_AppStyle:UpdateBackdrop()
 									end
 								},
 								edgesize = {
@@ -216,7 +216,7 @@ local function CreateOption()
 									get = function() return db["tooltipStyle"].EdgeSize end,
 									set = function(_, v)
 										db["tooltipStyle"].EdgeSize = v
-										Icetip_Appstyle:UpdateBackdrop()
+										Icetip_AppStyle:UpdateBackdrop()
 									end,
 								},
 								tooltipScale = {
