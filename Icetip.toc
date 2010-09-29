@@ -19,6 +19,12 @@
 embeds.xml
 
 locale\enUS.lua
+locale\frFR.lua
+locale\deDe.lua
+locale\koKR.lua
+locale\esMX.lua
+locale\ruRU.lua
+locale\esES.lua
 locale\zhCN.lua
 locale\zhTW.lua
 
