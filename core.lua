@@ -555,7 +555,7 @@ local function checkAlphaFrame()
 	if GameTooltip:GetAlpha() < 1 then
 		Icetip:CancelTimer(Icetip_Fade_checkUnitExistance, true)
 		local kind
-		local db = self.db["tooltipFade"]
+		local db = Icetip.db["tooltipFade"]
 		if GameTooltip:IsOwned(UIParent) then
 			kind = db.objects
 		else
