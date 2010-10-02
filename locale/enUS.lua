@@ -150,3 +150,5 @@ L["[Target] "] = true
 L["|cffFFAAFF(Rare Boss)|r"] = true
 L["|cffff0000>YOU<|r"] = true
 L["|cffffd200Version: "] = true
+L["Show minimap icon"] = true
+L["Show the icon on the minimap"] = true

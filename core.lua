@@ -11,7 +11,9 @@ Icetip.vesion = 3.35
 Icetip.revision = tonumber(("$Revision$"):match("%d+"));
 local modules = {};
 Icetip.modules = modules;
-local SM = LibStub("LibSharedMedia-3.0")
+local SM = LibStub("LibSharedMedia-3.0");
+local LDB = LibStub("LibDataBroker-1.1", true);
+local icon = LibStub("LibDBIcon-1.0", true);
 local tooltips = {
         GameTooltip,
         ItemRefTooltip,
@@ -25,6 +27,7 @@ local tooltips = {
 local default = {
     profile = {
         scale = 1,
+        minimap = true,
         bgColor = {
                 guild = {0, 0.15, 0, 1},
                 faction = {0.25, 0.25, 0, 1},
@@ -197,8 +200,25 @@ function Icetip:OnInitialize()
         db.RegisterCallback(self, "OnProfileChanged", "ProfileChanged");
         db.RegisterCallback(self, "OnProfileCopied", "ProfileChanged");
         db.RegisterCallback(self, "OnProfileReset", "ProfileChanged");
-		self.acedb = db;
+        self.acedb = db;
         self.db = db.profile;
+        
+        local iceLDB;
+        if LDB then
+            iceldb = LDB:NewDataObject("Icetip", {
+                type = "data source",
+                text = "Icetip",
+                icon = "Interface\\Icons\\achievement_worldevent_brewmaster",
+                OnClick = function()
+                    LibStub("AceConfigDialog-3.0"):SetDefaultSize("Icetip", 650, 580)
+                    LibStub("AceConfigDialog-3.0"):Open("Icetip")
+                end
+            })
+        end
+
+        if icon and iceLDB then
+            icon:Register("Icetip", iceLDB, self.db.minimap);
+        end
 end
 
 function Icetip:OnEnable()

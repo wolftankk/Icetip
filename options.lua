@@ -2,6 +2,7 @@ local _, Icetip = ...
 
 local SM = LibStub("LibSharedMedia-3.0");
 local L = LibStub("AceLocale-3.0"):GetLocale("Icetip")
+local icon = LibStub("LibDBIcon-1.0", true);
 local optionFrame = Icetip:NewModule("OptionFrame") 
 Icetip.OptionFrame = optionFrame
 local config
@@ -85,6 +86,23 @@ local function CreateOption()
 					desc = L["Change how the tooltip appearance in grneral."],
 					order = order(),
 					args = {
+                                                minimap = {
+                                                    type = "toggle",
+                                                    order = order(),
+                                                    name = L["Show minimap icon"],
+                                                    desc = L["Show the icon on the minimap"],
+                                                    get = function()
+                                                        return db.minimap
+                                                    end,
+                                                    set = function(_, v)
+                                                        db.minimap = v;
+                                                        if db.minimap then
+                                                            icon:Show("Icetip");
+                                                        else
+                                                            icon:Hide("Icetip");
+                                                        end
+                                                    end
+                                                },
 						tot = {
 							type = "toggle",
 							order = order(),
