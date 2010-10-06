@@ -92,10 +92,10 @@ local function CreateOption()
                                                     name = L["Show minimap icon"],
                                                     desc = L["Show the icon on the minimap"],
                                                     get = function()
-                                                        return db.minimap
+                                                        return (not db.minimap.hide)
                                                     end,
                                                     set = function(_, v)
-                                                        db.minimap.hide = v;
+                                                        db.minimap.hide = not db.minimap.hide;
                                                         icon:Refresh("Icetip", db.minimap)
                                                     end
                                                 },
