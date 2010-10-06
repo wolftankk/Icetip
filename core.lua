@@ -27,7 +27,9 @@ local tooltips = {
 local default = {
     profile = {
         scale = 1,
-        minimap = true,
+        minimap = {
+            hide = false, 
+        },
         bgColor = {
                 guild = {0, 0.15, 0, 1},
                 faction = {0.25, 0.25, 0, 1},
@@ -205,7 +207,7 @@ function Icetip:OnInitialize()
         
         local iceLDB;
         if LDB then
-            iceldb = LDB:NewDataObject("Icetip", {
+            iceLDB = LDB:NewDataObject("Icetip", {
                 type = "data source",
                 text = "Icetip",
                 icon = "Interface\\Icons\\achievement_worldevent_brewmaster",

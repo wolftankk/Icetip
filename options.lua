@@ -95,12 +95,8 @@ local function CreateOption()
                                                         return db.minimap
                                                     end,
                                                     set = function(_, v)
-                                                        db.minimap = v;
-                                                        if db.minimap then
-                                                            icon:Show("Icetip");
-                                                        else
-                                                            icon:Hide("Icetip");
-                                                        end
+                                                        db.minimap.hide = v;
+                                                        icon:Refresh("Icetip", db.minimap)
                                                     end
                                                 },
 						tot = {
