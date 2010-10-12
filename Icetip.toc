@@ -1,5 +1,4 @@
-﻿## Interface: 30300
-## X-Compatible-With: 40000
+﻿## Interface: 40000
 ## Title: Icetip
 ## Title-zhCN: 鼠标提示增强
 ## Title-zhTW: 滑鼠提示增強
