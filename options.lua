@@ -224,7 +224,7 @@ local function CreateOption()
 									order = order(),
 									name = L["Border size"],
 									desc = L["The size the border takes up."],
-									min = 8,
+									min = 2,
 									max = 32,
 									step = 1,
 									get = function() return db["tooltipStyle"].EdgeSize end,

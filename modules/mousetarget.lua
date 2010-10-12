@@ -267,7 +267,7 @@ function mod:MouseOverInfo(unit)
 	self:SetUnit();
 
         local color = RAID_CLASS_COLORS[select(2, UnitClass(unit))];
-        if db.colorBorderByClass then
+        if db.colorBorderByClass and isPlayer then
             GameTooltip:SetBackdropBorderColor(color.r, color.g, color.b)
         end
 

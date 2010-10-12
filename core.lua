@@ -44,18 +44,18 @@ local default = {
         },
         --默认
         border_color = {
-                r = 1,
-                g = 1,
-                b = 1,
-                a = 1,
+                r = 0,
+                g = 0,
+                b = 0,
+                a = 0,
         },
         --style
         tooltipStyle = {
-                bgTexture = "Blizzard Tooltip",
-                borderTexture = "Blizzard Tooltip",
+                bgTexture = "Blank",
+                borderTexture = "Blank",
                 tile = false,
                 tileSize = 8,
-                EdgeSize = 16,
+                EdgeSize = 2,
                 customColor = true,
         },
         itemQBorder = true,--物品材质框

@@ -57,8 +57,8 @@ function mod:SetBarPoint()
 			powerbar:SetPoint("TOPLEFT", healthbar, "BOTTOMLEFT", 0, -2);
 			powerbar:SetPoint("TOPRIGHT", healthbar, "BOTTOMRIGHT",0, -2);
 		else
-			powerbar:SetPoint("TOPLEFT", GameTooltip, "BOTTOMLEFT", 4, 0);
-			powerbar:SetPoint("TOPRIGHT", GameTooltip, "BOTTOMRIGHT", -4, 0);
+			powerbar:SetPoint("TOPLEFT", GameTooltip, "BOTTOMLEFT", 4, 2);
+			powerbar:SetPoint("TOPRIGHT", GameTooltip, "BOTTOMRIGHT", -4, 2);
 		end
 		powerbar:SetHeight(self.db.size);
 		powerbar:SetOrientation("HORIZONTAL");
