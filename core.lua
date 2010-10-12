@@ -106,6 +106,7 @@ local default = {
                 showTarget = true,
                 showFaction = true,
                 showServer = true,
+                colorBorderByClass = true,
                 SGuildColor = {
                         r = 0.9,
                         g = 0.45,

@@ -266,12 +266,15 @@ function mod:MouseOverInfo(unit)
 	--update target
 	self:SetUnit();
 
+        local color = RAID_CLASS_COLORS[select(2, UnitClass(unit))];
+        if db.colorBorderByClass then
+            GameTooltip:SetBackdropBorderColor(color.r, color.g, color.b)
+        end
+
 	GameTooltip:Show();
 end
 
---传递点数
---天赋最大点数为 61, 71
-local MAX_TALENT_POINT = 71
+local MAX_TALENT_POINT = 36 
 local function ColorTalent(point)
 	local r, g, b
 	local minpoint, maxpoint = 0, MAX_TALENT_POINT
