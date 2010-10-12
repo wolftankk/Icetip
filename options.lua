@@ -99,6 +99,17 @@ local function CreateOption()
                                                         icon:Refresh("Icetip", db.minimap)
                                                     end
                                                 },
+						colorclass = {
+							type = "toggle",
+							order = order(),
+							name = L["Color border by class"],
+							desc = L["Enable/Disable colored the tooltip border by the player's class"],
+							width = "full",
+							get = function() return db["mousetarget"].colorBorderByClass end,
+							set = function(_, v)
+								db["mousetarget"].colorBorderByClass = v
+							end
+						},
 						tot = {
 							type = "toggle",
 							order = order(),

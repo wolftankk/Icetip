@@ -152,3 +152,5 @@ L["|cffff0000>YOU<|r"] = true
 L["|cffffd200Version: "] = true
 L["Show minimap icon"] = true
 L["Show the icon on the minimap"] = true
+L["Color border by class"] = true
+L["Enable/Disable colored the tooltip border by the player's class"] = true
