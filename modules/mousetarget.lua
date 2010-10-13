@@ -84,7 +84,7 @@ function mod:OnTooltipShow()
 end
 
 function mod:OnTooltipHide()
-	self:UnregisterEvent("INSPECT_TALENT_READY");
+	self:UnregisterEvent("INSPECT_READY");
 end
 
 --rgb
@@ -253,13 +253,12 @@ function mod:MouseOverInfo(unit)
 	if isPlayer and db.showTalent and UnitIsConnected(unit) then
 		if UnitLevel(unit) >= 10 then
 			local name = UnitName(unit);
-			mod:RegisterEvent("INSPECT_TALENT_READY");
+			mod:RegisterEvent("INSPECT_READY");
 			--save it
 			if not Icetip_InspectTalent[name] then
 				Icetip_InspectTalent[name] = {}
 			end
 			NotifyInspect(unit)
-			--self:SetScript("OnEvent", Icetip_MouseTarget.INSPECT_TALENT_READY)
 		end
 	end
 
@@ -274,106 +273,118 @@ function mod:MouseOverInfo(unit)
 	GameTooltip:Show();
 end
 
-local MAX_TALENT_POINT = 36 
-local function ColorTalent(point)
-	local r, g, b
-	local minpoint, maxpoint = 0, MAX_TALENT_POINT
-	point = max(0, min(point, MAX_TALENT_POINT));
-	if (maxpoint - minpoint) > 0 then
-		percent = (point - minpoint)/(maxpoint- minpoint)
-	else
-		percent = 0
-	end
-	
-	if percent > 0.5 then
-		r = 0.1 + (((1-percent)*2) * (1-0.1))
-		g = 0.9
-	else
-		r = 1.0
-		g = (0.9) - (0.5-percent)* 2 * (0.9)
-	end
-	local hexColor = format("|cff%2x%2x18", r*255, g*255);
-	return hexColor.."%s|r";
-end
-
-local function TalentSpecName(names, nums, colors)
-	if type(names) ~= "table" then return end
-	if type(nums) ~= "table" then return end
-	if type(colors) ~= "table" then return end
-
-	if nums[1] == 0 and nums[2] == 0 and nums[3] == 0 then
-		return _G.NONE, _G.NONE
-	else
-		local first, second, third, name, text, point
-		if (nums[1] >= nums[2]) then
-			if nums[1] >= nums[3] then
-				first = 1
-				if nums[2] >= nums[3] then 
-					second = 2; third=3;
-				else
-					second = 3; third = 2; 
-				end
-			else
-				first = 3; second = 1; third = 2
-			end
+do
+	function mod:GetTalentTabInfo(...)
+		if (select(4, GetBuildInfo()) >= 40000) then
+			local uniqueId, tabName, description, icon, pointsSpent, background, previewPointsSpent, bool = GetTalentTabInfo(...);
+			return tabName, icon, pointsSpent, background, previewPointsSpent;
 		else
-			if nums[2] >= nums[3] then
-				first = 2;
+			return GetTalentTabInfo(...);
+		end
+	end
+
+	local MAX_TALENT_POINT = 36 
+	local function ColorTalent(point)
+		local r, g, b
+		local minpoint, maxpoint = 0, MAX_TALENT_POINT
+		point = max(0, min(point, MAX_TALENT_POINT));
+		if (maxpoint - minpoint) > 0 then
+			percent = (point - minpoint)/(maxpoint- minpoint)
+		else
+			percent = 0
+		end
+		
+		if percent > 0.5 then
+			r = 0.1 + (((1-percent)*2) * (1-0.1))
+			g = 0.9
+		else
+			r = 1.0
+			g = (0.9) - (0.5-percent)* 2 * (0.9)
+		end
+		local hexColor = format("|cff%2x%2x18", r*255, g*255);
+		return hexColor.."%s|r";
+	end
+
+	local function TalentSpecName(names, nums, colors)
+		if type(names) ~= "table" then return end
+		if type(nums) ~= "table" then return end
+		if type(colors) ~= "table" then return end
+
+		if nums[1] == 0 and nums[2] == 0 and nums[3] == 0 then
+			return _G.NONE, _G.NONE
+		else
+			local first, second, third, name, text, point
+			if (nums[1] >= nums[2]) then
 				if nums[1] >= nums[3] then
-					second = 1; third = 3;
+					first = 1
+					if nums[2] >= nums[3] then 
+						second = 2; third=3;
+					else
+						second = 3; third = 2; 
+					end
 				else
-					second = 3; third = 1;
+					first = 3; second = 1; third = 2
 				end
 			else
-				first = 3; second = 2; third = 1
+				if nums[2] >= nums[3] then
+					first = 2;
+					if nums[1] >= nums[3] then
+						second = 1; third = 3;
+					else
+						second = 3; third = 1;
+					end
+				else
+					first = 3; second = 2; third = 1
+				end
 			end
-		end
-		local first_num = nums[first]
-		local second_num = nums[second]
-		if (first_num * 3/4) <= second_num then
-			if (first_num * 3/4) < nums[third] then
-				name = colors[first]:format(names[first]).."/"..colors[second]:format(names[second]).."/"..colors[third]:format(names[third])
-				text = names[first].."/"..names[second].."/"..names[third]
+			local first_num = nums[first]
+			local second_num = nums[second]
+			if (first_num * 3/4) <= second_num then
+				if (first_num * 3/4) < nums[third] then
+					name = colors[first]:format(names[first]).."/"..colors[second]:format(names[second]).."/"..colors[third]:format(names[third])
+					text = names[first].."/"..names[second].."/"..names[third]
+				else
+					name = colors[first]:format(names[first]).."/"..colors[second]:format(names[second])
+					text = names[first].."/"..names[second]
+				end
 			else
-				name = colors[first]:format(names[first]).."/"..colors[second]:format(names[second])
-				text = names[first].."/"..names[second]
+				name = colors[first]:format(names[first])
+				text = names[first]
 			end
-		else
-			name = colors[first]:format(names[first])
-			text = names[first]
+			point = (" |cc8c8c8c8(%s|cc8c8c8c8/%s|cc8c8c8c8/%s|cc8c8c8c8)"):format(colors[1]:format(nums[1]), colors[2]:format(nums[2]), colors[3]:format(nums[3]))
+			return name..point, text..(" (%s/%s/%s)"):format(nums[1], nums[2], nums[3])
 		end
-		point = (" |cc8c8c8c8(%s|cc8c8c8c8/%s|cc8c8c8c8/%s|cc8c8c8c8)"):format(colors[1]:format(nums[1]), colors[2]:format(nums[2]), colors[3]:format(nums[3]))
-		return name..point, text..(" (%s/%s/%s)"):format(nums[1], nums[2], nums[3])
 	end
-end
 
-function mod:INSPECT_TALENT_READY()
-	self:UnregisterEvent("INSPECT_TALENT_READY");
-	local currTalentGroupId = GetActiveTalentGroup(true)
+	function mod:INSPECT_READY()
+		self:UnregisterEvent("INSPECT_READY");
+		local currTalentGroupId = GetActiveTalentGroup(true)
 
-	local name1,_,point1 = GetTalentTabInfo(1,true, nil, currTalentGroupId)
-	local name2,_,point2 = GetTalentTabInfo(2,true, nil, currTalentGroupId)
-	local name3,_,point3 = GetTalentTabInfo(3,true, nil, currTalentGroupId)
-	local pcolor1, pcolor2, pcolor3 = ColorTalent(point1), ColorTalent(point2),ColorTalent(point3)
-	local talent_name, talent_text = TalentSpecName({name1,name2,name3}, {point1,point2,point3},{pcolor1, pcolor2, pcolor3})
+		local name1,_,point1 = self:GetTalentTabInfo(1,true, nil, currTalentGroupId)
+		local name2,_,point2 = self:GetTalentTabInfo(2,true, nil, currTalentGroupId)
+		local name3,_,point3 = self:GetTalentTabInfo(3,true, nil, currTalentGroupId)
 
-	--sec talent
-	local secTalentGroupId = (currTalentGroupId == 1) and 2 or 1;
-	local name1,_,point1 = GetTalentTabInfo(1,true, nil, secTalentGroupId);
-	local name2,_,point2 = GetTalentTabInfo(2,true, nil, secTalentGroupId);
-	local name3,_,point3 = GetTalentTabInfo(3,true, nil, secTalentGroupId);
-	local pcolor1, pcolor2, pcolor3 = ColorTalent(point1), ColorTalent(point2),ColorTalent(point3);
-	local talent_name2, talent_text2 = TalentSpecName({name1,name2,name3}, {point1,point2,point3},{pcolor1, pcolor2, pcolor3})
+		local pcolor1, pcolor2, pcolor3 = ColorTalent(point1), ColorTalent(point2),ColorTalent(point3)
+		local talent_name, talent_text = TalentSpecName({name1,name2,name3}, {point1,point2,point3},{pcolor1, pcolor2, pcolor3})
 
-	local tooltipunit = GameTooltip:GetUnit()
-	if UnitExists("mouseover") and Icetip_InspectTalent[tooltipunit] then
-		GameTooltip:AddDoubleLine(L["Active Talent: "], talent_name);
-		if (talent_name2 ~= _G["NONE"] and talent_text2 ~= _G["NONE"]) then
-			GameTooltip:AddDoubleLine(L["Sec Talent: "], talent_name2);
+		--sec talent
+		local secTalentGroupId = (currTalentGroupId == 1) and 2 or 1;
+		local name1,_,point1 = self:GetTalentTabInfo(1,true, nil, secTalentGroupId);
+		local name2,_,point2 = self:GetTalentTabInfo(2,true, nil, secTalentGroupId);
+		local name3,_,point3 = self:GetTalentTabInfo(3,true, nil, secTalentGroupId);
+		local pcolor1, pcolor2, pcolor3 = ColorTalent(point1), ColorTalent(point2),ColorTalent(point3);
+		local talent_name2, talent_text2 = TalentSpecName({name1,name2,name3}, {point1,point2,point3},{pcolor1, pcolor2, pcolor3})
+
+		local tooltipunit = GameTooltip:GetUnit()
+		if UnitExists("mouseover") and Icetip_InspectTalent[tooltipunit] then
+			GameTooltip:AddDoubleLine(L["Active Talent: "], talent_name);
+			if (talent_name2 ~= _G["NONE"] and talent_text2 ~= _G["NONE"]) then
+				GameTooltip:AddDoubleLine(L["Sec Talent: "], talent_name2);
+			end
+			GameTooltip:Show();
+
+			--clear tbl
+			wipe(Icetip_InspectTalent);
 		end
-		GameTooltip:Show();
-
-		--clear tbl
-		wipe(Icetip_InspectTalent);
 	end
 end
