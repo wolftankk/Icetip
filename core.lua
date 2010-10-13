@@ -7,7 +7,7 @@
 ------------------------------------------------
 local _, Icetip = ...
 Icetip = LibStub("AceAddon-3.0"):NewAddon(Icetip, "Icetip", "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0");
-Icetip.vesion = 3.35
+Icetip.vesion = GetAddOnMetadata("Icetip", "Version") 
 Icetip.revision = tonumber(("$Revision$"):match("%d+"));
 local modules = {};
 Icetip.modules = modules;
