@@ -28,7 +28,7 @@ end
 --Onshow
 function Appstyle:Tooltip_OnShow(tooltip, ...)
 	if hooked[tooltip] then
-		return
+	    return
 	end
 	hooked[tooltip] = true
 	self:UpdateBackdrop(tooltip, ...)

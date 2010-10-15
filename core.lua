@@ -235,8 +235,10 @@ function Icetip:OnEnable()
 	hooksecurefunc("GameTooltip_SetDefaultAnchor", function(tooltip, parent) Icetip:SetTooltipAnchor(tooltip, parent) end);
 	self:RawHook(GameTooltip, "FadeOut", "GameTooltip_FadeOut", true);
 	self:RawHook(GameTooltip, "Hide", "GameTooltip_Hide", true);
-	self:HookScript(GameTooltip, "OnShow", "GameTooltip_OnShow");
-	self:HookScript(GameTooltip, "OnHide", "GameTooltip_OnHide");
+        for _, tooltip in pairs(tooltips) do
+            self:HookScript(tooltip, "OnShow", "GameTooltip_OnShow");
+            self:HookScript(tooltip, "OnHide", "GameTooltip_OnHide");
+        end
 	self:HookScript(GameTooltip, "OnTooltipSetUnit", "GameTooltip_SetUnit");
 	self:HookScript(GameTooltip, "OnTooltipSetItem", "GameTooltip_SetItem")
 
@@ -404,7 +406,7 @@ function Icetip:GameTooltip_OnShow(tooltip, ...)
 
 	end
 	if self.db["tooltipStyle"].customColor then
-		self:SetBackgroundColor()
+		self:SetBackgroundColor(nil, nil, nil, nil, nil, tooltip)
 	end
 	self:SetTooltipScale(nil, self.db.scale)
 
