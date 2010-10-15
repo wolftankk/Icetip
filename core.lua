@@ -421,7 +421,11 @@ function Icetip:GameTooltip_OnHide(tooltip, ...)
         end
 	forgetNextOnTooltipMethod = false
 	if self.hooks[tooltip] and self.hooks[tooltip].OnHide then
-		self.hooks[tooltip].OnHide(tooltip, ...)
+            --reset gametooltip style
+            local ct = self.db.bgColor["other"];
+            tooltip:SetBackdropColor(unpack(ct));
+            tooltip:SetBackdropBorderColor(self.db.border_color["r"], self.db.border_color["g"], self.db.border_color["b"], self.db.border_color["a"]);
+	    self.hooks[tooltip].OnHide(tooltip, ...)
 	end
 end
 
