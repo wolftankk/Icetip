@@ -21,8 +21,8 @@ local tooltips = {
 	ShoppingTooltip2,
 	ShoppingTooltip3,
         WorldMapTooltip,
-        FriendsTooltip,
-        BNToastFrame.tooltip
+        --FriendsTooltip,
+        --BNToastFrame.tooltip
 }
 local default = {
     profile = {
