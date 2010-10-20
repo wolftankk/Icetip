@@ -67,6 +67,19 @@ local bartextStyle = {
 	["pernumber"] = L["Num(precent)"],
 }
 
+local modifierKeys = {
+    ["NONE"] = NONE,
+    ["ALT"] = ALT_KEY,
+    ["SHIFT"] = SHIFT_KEY,
+    ["CTRL"] = CTRL_KEY
+}
+
+local tipShown = {
+    ["always"] = L["Always"],
+    ["notcombat"] = L["Out of combat"],
+    ["never"] = L["Never"],
+}
+
 local function CreateOption()
 	local db = Icetip.db
 	if not options then
@@ -310,6 +323,69 @@ local function CreateOption()
 									end,
 								},
 							},
+                                                },
+                                                tipshow = {
+                                                    type = "group",
+                                                    inline = true,
+                                                    name = L["Show tooltips"],
+                                                    order = order(),
+                                                    args = {
+                                                            unit = {
+                                                                    type = "select",
+                                                                    order = order(),
+                                                                    name = L["World units"],
+                                                                    desc = L["Show the tooltip for world units if..."],
+                                                                    values = tipShown,
+                                                                    get = function() return db.tipmodifier.units end,
+                                                                    set = function(_, v)
+                                                                            db["tipmodifier"].units = v
+                                                                    end,
+                                                            },
+                                                            objframe = {
+                                                                    type = "select",
+                                                                    order = order(),
+                                                                    name = L["World objects"],
+                                                                    desc = L["Show the tooltip for world objects if..."],
+                                                                    values = tipShown,
+                                                                    get = function() return db.tipmodifier.objects end,
+                                                                    set = function(_, v)
+                                                                            db["tipmodifier"].objects = v
+                                                                    end,
+                                                            },
+                                                            unitframe = {
+                                                                    type = "select",
+                                                                    order = order(),
+                                                                    name = L["Unit frames"],
+                                                                    desc = L["Show the tooltip for unit frames if..."],
+                                                                    values = tipShown,
+                                                                    get = function() return db["tipmodifier"].unitFrames end,
+                                                                    set = function(_, v)
+                                                                            db["tipmodifier"].unitFrames = v
+                                                                    end,
+                                                            },
+                                                            otherframe = {
+                                                                    type = "select",
+                                                                    order = order(),
+                                                                    name = L["Non-unit frames"],
+                                                                    desc = L["Show the tooltip for non-unit framers if..."],
+                                                                    values = tipShown,
+                                                                    get = function() return db["tipmodifier"].otherFrames end,
+                                                                    set = function(_, v)
+                                                                            db["tipmodifier"].otherFrames = v
+                                                                    end,
+                                                            },
+                                                            modifiekey = {
+                                                                    type = "select",
+                                                                    order = order(),
+                                                                    name = L["Only show with modifiekey"],
+                                                                    desc = L["Show the tooltip if the specified modifier is being held down"],
+                                                                    values = modifierKeys,
+                                                                    get = function() return db["tipmodifier"].modifier end,
+                                                                    set = function(_, v)
+                                                                        db["tipmodifier"].modifier = v;
+                                                                    end
+                                                            }
+                                                    },
 						},
 					},
 				},

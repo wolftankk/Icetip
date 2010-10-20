@@ -70,10 +70,18 @@ local default = {
         },
         --渐隐
         tooltipFade = {
-                units = "hide",
-                objects ="fade",
-                unitFrames = "fade",
-                otherFrames = "hide",
+            units = "hide",
+            objects ="fade",
+            unitFrames = "fade",
+            otherFrames = "hide",
+        },
+        --modifier
+        tipmodifier = {
+            units = "always",
+            objects = "always",
+            unitFrames = "always",
+            otherFrames = "always",
+            modifier = "NONE",
         },
         --healthbar
         healthbar = {
@@ -410,6 +418,53 @@ function Icetip:GameTooltip_OnShow(tooltip, ...)
 	end
 	self:SetTooltipScale(nil, self.db.scale)
 
+        local show;
+
+        if tooltip:IsOwned(UIParent) then
+            if tooltip:GetUnit() then
+                show = self.db.tipmodifier.units;
+            else
+                show = self.db.tipmodifier.objects
+            end
+        else
+            if tooltip:GetUnit() then
+                show = self.db.tipmodifier.unitFrames;
+            else
+                show = self.db.tipmodifier.otherFrames;
+            end
+        end
+
+        local modifier = self.db.tipmodifier.modifier;
+
+        if modifier == "ALT" then
+            if not IsAltKeyDown() then
+                tooltip:Hide()
+                return;
+            end
+        elseif modifier == "SHIFT" then
+            if not IsShiftKeyDown() then
+                tooltip:Hide()
+                return;
+            end
+        elseif modifier == "CTRL" then
+            if not IsControlKeyDown() then
+                tooltip:Hide()
+                return;
+            end
+        end
+
+        if show == "notcombat" then
+            if InCombatLockdown() then
+                tooltip.justHide = true;
+                tooltip:Hide()
+                tooltip.justHide = nil;
+                return;
+            end
+        elseif show == "never" then
+            tooltip.justHide = true;
+            tooltip:Hide();
+            tooltip.justHide = nil
+        end
 	self.hooks[tooltip].OnShow(tooltip, ...)
 	self:OnTooltipShow();
 end
