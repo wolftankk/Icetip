@@ -254,19 +254,19 @@ function Icetip:OnEnable()
 	self:ScheduleRepeatingTimer(function() 
 		local mouse_unit = Icetip:GetMouseoverUnit()
 		if UnitExists(mouse_unit) then
-			if UnitIsDeadOrGhost(mouse_unit) then
-				if previousDead == false then
-					GameTooltip:Hide()
-					GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
-					GameTooltip:SetUnit(mouse_unit)
-					GameTooltip:Show()
-				end
-				previousDead = true
-			else
-				previousDead = false
-			end
+                    if UnitIsDeadOrGhost(mouse_unit) then
+                        if previousDead == false then
+                            GameTooltip:Hide()
+                            GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
+                            GameTooltip:SetUnit(mouse_unit)
+                            GameTooltip:Show()
+                        end
+                        previousDead = true
+                    else
+                        previousDead = false
+                    end
 		else
-			previousDead = nil
+                    previousDead = nil
 		end
 	end, 0.05)
 	self:RegisterEvent("CURSOR_UPDATE")
@@ -285,57 +285,57 @@ local currentAnchorType = "CURSOR"
 local currentOwner = UIParent
 
 local anchorOpposite = {
-	BOTTOMLEFT = "TOPLEFT",
-	BOTTOM = "TOP",
-	BOTTOMRIGHT = "TOPRIGHT",
-	LEFT = "RIGHT",
-	RIGHT = "LEFT",
-	TOPLEFT = "BOTTOMLEFT",
-	TOP = "BOTTOM",
-	TOPRIGHT = "BOTTOMRIGHT",
+    BOTTOMLEFT = "TOPLEFT",
+    BOTTOM = "TOP",
+    BOTTOMRIGHT = "TOPRIGHT",
+    LEFT = "RIGHT",
+    RIGHT = "LEFT",
+    TOPLEFT = "BOTTOMLEFT",
+    TOP = "BOTTOM",
+    TOPRIGHT = "BOTTOMRIGHT",
 }
 
 local function ReanchorTooltip()
-	GameTooltip:ClearAllPoints();
-	local scale = GameTooltip:GetEffectiveScale();
-	if currentAnchorType == "PARENT" then
-		GameTooltip:SetPoint(currentCursorAnchor, currentOwner, anchorOpposite[currentCursorAnchor], currentOffsetX, currentOffsetY)
-	elseif currentAnchorType == "CURSOR" then
-		local x, y = GetCursorPosition();
-		x, y = x/scale + currentOffsetX, y/scale +currentOffsetY;
-		GameTooltip:SetPoint(currentCursorAnchor, UIParent, "BOTTOMLEFT", x, y);
-	end
+    GameTooltip:ClearAllPoints();
+    local scale = GameTooltip:GetEffectiveScale();
+    if currentAnchorType == "PARENT" then
+            GameTooltip:SetPoint(currentCursorAnchor, currentOwner, anchorOpposite[currentCursorAnchor], currentOffsetX, currentOffsetY)
+    elseif currentAnchorType == "CURSOR" then
+        local x, y = GetCursorPosition();
+        x, y = x/scale + currentOffsetX, y/scale +currentOffsetY;
+        GameTooltip:SetPoint(currentCursorAnchor, UIParent, "BOTTOMLEFT", x, y);
+    end
 end
 
 function Icetip:SetTooltipAnchor(tooltip, parent, ...)
-	local db = self.db["setAnchor"]
-	
-	local anchor, offsetX, offsetY
-	currentOwner = parent
-	if parent == UIParent then --角色
-		anchor = db.unitAnchor
-		offsetX = db.unitOffsetX
-		offsetY = db.unitOffsetY
-	else --frame
-		anchor = db.frameAnchor
-		offsetX = db.frameOffsetX
-		offsetY = db.frameOffsetY
-	end
-	if anchor:find("^CURSOR") or anchor:find("^PARENT") then
-		if anchor == "CURSOR_TOP" and math.abs(offsetX) < 1 and math.abs(offsetY) < 0 then
-			tooltip:SetOwner(parent, "ANCHOR_CURSOR");
-		else
-			currentOffsetX = offsetX
-			currentOffsetY = offsetY
-			currentCursorAnchor = anchor:sub(8);
-			currentAnchorType = anchor:sub(1, 6);
-			ReanchorTooltip()
-		end
-	else
-		tooltip:SetOwner(parent, "ANCHOR_NONE");
-		tooltip:ClearAllPoints();
-		tooltip:SetPoint(anchor, UIParent, anchor, offsetX, offsetY)
-	end
+    local db = self.db["setAnchor"]
+    
+    local anchor, offsetX, offsetY
+    currentOwner = parent
+    if parent == UIParent then --
+        anchor = db.unitAnchor
+        offsetX = db.unitOffsetX
+        offsetY = db.unitOffsetY
+    else --frame
+        anchor = db.frameAnchor
+        offsetX = db.frameOffsetX
+        offsetY = db.frameOffsetY
+    end
+    if anchor:find("^CURSOR") or anchor:find("^PARENT") then
+        if anchor == "CURSOR_TOP" and math.abs(offsetX) < 1 and math.abs(offsetY) < 0 then
+            tooltip:SetOwner(parent, "ANCHOR_CURSOR");
+        else
+            currentOffsetX = offsetX
+            currentOffsetY = offsetY
+            currentCursorAnchor = anchor:sub(8);
+            currentAnchorType = anchor:sub(1, 6);
+            ReanchorTooltip()
+        end
+    else
+        tooltip:SetOwner(parent, "ANCHOR_NONE");
+        tooltip:ClearAllPoints();
+        tooltip:SetPoint(anchor, UIParent, anchor, offsetX, offsetY)
+    end
 end
 
 function Icetip:GameTooltip_FadeOut(tooltip, ...)
@@ -344,50 +344,50 @@ function Icetip:GameTooltip_FadeOut(tooltip, ...)
 	local db = self.db["tooltipFade"];
 	
 	if GameTooltip:GetUnit() then
-		if GameTooltip:IsOwned(UIParent) then
-			kind = db.units
-		else
-			kind = db.unitFrames
-		end
+            if GameTooltip:IsOwned(UIParent) then
+                kind = db.units
+            else
+                kind = db.unitFrames
+            end
 	else
-		if GameTooltip:IsOwned(UIParent) then
-			kind = db.objects
-		else
-			kind = db.otherFrames
-		end
+            if GameTooltip:IsOwned(UIParent) then
+                kind = db.objects
+            else
+                kind = db.otherFrames
+            end
 	end
 	
 	if kind == "fade" then
-		self.hooks[tooltip].FadeOut(tooltip, ...)
+            self.hooks[tooltip].FadeOut(tooltip, ...)
 	else
-		GameTooltip:Hide()
+            GameTooltip:Hide()
 	end
 end
 
 function Icetip:GameTooltip_Hide(tooltip, ...)
 	local db = self.db["tooltipFade"]
 	if tooltip.justHide then
-		return self.hooks[tooltip].Hide(tooltip, ...)
+            return self.hooks[tooltip].Hide(tooltip, ...)
 	end
 	local kind
 	if GameTooltip:GetUnit() then
-		if GameTooltip:IsOwned(UIParent) then
-			kind = db.units
-		else
-			kind = db.unitFrames
-		end
+            if GameTooltip:IsOwned(UIParent) then
+                kind = db.units
+            else
+                kind = db.unitFrames
+            end
 	else
-		if GameTooltip:IsOwned(UIParent) then
-			kind = db.objects
-		else
-			kind = db.otherFrames
-		end
+            if GameTooltip:IsOwned(UIParent) then
+                kind = db.objects
+            else
+                kind = db.otherFrames
+            end
 	end
 	
 	if kind == "fade" then
-		return GameTooltip:FadeOut()
+            return GameTooltip:FadeOut()
 	else
-		return self.hooks[tooltip].Hide(tooltip, ...)
+            return self.hooks[tooltip].Hide(tooltip, ...)
 	end
 end
 
@@ -395,26 +395,26 @@ function Icetip:GameTooltip_OnShow(tooltip, ...)
         modules["Appstyle"]:Tooltip_OnShow(tooltip, ...);
         --Icetip.Appstyle:Tooltip_OnShow(tooltip, ...)
 	if self.db.itemQBorder and tooltip:GetItem() then
-		ItemQualityBorder()
+            ItemQualityBorder()
         else
-		tooltip:SetBackdropBorderColor(self.db["border_color"].r, self.db["border_color"].g, self.db["border_color"].b, self.db["border_color"].a);
+            tooltip:SetBackdropBorderColor(self.db["border_color"].r, self.db["border_color"].g, self.db["border_color"].b, self.db["border_color"].a);
 	end
 
 	if tooltip:GetUnit() then
-		self:PreTooltipSetUnit()
-		forgetNextOnTooltipMethod = true
-                for name, mod in self:GetModules() do
-                    if mod["OnTooltipShow"] and type(mod["OnTooltipShow"]) == "function" then
-                        mod["OnTooltipShow"](mod);
-                    end
+            self:PreTooltipSetUnit()
+            forgetNextOnTooltipMethod = true
+            for name, mod in self:GetModules() do
+                if mod["OnTooltipShow"] and type(mod["OnTooltipShow"]) == "function" then
+                    mod["OnTooltipShow"](mod);
                 end
+            end
 	elseif tooltip:GetItem() then
-		forgetNextOnTooltipMethod = true
+            forgetNextOnTooltipMethod = true
 	elseif tooltip:GetSpell() then
 
 	end
 	if self.db["tooltipStyle"].customColor then
-		self:SetBackgroundColor(nil, nil, nil, nil, nil, tooltip)
+            self:SetBackgroundColor(nil, nil, nil, nil, nil, tooltip)
 	end
 	self:SetTooltipScale(nil, self.db.scale)
 
@@ -658,18 +658,23 @@ local cursorChangedWithTooltip = false
 function Icetip:OnTooltipShow()
 	self:CancelTimer(Icetip_Fade_runHide, true)
 	if GameTooltip:GetUnit() then
+            if not Icetip_Fade_checkUnitExistance then
 		Icetip_Fade_checkUnitExistance = self:ScheduleRepeatingTimer(checkUnitExistance, 0)
+            end
 	else
-		if GameTooltip:IsOwned(UIParent) then
-			cursorChangedWithTooltip = true
-		end
-		Icetip_Fade_checkUnitExistance = self:ScheduleRepeatingTimer(checkAlphaFrame, 0)
+            if GameTooltip:IsOwned(UIParent) then
+                cursorChangedWithTooltip = true
+            end
+            if not Icetip_Fade_checkUnitExistance then
+                Icetip_Fade_checkUnitExistance = self:ScheduleRepeatingTimer(checkAlphaFrame, 0)
+            end
 	end
 end
 
 function Icetip:OnTooltipHide()
 	cursorChangedWithTooltip = false
 	self:CancelTimer(Icetip_Fade_checkUnitExistance, true)
+        Icetip_Fade_checkUnitExistance = nil;
 end
 
 function Icetip:OnTooltipSetUnit()
@@ -679,18 +684,21 @@ end
 local function runHide()
 	local db = Icetip.db["tooltipFade"]
 	if db.objects == "fade" then
-		GameTooltip:FadeOut()
+            GameTooltip:FadeOut()
 	else
-		GameTooltip:Hide()
+            GameTooltip:Hide()
 	end
 end
 
 local function donothing() end
 
 function Icetip:CURSOR_UPDATE(...)
-	if cursorChangedWithTooltip then
-		Icetip_Fade_runHide = self:ScheduleTimer(runHide, 0)
-	else
-		Icetip_Fade_doNothing = self:ScheduleTimer(donothing, 0)
-	end
+    --reset
+    self:CancelTimer(Icetip_Fade_runHide, true);
+    self:CancelTimer(Icetip_Fade_doNothing, true);
+    if cursorChangedWithTooltip then
+        Icetip_Fade_runHide = self:ScheduleTimer(runHide, 0)
+    else
+        Icetip_Fade_doNothing = self:ScheduleTimer(donothing, 0)
+    end
 end
