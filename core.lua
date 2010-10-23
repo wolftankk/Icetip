@@ -5,9 +5,9 @@
 --$Rev$
 --$Id: core.lua 3295 2010-07-12 03:16:20Z 月色狼影 $
 ------------------------------------------------
-local _, Icetip = ...
-Icetip = LibStub("AceAddon-3.0"):NewAddon(Icetip, "Icetip", "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0");
-Icetip.vesion = GetAddOnMetadata("Icetip", "Version") 
+local addonName, Icetip = ...
+Icetip = LibStub("AceAddon-3.0"):NewAddon(Icetip, addonName, "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0");
+Icetip.vesion = GetAddOnMetadata(addonName, "Version") 
 Icetip.revision = tonumber(("$Revision$"):match("%d+"));
 local modules = {};
 Icetip.modules = modules;
@@ -175,7 +175,7 @@ modhandler.frame:SetScript("OnEvent", function(frame, event, ...)
     events:Fire(event, ...)
 end)
 
-function Icetip:NewModule(name)
+function Icetip:NewModule(name, embedHook)
     --has module
     if modules[name] then
         return
@@ -186,6 +186,11 @@ function Icetip:NewModule(name)
         mod[v] = modhandler[v];
     end
     modules[name] = mod;
+    
+    --need hooked lib?
+    if embedHook then
+        LibStub("AceHook-3.0"):Embed(mod);
+    end
     return mod
 end
 
@@ -213,9 +218,11 @@ end
 
 function Icetip:CallMethodAllModules(methodName, ...)
     for name, module in self:GetModules() do
-        local succ, ret = pcall(module[methodName], module, ...)
-        if not succ then
-            geterrorhandler()(ret)
+        if module[methodName] then
+            local succ, ret = pcall(module[methodName], module, ...)
+            if not succ then
+                geterrorhandler()(ret)
+            end
         end
     end
 end
@@ -260,7 +267,6 @@ function Icetip:OnEnable()
         end
     end
     --hook
-    hooksecurefunc("GameTooltip_SetDefaultAnchor", function(tooltip, parent) Icetip:SetTooltipAnchor(tooltip, parent) end);
     self:RawHook(GameTooltip, "FadeOut", "GameTooltip_FadeOut", true);
     self:RawHook(GameTooltip, "Hide", "GameTooltip_Hide", true);
     for _, tooltip in pairs(tooltips) do
@@ -293,70 +299,15 @@ function Icetip:OnEnable()
     self:RegisterEvent("MODIFIER_STATE_CHANGED");
 end
 
+function Icetip:ShortValue(value)
+
+end
+
 local forgetNextOnTooltipMethod = false
 
 --update db
 function Icetip:ProfileChanged(db)
 	
-end
-
-local currentOffsetX, currentOffsetY = 0, 0
-local currentCursorAnchor = "BOTTOM"
-local currentAnchorType = "CURSOR"
-local currentOwner = UIParent
-
-local anchorOpposite = {
-    BOTTOMLEFT = "TOPLEFT",
-    BOTTOM = "TOP",
-    BOTTOMRIGHT = "TOPRIGHT",
-    LEFT = "RIGHT",
-    RIGHT = "LEFT",
-    TOPLEFT = "BOTTOMLEFT",
-    TOP = "BOTTOM",
-    TOPRIGHT = "BOTTOMRIGHT",
-}
-
-local function ReanchorTooltip()
-    GameTooltip:ClearAllPoints();
-    local scale = GameTooltip:GetEffectiveScale();
-    if currentAnchorType == "PARENT" then
-        GameTooltip:SetPoint(currentCursorAnchor, currentOwner, anchorOpposite[currentCursorAnchor], currentOffsetX, currentOffsetY)
-    elseif currentAnchorType == "CURSOR" then
-        local x, y = GetCursorPosition();
-        x, y = x/scale + currentOffsetX, y/scale +currentOffsetY;
-        GameTooltip:SetPoint(currentCursorAnchor, UIParent, "BOTTOMLEFT", x, y);
-    end
-end
-
-function Icetip:SetTooltipAnchor(tooltip, parent, ...)
-    local db = self.db["setAnchor"]
-    
-    local anchor, offsetX, offsetY
-    currentOwner = parent
-    if parent == UIParent then --
-        anchor = db.unitAnchor
-        offsetX = db.unitOffsetX
-        offsetY = db.unitOffsetY
-    else --frame
-        anchor = db.frameAnchor
-        offsetX = db.frameOffsetX
-        offsetY = db.frameOffsetY
-    end
-    if anchor:find("^CURSOR") or anchor:find("^PARENT") then
-        if anchor == "CURSOR_TOP" and math.abs(offsetX) < 1 and math.abs(offsetY) < 0 then
-            tooltip:SetOwner(parent, "ANCHOR_CURSOR");
-        else
-            currentOffsetX = offsetX
-            currentOffsetY = offsetY
-            currentCursorAnchor = anchor:sub(8);
-            currentAnchorType = anchor:sub(1, 6);
-            ReanchorTooltip()
-        end
-    else
-        tooltip:SetOwner(parent, "ANCHOR_NONE");
-        tooltip:ClearAllPoints();
-        tooltip:SetPoint(anchor, UIParent, anchor, offsetX, offsetY)
-    end
 end
 
 function Icetip:GameTooltip_FadeOut(tooltip, ...)
@@ -618,7 +569,7 @@ end
 
 function Icetip:SetTooltipScale(tooltip, value)
     if not tooltip then
-            tooltip = GameTooltip
+        tooltip = GameTooltip
     end
     
     tooltip:SetScale(value)

@@ -28,6 +28,7 @@ locale\zhCN.lua
 locale\zhTW.lua
 
 core.lua
+modules\position.lua
 modules\appstyle.lua
 modules\healthbar.lua
 modules\powerbar.lua
