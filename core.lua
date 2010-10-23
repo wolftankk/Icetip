@@ -175,12 +175,23 @@ modhandler.frame:SetScript("OnEvent", function(frame, event, ...)
     events:Fire(event, ...)
 end)
 
+local modPrototype = {};
+function modPrototype:Enable()
+    --reset db
+    self.db = Icetip.db
+    self:OnEnable();
+end
+
+function modPrototype:Disable()
+    self:OnDisable();
+end
+
 function Icetip:NewModule(name, embedHook)
     --has module
     if modules[name] then
         return
     end
-    local mod = {};
+    local mod = setmetatable({}, {__index = modPrototype});
     mod.name = name;
     for k, v in pairs(modmethod) do
         mod[v] = modhandler[v];
@@ -200,6 +211,14 @@ end
 
 function Icetip:GetModules()
     return pairs(modules);
+end
+
+function Icetip:HasModule(name)
+    if modules[name] then
+        return true
+    end
+
+    return false
 end
 
 function Icetip:OnTooltipMethod(name)
@@ -267,14 +286,14 @@ function Icetip:OnEnable()
         end
     end
     --hook
-    self:RawHook(GameTooltip, "FadeOut", "GameTooltip_FadeOut", true);
-    self:RawHook(GameTooltip, "Hide", "GameTooltip_Hide", true);
     for _, tooltip in pairs(tooltips) do
         self:HookScript(tooltip, "OnShow", "GameTooltip_OnShow");
         self:HookScript(tooltip, "OnHide", "GameTooltip_OnHide");
     end
     self:HookScript(GameTooltip, "OnTooltipSetUnit", "GameTooltip_SetUnit");
-    self:HookScript(GameTooltip, "OnTooltipSetItem", "GameTooltip_SetItem")
+    self:HookScript(GameTooltip, "OnTooltipSetItem", "GameTooltip_SetItem");
+    
+    self:RawHook(GameTooltip, "FadeOut", "GameTooltip_FadeOut", true);
 
     local previousDead = false
     self:ScheduleRepeatingTimer(function() 
@@ -295,7 +314,6 @@ function Icetip:OnEnable()
             previousDead = nil
         end
     end, 0.05)
-    self:RegisterEvent("CURSOR_UPDATE");
     self:RegisterEvent("MODIFIER_STATE_CHANGED");
 end
 
@@ -312,55 +330,6 @@ end
 
 function Icetip:GameTooltip_FadeOut(tooltip, ...)
     self.hooks[tooltip].FadeOut(tooltip, ...)
-    local kind
-    local db = self.db["tooltipFade"];
-    
-    if GameTooltip:GetUnit() then
-        if GameTooltip:IsOwned(UIParent) then
-            kind = db.units
-        else
-            kind = db.unitFrames
-        end
-    else
-        if GameTooltip:IsOwned(UIParent) then
-            kind = db.objects
-        else
-            kind = db.otherFrames
-        end
-    end
-    
-    if kind == "fade" then
-        self.hooks[tooltip].FadeOut(tooltip, ...)
-    else
-        GameTooltip:Hide()
-    end
-end
-
-function Icetip:GameTooltip_Hide(tooltip, ...)
-    local db = self.db["tooltipFade"]
-    if tooltip.justHide then
-        return self.hooks[tooltip].Hide(tooltip, ...)
-    end
-    local kind
-    if GameTooltip:GetUnit() then
-        if GameTooltip:IsOwned(UIParent) then
-            kind = db.units
-        else
-            kind = db.unitFrames
-        end
-    else
-        if GameTooltip:IsOwned(UIParent) then
-            kind = db.objects
-        else
-            kind = db.otherFrames
-        end
-    end
-    
-    if kind == "fade" then
-        return GameTooltip:FadeOut()
-    else
-        return self.hooks[tooltip].Hide(tooltip, ...)
-    end
 end
 
 function Icetip:GameTooltip_OnShow(tooltip, ...)
@@ -371,20 +340,17 @@ function Icetip:GameTooltip_OnShow(tooltip, ...)
         tooltip:SetBackdropBorderColor(self.db["border_color"].r, self.db["border_color"].g, self.db["border_color"].b, self.db["border_color"].a);
     end
 
-    if tooltip:GetUnit() then
-        self:PreTooltipSetUnit()
-        forgetNextOnTooltipMethod = true
-        --self:CallMethodAllModules("OnTooltipShow");
-    elseif tooltip:GetItem() then
-        forgetNextOnTooltipMethod = true
-    elseif tooltip:GetSpell() then
-        forgetNextOnTooltipMethod = true;
+    if not doneOnTooltipMethod then
+        if tooltip:GetUnit() then
+            self:OnTooltipMethod("SetUnit");
+            forgetNextOnTooltipMethod = true
+        elseif tooltip:GetItem() then
+            forgetNextOnTooltipMethod = true
+        elseif tooltip:GetSpell() then
+            forgetNextOnTooltipMethod = true;
+        end
     end
 
-    if self.db["tooltipStyle"].customColor then
-        self:SetBackgroundColor(nil, nil, nil, nil, nil, tooltip)
-    end
-    self:SetTooltipScale(nil, self.db.scale)
 
     local show;
     if tooltip:IsOwned(UIParent) then
@@ -433,18 +399,15 @@ function Icetip:GameTooltip_OnShow(tooltip, ...)
         tooltip.justHide = nil
     end
     self.hooks[tooltip].OnShow(tooltip, ...)
-    self:CallMethodAllModules("OnTooltipShow");
-    self:OnTooltipShow();
+    self:CallMethodAllModules("OnTooltipShow", tooltip);
 end
 
 function Icetip:GameTooltip_OnHide(tooltip, ...)
-    self:OnTooltipHide()
-    for name, mod in self:GetModules() do
-        if mod["OnTooltipHide"] and type(mod["OnTooltipHide"]) == "function" then
-            mod["OnTooltipHide"](mod);
-        end
-    end
+    doneOnTooltipMethod = false;
     forgetNextOnTooltipMethod = false
+    
+    self:CallMethodAllModules("OnTooltipHide");
+
     if self.hooks[tooltip] and self.hooks[tooltip].OnHide then
         --reset gametooltip style
         local ct = self.db.bgColor["other"];
@@ -454,17 +417,13 @@ function Icetip:GameTooltip_OnHide(tooltip, ...)
     end
 end
 
+local doneOnTooltipMethod;
 function Icetip:GameTooltip_SetUnit(tooltip, ...)
+    local doneOnTooltipMethod = true
     if forgetNextOnTooltipMethod then
         forgetNextOnTooltipMethod = false
     else
-        for name, mod in self:GetModules() do
-            if mod["SetUnit"] and type(mod["SetUnit"]) == "function" then
-                mod["SetUnit"](mod)
-            end
-        end
-        
-        self:OnTooltipSetUnit()
+        self:OnTooltipMethod("SetUnit"); 
     end
 end
 
@@ -472,107 +431,9 @@ function Icetip:GameTooltip_SetItem(tooltip, ...)
     forgetNextOnTooltipMethod = true
     if forgetNextOnTooltipMethod then
         forgetNextOnTooltipMethod = false
-    end
-end
-
-local currentSameFaction = false
-function Icetip:PreTooltipSetUnit()
-    local myWatchedFaction = GetWatchedFactionInfo();
-    currentSameFaction = false
-    if myWatchedFaction then
-        for i = 1, 10 do
-            local left = _G["GameTooltipTextLeft"..i]
-            if left then
-                if left:GetText() == myWatchedFaction then
-                      currentSameFaction = true
-                      break
-                end
-            end
-        end
-    end
-end
-
-function Icetip:SetBackgroundColor(given_kind, r, g,b,a, tooltip)
-    if not tooltip then
-        tooltip = GameTooltip
-    end
-    local kind = given_kind
-    if not kind then
-        kind = "other"
-        local unit
-        if (type(tooltip.GetUnit) == "function") then
-                _, unit = tooltip:GetUnit()
-        end
-
-        if unit and UnitExists(unit) then
-            if UnitIsDeadOrGhost(unit) then
-                kind = "dead"
-            elseif UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) then
-                kind = "tapped"
-            elseif tooltip == GameTooltip and currentSameFaction then--声望
-                kind = "faction"
-            elseif UnitIsPlayer(unit) then
-                if UnitIsFriend("player", unit) then
-                    local playerGuild = GetGuildInfo("player");
-                    if playerGuild and playerGuild == GetGuildInfo(unit) or UnitIsUnit("player", unit) then
-                        kind = "guild"
-                    else
-                        local friend = false
-                        local name = UnitName(unit);
-                        for i =1, GetNumFriends() do
-                            if GetFriendInfo(i) == name then
-                                friend = true
-                                break
-                            end
-                        end
-                        if friend then
-                            kind = "guild"
-                        else
-                            kind = "friendlyPC"
-                        end
-                    end
-                else
-                    kind = "hostilePC"
-                end
-            else
-                if (UnitIsFriend("player", unit)) then
-                    kind = "friendlyNPC"
-                else
-                    local reaction = UnitReaction(unit, "player")
-                    if not reaction or reaction <=2 then
-                        kind = "hostileNPC"
-                    else
-                        kind = "neutralNPC"
-                    end
-                end
-            end
-        end
-    end
-
-    local bgColor = self.db.bgColor[kind]
-    if r then
-        bgColor[1] = r
-        bgColor[2] = g
-        bgColor[3] = b
-        bgColor[4] = a
     else
-        r, g, b, a = unpack(bgColor);
+        self:OnTooltipMethod("SetItem");
     end
-
-    if given_kind then
-        self:SetBackgroundColor(nil, nil, nil, nil, nil, tooltip)
-        return
-    end
-
-    tooltip:SetBackdropColor(r, g, b, a)
-end
-
-function Icetip:SetTooltipScale(tooltip, value)
-    if not tooltip then
-        tooltip = GameTooltip
-    end
-    
-    tooltip:SetScale(value)
 end
 
 function Icetip:GetMouseoverUnit()
@@ -581,94 +442,6 @@ function Icetip:GetMouseoverUnit()
         return "mouseover"
     else
         return tooltipUnit
-    end
-end
-
-local lastMouseoverUnit
-local function checkUnitExistance()
-    local mouseover_unit = Icetip:GetMouseoverUnit()
-    if not GameTooltip:GetUnit() or not UnitExists(mouseover_unit) or (lastMouseoverUnit == "mouseover" and mouseover_unit ~= "mouseover") then
-        Icetip:CancelTimer(Icetip_Fade_checkUnitExistance, true)
-        local kind
-        local db = Icetip.db["tooltipFade"]
-        if GameTooltip:IsOwned(UIParent) then
-            kind = db.units
-        else
-            kind = db.unitFrames
-        end
-        if kind == "fade" then
-            GameTooltip:FadeOut()
-        else
-            GameTooltip:Hide()
-        end
-    end
-end
-
-local function checkAlphaFrame()
-    if GameTooltip:GetAlpha() < 1 then
-        Icetip:CancelTimer(Icetip_Fade_checkUnitExistance, true)
-        local kind
-        local db = Icetip.db["tooltipFade"]
-        if GameTooltip:IsOwned(UIParent) then
-            kind = db.objects
-        else
-            kind = db.otherFrames
-        end
-
-        if kind == "fade" then
-            GameTooltip:FadeOut()
-        else
-            GameTooltip:Hide()
-        end
-    end
-end
-
-local cursorChangedWithTooltip = false
-function Icetip:OnTooltipShow()
-    self:CancelTimer(Icetip_Fade_runHide, true)
-    if GameTooltip:GetUnit() then
-        if not Icetip_Fade_checkUnitExistance then
-            Icetip_Fade_checkUnitExistance = self:ScheduleRepeatingTimer(checkUnitExistance, 0)
-        end
-    else
-        if GameTooltip:IsOwned(UIParent) then
-            cursorChangedWithTooltip = true
-        end
-        if not Icetip_Fade_checkUnitExistance then
-            Icetip_Fade_checkUnitExistance = self:ScheduleRepeatingTimer(checkAlphaFrame, 0)
-        end
-    end
-end
-
-function Icetip:OnTooltipHide()
-    cursorChangedWithTooltip = false
-    self:CancelTimer(Icetip_Fade_checkUnitExistance, true)
-    Icetip_Fade_checkUnitExistance = nil;
-end
-
-function Icetip:OnTooltipSetUnit()
-    lastMouseoverUnit = self:GetMouseoverUnit()
-end
-
-local function runHide()
-    local db = Icetip.db["tooltipFade"]
-    if db.objects == "fade" then
-        GameTooltip:FadeOut()
-    else
-        GameTooltip:Hide()
-    end
-end
-
-local function donothing() end
-
-function Icetip:CURSOR_UPDATE(...)
-    --reset
-    self:CancelTimer(Icetip_Fade_runHide, true);
-    self:CancelTimer(Icetip_Fade_doNothing, true);
-    if cursorChangedWithTooltip then
-        Icetip_Fade_runHide = self:ScheduleTimer(runHide, 0)
-    else
-        Icetip_Fade_doNothing = self:ScheduleTimer(donothing, 0)
     end
 end
 

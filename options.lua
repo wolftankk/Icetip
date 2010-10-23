@@ -1,7 +1,7 @@
-local _, Icetip = ...
+local addonName, Icetip = ...
 
 local SM = LibStub("LibSharedMedia-3.0");
-local L = LibStub("AceLocale-3.0"):GetLocale("Icetip")
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local icon = LibStub("LibDBIcon-1.0", true);
 local optionFrame = Icetip:NewModule("OptionFrame") 
 Icetip.OptionFrame = optionFrame
@@ -644,7 +644,14 @@ local function CreateOption()
 							order = order(),
 							width = "full",
 							get = function() return db["raidtarget"].enable end,
-							set = function(_, v) db["raidtarget"].enable = v end,
+							set = function(_, v) 
+                                                            db["raidtarget"].enable = v 
+                                                            if db["raidtarget"].enable then
+                                                                Icetip_RaidTarget:Enable();
+                                                            else
+                                                                Icetip_RaidTarget:Disable();
+                                                            end
+                                                        end,
 						},
 						showPos = {
 							type = "select",
@@ -701,9 +708,9 @@ local function CreateOption()
 									desc = L["Toggle the health bar on the tooltip."],
 									get = function() return db["healthbar"].enable end,
 									set = function(_, v)
-										db["healthbar"].enable = v
-										Icetip_HealthBar:ToggleHealthbar(v)
-										Icetip_HealthBar:SetBarPoint()
+                                                                            db["healthbar"].enable = v
+                                                                            Icetip_HealthBar:ToggleHealthbar(v)
+                                                                            Icetip_HealthBar:SetBarPoint()
 									end
 								},
 								texture = {

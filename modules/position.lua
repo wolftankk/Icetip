@@ -19,7 +19,7 @@ local anchorOpposite = {
 }
 
 function mod:OnEnable()
-    self.db = Icetip.db;
+    db = self.db["setAnchor"]
     hooksecurefunc("GameTooltip_SetDefaultAnchor", function(tooltip, parent) mod:SetTooltipAnchor(tooltip, parent) end);
 end
 
@@ -36,8 +36,6 @@ local function ReanchorTooltip()
 end
 
 function mod:SetTooltipAnchor(tooltip, parent, ...)
-    local db = self.db["setAnchor"]
-    
     local anchor, offsetX, offsetY
     currentOwner = parent
     if parent == UIParent then --

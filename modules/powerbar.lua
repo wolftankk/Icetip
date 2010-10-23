@@ -7,16 +7,24 @@ local format = string.format
 local powerbar, pbtext;
 
 function mod:OnEnable(event, unit)
-	local db = self.db["powerbar"];
-	self.db = db
+    local db = self.db["powerbar"];
+    self.db = db
 
+    if db.enable then
 	self:RegisterEvent("UNIT_POWER", "UNIT_MANA");
 	self:RegisterEvent("UNIT_MAXPOWER", "UNIT_MANA");
 	self:RegisterEvent("UNIT_DISPLAYPOWER", "UNIT_MANA");
 
 	self:SetBarPoint();
+    end
+end
 
-	self:TogglePowerbar(self.db.enable)
+function mod:OnDisable()
+    self:UnregisterAllEvents();
+    if powerbar then
+        powerbar:Hide();
+        powerbar.side = nil;
+    end
 end
 
 function mod:UNIT_MANA(unit)
@@ -24,10 +32,6 @@ function mod:UNIT_MANA(unit)
         return
     end
     self:Update()
-end
-
-function mod:SetUnit()
-    self:TogglePowerbar(self.db.enable)
 end
 
 function mod:SetBarPoint()
@@ -71,7 +75,6 @@ function mod:OnTooltipShow()
         pbtext:SetJustifyH("CENTER");
         pbtext:SetAllPoints(powerbar);
 
-        --self:SetBarPoint()
     end
 
     self:SetBarPoint();
@@ -81,7 +84,10 @@ function mod:OnTooltipShow()
         return
     end
 
-    self:TogglePowerbar(self.db.enable)
+    if self.db.enable then
+        powerbar:Show();
+    end
+
     self:Update()
 end
 
@@ -93,9 +99,10 @@ end
 function mod:Update()
     if not powerbar then return end
 
-    local powerType = UnitPowerType("mouseover");
-    local maxpower = UnitPowerMax("mouseover");
-    local power = UnitPower("mouseover");
+    local unit = Icetip:GetMouseoverUnit();
+    local powerType = UnitPowerType(unit);
+    local maxpower = UnitPowerMax(unit);
+    local power = UnitPower(unit);
 
     local value;
     if maxpower == 0 then
@@ -128,11 +135,11 @@ function mod:Update()
     if self.db.showText then
         local pbtextformat;
         if self.db.style == "number" and maxpower > 0 then
-                pbtextformat = format("%d/%d", power, maxpower);
+                pbtextformat = format("%d / %d", power, maxpower);
         elseif self.db.style == "percent" and value > 0 then
                 pbtextformat = format("%d %%", value * 100);
         elseif self.db.style == "pernumber" and maxpower > 0 then
-                pbtextformat = format("%d/%d (%d%%)", power, maxpower, value * 100);
+                pbtextformat = format("%d / %d (%d%%)", power, maxpower, value * 100);
         end
         pbtext:SetText(pbtextformat)
         pbtext:Show();
@@ -143,13 +150,8 @@ end
 
 function mod:TogglePowerbar(flag)
     if flag then
-        self:Update()
-        if powerbar then
-            powerbar:Show()
-        end
+        self:Enable();
     else
-        if powerbar then
-            powerbar:Hide()
-        end
+        self:Disable();
     end
 end
