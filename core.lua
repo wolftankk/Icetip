@@ -269,7 +269,8 @@ function Icetip:OnEnable()
                     previousDead = nil
 		end
 	end, 0.05)
-	self:RegisterEvent("CURSOR_UPDATE")
+	self:RegisterEvent("CURSOR_UPDATE");
+        self:RegisterEvent("MODIFIER_STATE_CHANGED");
 end
 
 local forgetNextOnTooltipMethod = false
@@ -419,7 +420,6 @@ function Icetip:GameTooltip_OnShow(tooltip, ...)
 	self:SetTooltipScale(nil, self.db.scale)
 
         local show;
-
         if tooltip:IsOwned(UIParent) then
             if tooltip:GetUnit() then
                 show = self.db.tipmodifier.units;
@@ -543,39 +543,39 @@ function Icetip:SetBackgroundColor(given_kind, r, g,b,a, tooltip)
 			elseif tooltip == GameTooltip and currentSameFaction then--声望
 				kind = "faction"
 			elseif UnitIsPlayer(unit) then
-				if UnitIsFriend("player", unit) then
-					local playerGuild = GetGuildInfo("player");
-					if playerGuild and playerGuild == GetGuildInfo(unit) or UnitIsUnit("player", unit) then
-						kind = "guild"
-					else
-						local friend = false
-						local name = UnitName(unit);
-						for i =1, GetNumFriends() do
-							if GetFriendInfo(i) == name then
-								friend = true
-								break
-							end
-						end
-						if friend then
-							kind = "guild"
-						else
-							kind = "friendlyPC"
-						end
-					end
-				else
-					kind = "hostilePC"
-				end
+                            if UnitIsFriend("player", unit) then
+                                    local playerGuild = GetGuildInfo("player");
+                                    if playerGuild and playerGuild == GetGuildInfo(unit) or UnitIsUnit("player", unit) then
+                                            kind = "guild"
+                                    else
+                                        local friend = false
+                                        local name = UnitName(unit);
+                                        for i =1, GetNumFriends() do
+                                            if GetFriendInfo(i) == name then
+                                                friend = true
+                                                break
+                                            end
+                                        end
+                                        if friend then
+                                            kind = "guild"
+                                        else
+                                            kind = "friendlyPC"
+                                        end
+                                    end
+                            else
+                                kind = "hostilePC"
+                            end
 			else
-				if (UnitIsFriend("player", unit)) then
-					kind = "friendlyNPC"
-				else
-					local reaction = UnitReaction(unit, "player")
-					if not reaction or reaction <=2 then
-						kind = "hostileNPC"
-					else
-						kind = "neutralNPC"
-					end
-				end
+                            if (UnitIsFriend("player", unit)) then
+                                kind = "friendlyNPC"
+                            else
+                                local reaction = UnitReaction(unit, "player")
+                                if not reaction or reaction <=2 then
+                                    kind = "hostileNPC"
+                                else
+                                    kind = "neutralNPC"
+                                end
+                            end
 			end
 		end
 	end
@@ -700,5 +700,35 @@ function Icetip:CURSOR_UPDATE(...)
         Icetip_Fade_runHide = self:ScheduleTimer(runHide, 0)
     else
         Icetip_Fade_doNothing = self:ScheduleTimer(donothing, 0)
+    end
+end
+
+function Icetip:MODIFIER_STATE_CHANGED(event, modifier, down)
+    local m = self.db.tipmodifier.modifier;
+    if modifier:match(m) == nil then
+        return
+    end
+    local frame = GetMouseFocus();
+    if frame == WorldFrame or frame == UIParent then
+        local mouseover_unit = self:GetMouseoverUnit();
+        if not UnitExists(mouseover_unit) then
+            GameTooltip:Hide()
+        end
+        GameTooltip:Hide();
+        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
+        GameTooltip:SetUnit(mouseover_unit);
+        GameTooltip:Show();
+    else
+        local onLeave, onEnter = frame:GetScript("OnLeave"), frame:GetScript("OnEnter");
+        if onLeave then
+            self.modifierFrame = frame;
+            onLeave(frame);
+            self.modifierFrame = nil;
+        end
+        if onEnter then
+            self.modifierFrame = frame;
+            onEnter(frame);
+            self.modifierFrame = nil;
+        end
     end
 end
