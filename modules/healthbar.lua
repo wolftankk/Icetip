@@ -24,12 +24,11 @@ function mod:OnDisable()
         healthbar.side = nil;
     end
     GameTooltipStatusBar:Hide()
-    self:UnhookAll();
 end
 
 function mod:UNIT_HEALTH(event, unit)
     if not UnitIsUnit(unit, "mouseover") then
-            return
+        return
     end
 
     self:Update();
@@ -73,8 +72,8 @@ function mod:SetBarPoint()
                 healthbar:SetPoint("BOTTOMLEFT", powerbar, "TOPLEFT", 0, 2);
                 healthbar:SetPoint("BOTTOMRIGHT", powerbar, "TOPRIGHT", 0, 2);
         else
-                healthbar:SetPoint("BOTTOMLEFT", GameTooltip, "TOPLEFT", 4, 0);
-                healthbar:SetPoint("BOTTOMRIGHT", GameTooltip, "TOPRIGHT", 4, 0);
+                healthbar:SetPoint("BOTTOMLEFT", GameTooltip, "TOPLEFT", 2, 0);
+                healthbar:SetPoint("BOTTOMRIGHT", GameTooltip, "TOPRIGHT", 2, 0);
         end
         healthbar:SetHeight(self.db.size);
         healthbar:SetOrientation("HORIZONTAL");

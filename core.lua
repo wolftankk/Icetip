@@ -340,63 +340,66 @@ function Icetip:GameTooltip_OnShow(tooltip, ...)
         tooltip:SetBackdropBorderColor(self.db["border_color"].r, self.db["border_color"].g, self.db["border_color"].b, self.db["border_color"].a);
     end
 
-    if not doneOnTooltipMethod then
-        if tooltip:GetUnit() then
-            self:OnTooltipMethod("SetUnit");
-            forgetNextOnTooltipMethod = true
-        elseif tooltip:GetItem() then
-            forgetNextOnTooltipMethod = true
-        elseif tooltip:GetSpell() then
-            forgetNextOnTooltipMethod = true;
+    --only GameTooltip need fix
+    
+    if tooltip == GameTooltip then
+        if not doneOnTooltipMethod then
+            if tooltip:GetUnit() then
+                self:OnTooltipMethod("SetUnit");
+                forgetNextOnTooltipMethod = true
+            elseif tooltip:GetItem() then
+                forgetNextOnTooltipMethod = true
+            elseif tooltip:GetSpell() then
+                forgetNextOnTooltipMethod = true;
+            end
         end
-    end
 
-
-    local show;
-    if tooltip:IsOwned(UIParent) then
-        if tooltip:GetUnit() then
-            show = self.db.tipmodifier.units;
+        local show;
+        if tooltip:IsOwned(UIParent) then
+            if tooltip:GetUnit() then
+                show = self.db.tipmodifier.units;
+            else
+                show = self.db.tipmodifier.objects
+            end
         else
-            show = self.db.tipmodifier.objects
+            if tooltip:GetUnit() then
+                show = self.db.tipmodifier.unitFrames;
+            else
+                show = self.db.tipmodifier.otherFrames;
+            end
         end
-    else
-        if tooltip:GetUnit() then
-            show = self.db.tipmodifier.unitFrames;
-        else
-            show = self.db.tipmodifier.otherFrames;
-        end
-    end
 
-    local modifier = self.db.tipmodifier.modifier;
+        local modifier = self.db.tipmodifier.modifier;
 
-    if modifier == "ALT" then
-        if not IsAltKeyDown() then
-            tooltip:Hide()
-            return;
+        if modifier == "ALT" then
+            if not IsAltKeyDown() then
+                tooltip:Hide()
+                return;
+            end
+        elseif modifier == "SHIFT" then
+            if not IsShiftKeyDown() then
+                tooltip:Hide()
+                return;
+            end
+        elseif modifier == "CTRL" then
+            if not IsControlKeyDown() then
+                tooltip:Hide()
+                return;
+            end
         end
-    elseif modifier == "SHIFT" then
-        if not IsShiftKeyDown() then
-            tooltip:Hide()
-            return;
-        end
-    elseif modifier == "CTRL" then
-        if not IsControlKeyDown() then
-            tooltip:Hide()
-            return;
-        end
-    end
 
-    if show == "notcombat" then
-        if InCombatLockdown() then
+        if show == "notcombat" then
+            if InCombatLockdown() then
+                tooltip.justHide = true;
+                tooltip:Hide()
+                tooltip.justHide = nil;
+                return;
+            end
+        elseif show == "never" then
             tooltip.justHide = true;
-            tooltip:Hide()
-            tooltip.justHide = nil;
-            return;
+            tooltip:Hide();
+            tooltip.justHide = nil
         end
-    elseif show == "never" then
-        tooltip.justHide = true;
-        tooltip:Hide();
-        tooltip.justHide = nil
     end
     self.hooks[tooltip].OnShow(tooltip, ...)
     self:CallMethodAllModules("OnTooltipShow", tooltip);

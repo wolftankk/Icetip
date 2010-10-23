@@ -48,7 +48,9 @@ function mod:Update()
 end
 
 function mod:OnTooltipShow()
-    self:Update()
+    if self.db.enable then 
+      self:Update()
+    end
 end
 
 function mod:RAID_TARGET_UPDATE()
