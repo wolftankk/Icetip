@@ -108,44 +108,44 @@ function mod:OnTooltipHide()
 end
 
 function mod:Update()
-	if not healthbar then return end
-	
-	local hpmax = UnitHealthMax("mouseover");
-	local hp = UnitHealth("mouseover");
-	local value;
-	if hpmax == 0 then
-		value = 0
-	else
-		value = hp/hpmax
-	end
-	healthbar:SetValue(value);
-	healthbar:SetStatusBarColor(HealthGradient(value))
-	
-	if self.db.showText then
-		local hbtextformat;
-		if self.db.style == "number" then
-			hbtextformat = format("%d/%d", hp, hpmax);
-		elseif self.db.style == "percent" then
-			hbtextformat = format("%d %%", value * 100);
-		elseif self.db.style == "pernumber" then
-			hbtextformat = format("%d/%d (%d%%)", hp, hpmax, value * 100);
-		end
-		hbtext:SetText(hbtextformat)
-		hbtext:Show();
-	else
-		hbtext:Hide()
-	end
+    if not healthbar then return end
+    
+    local hpmax = UnitHealthMax("mouseover");
+    local hp = UnitHealth("mouseover");
+    local value;
+    if hpmax == 0 then
+	    value = 0
+    else
+	    value = hp/hpmax
+    end
+    healthbar:SetValue(value);
+    healthbar:SetStatusBarColor(HealthGradient(value))
+    
+    if self.db.showText then
+	    local hbtextformat;
+	    if self.db.style == "number" then
+		    hbtextformat = format("%d/%d", hp, hpmax);
+	    elseif self.db.style == "percent" then
+		    hbtextformat = format("%d %%", value * 100);
+	    elseif self.db.style == "pernumber" then
+		    hbtextformat = format("%d/%d (%d%%)", hp, hpmax, value * 100);
+	    end
+	    hbtext:SetText(hbtextformat)
+	    hbtext:Show();
+    else
+	    hbtext:Hide()
+    end
 end
 
 function mod:ToggleHealthbar(flag)
-	if flag then
-		GameTooltipStatusBar:Hide();
-		self:Update()
-	else
-		if healthbar then
-			healthbar:Hide()
-			GameTooltipStatusBar:Hide()
-		end
-		GameTooltipStatusBar:Hide()
-	end
+    if flag then
+        GameTooltipStatusBar:Hide();
+        self:Update()
+    else
+        if healthbar then
+                healthbar:Hide()
+                GameTooltipStatusBar:Hide()
+        end
+        GameTooltipStatusBar:Hide()
+    end
 end

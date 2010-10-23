@@ -197,6 +197,20 @@ function Icetip:GetModules()
     return pairs(modules);
 end
 
+function Icetip:OnTooltipMethod(name)
+    for i = 1, 3 do
+        local methodName;
+        if i == 1 then
+            methodName = "PreTooltip"..name;
+        elseif i == 2 then
+            methodName = "OnTooltip"..name
+        else
+            methodName = "PostTooltip"..name
+        end
+        self:CallMethodAllModules(methodName);
+    end
+end
+
 function Icetip:CallMethodAllModules(methodName, ...)
     for name, module in self:GetModules() do
         local succ, ret = pcall(module[methodName], module, ...)
@@ -409,15 +423,11 @@ function Icetip:GameTooltip_OnShow(tooltip, ...)
     if tooltip:GetUnit() then
         self:PreTooltipSetUnit()
         forgetNextOnTooltipMethod = true
-        for name, mod in self:GetModules() do
-            if mod["OnTooltipShow"] and type(mod["OnTooltipShow"]) == "function" then
-                mod["OnTooltipShow"](mod);
-            end
-        end
+        --self:CallMethodAllModules("OnTooltipShow");
     elseif tooltip:GetItem() then
         forgetNextOnTooltipMethod = true
     elseif tooltip:GetSpell() then
-
+        forgetNextOnTooltipMethod = true;
     end
 
     if self.db["tooltipStyle"].customColor then
@@ -425,7 +435,6 @@ function Icetip:GameTooltip_OnShow(tooltip, ...)
     end
     self:SetTooltipScale(nil, self.db.scale)
 
-    --[[
     local show;
     if tooltip:IsOwned(UIParent) then
         if tooltip:GetUnit() then
@@ -472,8 +481,8 @@ function Icetip:GameTooltip_OnShow(tooltip, ...)
         tooltip:Hide();
         tooltip.justHide = nil
     end
-    ]]
     self.hooks[tooltip].OnShow(tooltip, ...)
+    self:CallMethodAllModules("OnTooltipShow");
     self:OnTooltipShow();
 end
 
@@ -503,6 +512,7 @@ function Icetip:GameTooltip_SetUnit(tooltip, ...)
                 mod["SetUnit"](mod)
             end
         end
+        
         self:OnTooltipSetUnit()
     end
 end
@@ -712,7 +722,6 @@ function Icetip:CURSOR_UPDATE(...)
 end
 
 function Icetip:MODIFIER_STATE_CHANGED(event, modifier, down)
-    --[[
     local m = self.db.tipmodifier.modifier;
     if modifier:match(m) == nil then
         return
@@ -740,5 +749,4 @@ function Icetip:MODIFIER_STATE_CHANGED(event, modifier, down)
             self.modifierFrame = nil;
         end
     end
-    ]]
 end

@@ -127,17 +127,17 @@ function mod:MouseOverInfo(unit)
 		leftText = _G["GameTooltipTextLeft"..i];
 		tipText = leftText:GetText();
 		if tipText then
-			if not levelline or strfind(tipText, LEVEL) then
-				levelline = i
-			elseif (tipText == PVP) then
-				leftText:SetText();
-			elseif (tipText == TAMEABLE) then
-				leftText:SetText(format("|cff00FF00%s|r", tipText))
-			elseif  (tipText == NOT_TAMEABLE) then
-				leftText:SetText(format("|cffFF6035%s|r", tipText))
-			else
-				otherInfo = tipText
-			end
+                    if not levelline or strfind(tipText, LEVEL) then
+                            levelline = i
+                    elseif (tipText == PVP) then
+                            leftText:SetText();
+                    elseif (tipText == TAMEABLE) then
+                            leftText:SetText(format("|cff00FF00%s|r", tipText))
+                    elseif  (tipText == NOT_TAMEABLE) then
+                            leftText:SetText(format("|cffFF6035%s|r", tipText))
+                    else
+                            otherInfo = tipText
+                    end
 		end
 	end
 	
