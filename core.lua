@@ -50,7 +50,7 @@ local default = {
         },
         --style
         tooltipStyle = {
-            bgTexture = "Blank",
+            bgTexture = "Blizzard Tooltip",
             borderTexture = "Blank",
             tile = false,
             tileSize = 8,
@@ -80,7 +80,7 @@ local default = {
             modifier = "NONE",
         },
         healthbar = {
-            texture = "Blizzard",
+            texture = "Smooth",
             size = 5,
             position = "BOTTOM",
             enable = true,
@@ -92,7 +92,7 @@ local default = {
             short = true,
         },
         powerbar = {
-            texture = "Blizzard",
+            texture = "Smooth",
             size = 5,
             position = "BOTTOM",
             enable = true,
@@ -253,6 +253,7 @@ end
 function Icetip:OnInitialize()
     SM:Register("border", "Blank", [[Interface\AddOns\Icetip\media\blank.tga]]);
     SM:Register("background", "Blank", [[Interface\AddOns\Icetip\media\blank.tga]]);
+	SM:Register("statusbar", "Smooth", [[Interface\AddOns\Icetip\media\Smooth.tga]]);
     local db = LibStub("AceDB-3.0"):New("IcetipDB", default, "Default");
     db.RegisterCallback(self, "OnProfileChanged", "ProfileChanged");
     db.RegisterCallback(self, "OnProfileCopied", "ProfileChanged");
@@ -293,7 +294,7 @@ function Icetip:OnEnable()
     self:HookScript(GameTooltip, "OnTooltipSetUnit", "GameTooltip_SetUnit");
     self:HookScript(GameTooltip, "OnTooltipSetItem", "GameTooltip_SetItem");
     
-    self:RawHook(GameTooltip, "FadeOut", "GameTooltip_FadeOut", true);
+    --self:RawHook(GameTooltip, "FadeOut", "GameTooltip_FadeOut", true);
 
     local previousDead = false
     self:ScheduleRepeatingTimer(function() 
@@ -318,7 +319,11 @@ function Icetip:OnEnable()
 end
 
 function Icetip:ShortValue(value)
-
+	if value ~= nil then
+		if value >= 1000000 then return format('%.1fm', value / 1000000)
+        elseif value >= 1000 then return format('%.1fk', value / 1000)
+        else return value end
+	end
 end
 
 local forgetNextOnTooltipMethod = false

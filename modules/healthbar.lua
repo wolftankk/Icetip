@@ -31,7 +31,7 @@ function mod:UNIT_HEALTH(event, unit)
         return
     end
 
-    self:Update();
+	self:Update();
 end
 
 local function HealthGradient(precent)
@@ -60,8 +60,8 @@ function mod:SetBarPoint()
     healthbar.side = position
     local powerbar = _G.Icetip_Power_Bar
     if position == "BOTTOM" then
-        healthbar:SetPoint("TOPLEFT", GameTooltip, "BOTTOMLEFT", 4, -2);
-        healthbar:SetPoint("TOPRIGHT", GameTooltip, "BOTTOMRIGHT", -4, -2);
+        healthbar:SetPoint("TOPLEFT", GameTooltip, "BOTTOMLEFT", 2, -2);
+        healthbar:SetPoint("TOPRIGHT", GameTooltip, "BOTTOMRIGHT", -2, -2);
         healthbar:SetHeight(self.db.size);
         healthbar:SetOrientation("HORIZONTAL");
     elseif position == "TOP" then
