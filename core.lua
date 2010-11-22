@@ -15,12 +15,12 @@ local SM = LibStub("LibSharedMedia-3.0");
 local LDB = LibStub("LibDataBroker-1.1", true);
 local icon = LibStub("LibDBIcon-1.0", true);
 local tooltips = {
-        GameTooltip,
-        ItemRefTooltip,
+    GameTooltip,
+    ItemRefTooltip,
 	ShoppingTooltip1,
 	ShoppingTooltip2,
 	ShoppingTooltip3,
-        WorldMapTooltip,
+    WorldMapTooltip,
         --FriendsTooltip,
         --BNToastFrame.tooltip
 }
@@ -319,11 +319,11 @@ function Icetip:OnEnable()
 end
 
 function Icetip:ShortValue(value)
-	if value ~= nil then
-		if value >= 1000000 then return format('%.1fm', value / 1000000)
-        elseif value >= 1000 then return format('%.1fk', value / 1000)
-        else return value end
-	end
+    if value ~= nil then
+        if value >= 1000000 then return format('%.1fm', value / 1000000)
+    elseif value >= 1000 then return format('%.1fk', value / 1000)
+    else return value end
+    end
 end
 
 local forgetNextOnTooltipMethod = false
