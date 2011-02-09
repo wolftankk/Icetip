@@ -296,6 +296,15 @@ function Icetip:OnEnable()
     
     --self:RawHook(GameTooltip, "FadeOut", "GameTooltip_FadeOut", true);
 
+		--hack gametooltip
+		local tt = GameTooltip;
+		tt.GetBackdropColor = function()
+			return unpack(self.db.bgColor["other"])
+		end
+		tt.GetBackdropBorderColor = function()
+        return self.db.border_color["r"], self.db.border_color["g"], self.db.border_color["b"], self.db.border_color["a"]
+		end
+
     local previousDead = false
     self:ScheduleRepeatingTimer(function() 
         local mouse_unit = Icetip:GetMouseoverUnit()
@@ -340,7 +349,7 @@ end
 function Icetip:GameTooltip_OnShow(tooltip, ...)
     modules["Appstyle"]:Tooltip_OnShow(tooltip, ...);
     if self.db.itemQBorder and tooltip:GetItem() then
-        ItemQualityBorder()
+        ItemQualityBorder();
     else
         tooltip:SetBackdropBorderColor(self.db["border_color"].r, self.db["border_color"].g, self.db["border_color"].b, self.db["border_color"].a);
     end
