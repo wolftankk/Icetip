@@ -1,4 +1,4 @@
-## Interface: 40000
+## Interface: 40100
 ## Title: Icetip
 ## Title-zhCN: 鼠标提示增强
 ## Title-zhTW: 滑鼠提示增強
@@ -12,7 +12,7 @@
 ## SavedVariables: IcetipDB
 ## X-Category: Tooltip
 ## X-Min-Interface: 30000
-## X-Max-Interface: 40000
+## X-Max-Interface: 40100
 
 #libs#
 embeds.xml
