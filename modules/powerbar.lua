@@ -5,15 +5,16 @@ local db
 local SM = LibStub("LibSharedMedia-3.0")
 local format = string.format
 local powerbar, pbtext;
+local update;
 
 function mod:OnEnable(event, unit)
 	local db = self.db["powerbar"];
 	self.db = db
 
 	if db.enable then
-		self:RegisterEvent("UNIT_POWER", "UNIT_MANA");
-		self:RegisterEvent("UNIT_MAXPOWER", "UNIT_MANA");
-		self:RegisterEvent("UNIT_DISPLAYPOWER", "UNIT_MANA");
+		--self:RegisterEvent("UNIT_POWER", "UNIT_MANA");
+		--self:RegisterEvent("UNIT_MAXPOWER", "UNIT_MANA");
+		--self:RegisterEvent("UNIT_DISPLAYPOWER", "UNIT_MANA");
 
 		self:SetBarPoint();
 	end
@@ -27,12 +28,12 @@ function mod:OnDisable()
 	end
 end
 
-function mod:UNIT_MANA(unit)
-	if not UnitIsUnit(unit, "mouseover") then
-		return
-	end
-	self:Update()
-end
+--function mod:UNIT_MANA(event, unit)
+--	if not UnitIsUnit(unit, "mouseover") then
+--		return
+--	end
+--	self:Update()
+--end
 
 function mod:SetBarPoint()
 	if not powerbar then return end
@@ -88,16 +89,29 @@ function mod:OnTooltipShow()
 		powerbar:Show();
 	end
 
-	self:Update()
+	--self:Update()
+	powerbar.updateTooltip = TOOLTIP_UPDATE_TIME;
+	update(powerbar, 0, true);
+	powerbar:SetScript("OnUpdate", update)
 end
 
 function mod:OnTooltipHide()
 	if not powerbar then return end
 	powerbar:Hide()
+	powerbar:SetScript("OnUpdate", nil);
 end
 
-function mod:Update()
+function update(frame, elapsed, force)
+	local self = mod;
 	if not powerbar then return end
+
+	if (not force) then
+		frame.updateTooltip = frame.updateTooltip - elapsed;
+		if (frame.updateTooltip  > 0) then
+			return;
+		end
+		frame.updateTooltip = TOOLTIP_UPDATE_TIME;
+	end
 
 	local unit = Icetip:GetMouseoverUnit();
 	local powerType = UnitPowerType(unit);

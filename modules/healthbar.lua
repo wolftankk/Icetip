@@ -6,13 +6,16 @@ local SM = LibStub("LibSharedMedia-3.0")
 local format = string.format
 local hbtext, healthbar
 
+local update;
+
 function mod:OnEnable()
 	local db = self.db["healthbar"];
 	self.db = db
 	if db.enabled then
-		self:RegisterEvent("UNIT_HEALTH", "UNIT_HEALTH");
-		self:RegisterEvent("UNIT_MAXHEALTH", "UNIT_HEALTH");
+		--self:RegisterEvent("UNIT_HEALTH", "UNIT_HEALTH");
+		--self:RegisterEvent("UNIT_MAXHEALTH", "UNIT_HEALTH");
 		GameTooltipStatusBar:Hide();
+		GameTooltipStatusBar:ClearAllPoints();
 		self:SetBarPoint();
 	end
 end
@@ -26,13 +29,13 @@ function mod:OnDisable()
 	GameTooltipStatusBar:Hide()
 end
 
-function mod:UNIT_HEALTH(event, unit)
-	if not UnitIsUnit(unit, "mouseover") then
-		return
-	end
-
-	self:Update();
-end
+--function mod:UNIT_HEALTH(event, unit)
+--	if not UnitIsUnit(unit, "mouseover") then
+--		return
+--	end
+--	
+--	self:Update();
+--end
 
 local function HealthGradient(precent)
 	local r1, g1, b1
@@ -103,19 +106,37 @@ function mod:OnTooltipShow()
 		healthbar:Show();
 		GameTooltipStatusBar:Hide();
 	end
-	self:Update()
+
+	healthbar.updateTooltip = TOOLTIP_UPDATE_TIME;
+	update(healthbar, 0, true)
+	healthbar:SetScript("OnUpdate", update);
 end
 
 function mod:OnTooltipHide()
 	if not healthbar then return end
 	healthbar:Hide();
+	healthbar:SetScript("OnUpdate", nil);
 end
 
-function mod:Update()
+function update(frame, elapsed, force)
+	local self = mod;
 	if not healthbar then return end
+	
+	if (not force) then
+		frame.updateTooltip = frame.updateTooltip - elapsed;
+		if (frame.updateTooltip  > 0) then
+			return;
+		end
+		frame.updateTooltip = TOOLTIP_UPDATE_TIME;
+	end
 
 	local hpmax = UnitHealthMax(Icetip:GetMouseoverUnit());
 	local hp = UnitHealth(Icetip:GetMouseoverUnit());
+
+	if (hp == hpmax and not force) then
+		return;
+	end
+
 	local value;
 	if hpmax == 0 then
 		value = 0
