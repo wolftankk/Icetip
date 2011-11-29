@@ -1,4 +1,4 @@
-## Interface: 40200
+## Interface: 40300
 ## Title: Icetip
 ## Title-zhCN: 鼠标提示增强
 ## Title-zhTW: 滑鼠提示增強
@@ -35,6 +35,6 @@ modules\healthbar.lua
 modules\powerbar.lua
 modules\mousetarget.lua
 modules\raidTarget.lua
-modules\buff.lua
+#modules\buff.lua
 
 options.lua
