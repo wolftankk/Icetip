@@ -48,7 +48,7 @@ function mod:OnTooltipSetUnit()
 	end
 
 	if unit and UnitExists(unit) then
-		GameTooltip:AddLine(L["[Target] "]..GetTargetLine(unit.."target"));
+		GameTooltip:AddLine(L["[Target] "]..GetTargetLine((unit and unit or "").."target"));
 		targetLine = GameTooltip:NumLines()
 	end
 end
