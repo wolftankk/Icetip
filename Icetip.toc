@@ -6,13 +6,11 @@
 ## Notes-zhCN: 鼠标提示增强. 可以显示显示目标的血量/法力, 能量, 怒气, 天赋, 自定义显示位置
 ## Notes-zhTW: 滑鼠提示增強. 自定義顯示位置, 顯示目標的血量/法力, 能量, 怒氣, 天賦
 ## Version: @project-version@ 
-## Author: 月色狼影
+## Author: wolftankk(月色狼影)
 ## E-Mail: wolftankk@gmail.com
 ## X-URL: http://cwowaddon.com
 ## SavedVariables: IcetipDB
 ## X-Category: Tooltip
-## X-Min-Interface: 30000
-## X-Max-Interface: 40100
 
 #libs#
 embeds.xml

@@ -205,7 +205,12 @@ function Icetip:NewModule(name, embedHook)
 	return mod
 end
 
-function Icetip:GetModule(name)
+function Icetip:GetModule(name, slince)
+	if not slince then
+		if not modules[name] then
+			error("Icetip Module "..name.." not found", 2);
+		end
+	end
 	return modules[name]
 end
 
