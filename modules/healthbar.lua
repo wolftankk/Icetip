@@ -12,8 +12,6 @@ function mod:OnEnable()
 	local db = self.db["healthbar"];
 	self.db = db
 	if db.enabled then
-		--self:RegisterEvent("UNIT_HEALTH", "UNIT_HEALTH");
-		--self:RegisterEvent("UNIT_MAXHEALTH", "UNIT_HEALTH");
 		GameTooltipStatusBar:Hide();
 		GameTooltipStatusBar:ClearAllPoints();
 		self:SetBarPoint();
@@ -28,14 +26,6 @@ function mod:OnDisable()
 	end
 	GameTooltipStatusBar:Hide()
 end
-
---function mod:UNIT_HEALTH(event, unit)
---	if not UnitIsUnit(unit, "mouseover") then
---		return
---	end
---	
---	self:Update();
---end
 
 local function HealthGradient(precent)
 	local r1, g1, b1
@@ -79,6 +69,15 @@ function mod:SetBarPoint()
 			healthbar:SetPoint("BOTTOMRIGHT", GameTooltip, "TOPRIGHT", 2, 0);
 		end
 		healthbar:SetHeight(self.db.size);
+		healthbar:SetOrientation("HORIZONTAL");
+	elseif position == "INNER" then
+		--display into the GameTooltip
+		healthbar:ClearAllPoints();
+		healthbar:SetParent(GameTooltip);
+		healthbar:SetPoint("BOTTOMLEFT", 8 , 5);
+		healthbar:SetPoint("BOTTOMRIGHT", -8, 5);
+		healthbar:SetWidth(GameTooltip:GetWidth())
+		healthbar:SetHeight(self.db.size)
 		healthbar:SetOrientation("HORIZONTAL");
 	end
 end

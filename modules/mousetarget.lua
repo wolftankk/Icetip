@@ -264,6 +264,20 @@ function mod:MouseOverInfo(unit)
 
 	--update target
 	--self:OnTooltipSetUnit();
+	--local offset = 0;
+	--local healthbar = Icetip_Health_Bar;
+	--local powerbar = Icetip_Power_Bar;
+	--if healthbar and healthbar.side == "INNER" then
+	--	offset = offset + healthbar:GetHeight() + 2;	
+	--end
+
+	--if powerbar and powerbar.side == "INNER" then
+	--	offset = offset + powerbar:GetHeight() + 2;	
+	--end
+	--
+	--if (offset > 0) then
+	--	GameTooltip._tipNewHeight = GameTooltip:GetHeight() + offset;
+	--end
 
 	local color = RAID_CLASS_COLORS[select(2, UnitClass(unit))];
 	if db.colorBorderByClass and isPlayer then
@@ -275,12 +289,8 @@ end
 
 do
 	function mod:GetTalentTabInfo(...)
-		if (select(4, GetBuildInfo()) >= 40000) then
-			local uniqueId, tabName, description, icon, pointsSpent, background, previewPointsSpent, bool = GetTalentTabInfo(...);
-			return tabName, icon, pointsSpent, background, previewPointsSpent;
-		else
-			return GetTalentTabInfo(...);
-		end
+		local uniqueId, tabName, description, icon, pointsSpent, background, previewPointsSpent, bool = GetTalentTabInfo(...);
+		return tabName, icon, pointsSpent, background, previewPointsSpent;
 	end
 
 	local MAX_TALENT_POINT = 36 

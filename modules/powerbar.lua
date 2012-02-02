@@ -51,6 +51,9 @@ function mod:SetBarPoint()
 		elseif healthbar and healthbar.side == "BOTTOM" then
 			powerbar:SetPoint("TOPLEFT", healthbar, "BOTTOMLEFT", 0, -2);
 			powerbar:SetPoint("TOPRIGHT", healthbar, "BOTTOMRIGHT",0, -2);
+		elseif healthbar and healthbar.side == "INNER" then
+			powerbar:SetPoint("TOPLEFT", GameTooltip, "BOTTOMLEFT", 0, -2);
+			powerbar:SetPoint("TOPRIGHT", GameTooltip, "BOTTOMRIGHT",0, -2);
 		else
 			powerbar:SetPoint("TOPLEFT", GameTooltip, "BOTTOMLEFT", 2, 2);
 			powerbar:SetPoint("TOPRIGHT", GameTooltip, "BOTTOMRIGHT", -2, 2);
@@ -61,6 +64,20 @@ function mod:SetBarPoint()
 		powerbar:SetPoint("BOTTOMLEFT", GameTooltip, "TOPLEFT", 2, 0);
 		powerbar:SetPoint("BOTTOMRIGHT", GameTooltip, "TOPRIGHT", -2, 0);
 		powerbar:SetHeight(self.db.size);
+		powerbar:SetOrientation("HORIZONTAL");
+	elseif position == "INNER" then
+		if healthbar and healthbar.side == "INNER" then
+			powerbar:ClearAllPoints();
+			powerbar:SetPoint("TOPLEFT", healthbar, "BOTTOMLEFT", 0, -4);
+			powerbar:SetPoint("TOPRIGHT", healthbar, "BOTTOMRIGHT",0, -4);
+		else
+			powerbar:ClearAllPoints();
+			powerbar:SetParent(GameTooltip);
+			powerbar:SetPoint("BOTTOMLEFT", 8 , 5);
+			powerbar:SetPoint("BOTTOMRIGHT", -8, 5);
+			powerbar:SetWidth(GameTooltip:GetWidth())
+		end
+		powerbar:SetHeight(self.db.size)
 		powerbar:SetOrientation("HORIZONTAL");
 	end
 end

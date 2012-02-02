@@ -57,6 +57,7 @@ local anchorType = {
 local barPosition = {
 	["TOP"] = L["Tooltip Top"],
 	["BOTTOM"] = L["Tooltip Bottom"],
+	--["INNER"] = L["Tooltip inner"]
 	--["LEFT"] = L["Tooltip Left"],
 	--["RIGHT"] = L["Tooltip Right"],
 }
@@ -99,19 +100,19 @@ local function CreateOption()
 					desc = L["Change how the tooltip appearance in grneral."],
 					order = order(),
 					args = {
-                                                minimap = {
-                                                    type = "toggle",
-                                                    order = order(),
-                                                    name = L["Show minimap icon"],
-                                                    desc = L["Show the icon on the minimap"],
-                                                    get = function()
-                                                        return (not db.minimap.hide)
-                                                    end,
-                                                    set = function(_, v)
-                                                        db.minimap.hide = not db.minimap.hide;
-                                                        icon:Refresh("Icetip", db.minimap)
-                                                    end
-                                                },
+						minimap = {
+								type = "toggle",
+								order = order(),
+								name = L["Show minimap icon"],
+								desc = L["Show the icon on the minimap"],
+								get = function()
+										return (not db.minimap.hide)
+								end,
+								set = function(_, v)
+										db.minimap.hide = not db.minimap.hide;
+										icon:Refresh("Icetip", db.minimap)
+								end
+						},
 						colorclass = {
 							type = "toggle",
 							order = order(),

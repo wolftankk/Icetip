@@ -296,6 +296,7 @@ function Icetip:OnEnable()
 		self:HookScript(tooltip, "OnShow", "GameTooltip_OnShow");
 		self:HookScript(tooltip, "OnHide", "GameTooltip_OnHide");
 	end
+	self:HookScript(GameTooltip, "OnUpdate", "GameTooltip_OnUpdate");
 	self:HookScript(GameTooltip, "OnTooltipSetUnit", "GameTooltip_SetUnit");
 	self:HookScript(GameTooltip, "OnTooltipSetItem", "GameTooltip_SetItem");
 
@@ -494,4 +495,11 @@ function Icetip:MODIFIER_STATE_CHANGED(event, modifier, down)
 			self.modifierFrame = nil;
 		end
 	end
+end
+
+function Icetip:GameTooltip_OnUpdate(tip, elapsed)
+	--if (tip._tipNewHeight) and (abs(tip:GetHeight() - tip._tipNewHeight) > 0.1) then
+	--	tip:SetHeight(tip._tipNewHeight);
+	--end
+	--print(tip:GetHeight(), tip._tipNewHeight);
 end
