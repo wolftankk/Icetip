@@ -26,6 +26,7 @@ local tooltips = {
 	--FriendsTooltip,
 	--BNToastFrame.tooltip
 }
+Icetip.tooltips = tooltips;
 
 local default = {
 	profile = {
@@ -289,6 +290,7 @@ function Icetip:OnEnable()
 	self:HookScript(GameTooltip, "OnUpdate", "GameTooltip_OnUpdate");
 	self:HookScript(GameTooltip, "OnTooltipSetUnit", "GameTooltip_SetUnit");
 	self:HookScript(GameTooltip, "OnTooltipSetItem", "GameTooltip_SetItem");
+	self:HookScript(GameTooltip, "OnTooltipSetSpell", "GameTooltip_SetSpell")
 
 	--self:RawHook(GameTooltip, "FadeOut", "GameTooltip_FadeOut", true);
 
@@ -344,13 +346,7 @@ end
 
 function Icetip:GameTooltip_OnShow(tooltip, ...)
 	modules["Appstyle"]:Tooltip_OnShow(tooltip, ...);
-	--if self.db.itemQBorder and tooltip:GetItem() then
-	--	ItemQualityBorder();
-	--else
-
-	--reupdate
 	tooltip:SetBackdropBorderColor(self.db["border_color"].r, self.db["border_color"].g, self.db["border_color"].b, self.db["border_color"].a);
-	--end
 	
 	--only GameTooltip need fix
 	if tooltip == GameTooltip then
@@ -442,12 +438,16 @@ function Icetip:GameTooltip_SetUnit(tooltip, ...)
 end
 
 function Icetip:GameTooltip_SetItem(tooltip, ...)
-	forgetNextOnTooltipMethod = true
+	--forgetNextOnTooltipMethod = true
 	if forgetNextOnTooltipMethod then
 		forgetNextOnTooltipMethod = false
 	else
 		self:OnTooltipMethod("SetItem");
 	end
+end
+
+function Icetip:GameTooltip_SetSpell(tooltip, ...)
+
 end
 
 function Icetip:GetMouseoverUnit()

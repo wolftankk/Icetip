@@ -2,12 +2,12 @@ local _, Icetip = ...;
 local mod = Icetip:NewModule("ItemRef");
 local db;
 
-
 function mod:OnEnable()
 	local db = self.db
 end
 
 local function ItemQualityBorder()
+	local tooltips = Icetip.tooltips
 	for i=1, #tooltips do
 		if not tooltips[i]["GetItem"] then return end
 		local item = select(2, tooltips[i]:GetItem());
@@ -21,7 +21,7 @@ local function ItemQualityBorder()
 	end
 end
 
-function mod:OnTooltipSetItem()
+function mod:OnTooltipShow()
 	if self.db.itemQBorder then
 		ItemQualityBorder();
 	end
