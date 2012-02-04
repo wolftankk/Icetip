@@ -9,8 +9,10 @@ local addonName, Icetip = ...
 Icetip = LibStub("AceAddon-3.0"):NewAddon(Icetip, addonName, "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0");
 Icetip.vesion = GetAddOnMetadata(addonName, "Version") 
 Icetip.revision = tonumber(("$Revision$"):match("%d+"));
+
 local modules = {};
 Icetip.modules = modules;
+
 local SM = LibStub("LibSharedMedia-3.0");
 local LDB = LibStub("LibDataBroker-1.1", true);
 local icon = LibStub("LibDBIcon-1.0", true);
@@ -24,6 +26,7 @@ local tooltips = {
 	--FriendsTooltip,
 	--BNToastFrame.tooltip
 }
+
 local default = {
 	profile = {
 		scale = 1,
@@ -132,22 +135,8 @@ local default = {
 	}
 }
 
-local function ItemQualityBorder()
-	for i=1, #tooltips do
-		if not tooltips[i]["GetItem"] then return end
-		local item = select(2, tooltips[i]:GetItem());
-		if item then
-			local quality = select(3, GetItemInfo(item));
-			if quality then
-				local r, g, b = GetItemQualityColor(quality);
-				tooltips[i]:SetBackdropBorderColor(r, g, b);
-			end
-		end
-	end
-end
-
 --------------------------------------------------------------
---- icetip mod
+--- icetip modules
 --------------------------------------------------------------
 local modhandler = {};
 local CallbackHandler = LibStub:GetLibrary("CallbackHandler-1.0");
@@ -177,7 +166,6 @@ end)
 
 local modPrototype = {};
 function modPrototype:Enable()
-	--reset db
 	self.db = Icetip.db
 	self:OnEnable();
 end
@@ -256,9 +244,11 @@ end
 ----------------------------------------------------------------
 
 function Icetip:OnInitialize()
+	--register sharedmedia
 	SM:Register("border", "Blank", [[Interface\AddOns\Icetip\media\blank.tga]]);
 	SM:Register("background", "Blank", [[Interface\AddOns\Icetip\media\blank.tga]]);
 	SM:Register("statusbar", "Smooth", [[Interface\AddOns\Icetip\media\Smooth.tga]]);
+
 	local db = LibStub("AceDB-3.0"):New("IcetipDB", default, "Default");
 	db.RegisterCallback(self, "OnProfileChanged", "ProfileChanged");
 	db.RegisterCallback(self, "OnProfileCopied", "ProfileChanged");
@@ -354,12 +344,14 @@ end
 
 function Icetip:GameTooltip_OnShow(tooltip, ...)
 	modules["Appstyle"]:Tooltip_OnShow(tooltip, ...);
-	if self.db.itemQBorder and tooltip:GetItem() then
-		ItemQualityBorder();
-	else
-		tooltip:SetBackdropBorderColor(self.db["border_color"].r, self.db["border_color"].g, self.db["border_color"].b, self.db["border_color"].a);
-	end
+	--if self.db.itemQBorder and tooltip:GetItem() then
+	--	ItemQualityBorder();
+	--else
 
+	--reupdate
+	tooltip:SetBackdropBorderColor(self.db["border_color"].r, self.db["border_color"].g, self.db["border_color"].b, self.db["border_color"].a);
+	--end
+	
 	--only GameTooltip need fix
 	if tooltip == GameTooltip then
 		if not doneOnTooltipMethod then
