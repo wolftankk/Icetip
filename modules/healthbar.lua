@@ -72,13 +72,13 @@ function mod:SetBarPoint()
 		healthbar:SetOrientation("HORIZONTAL");
 	elseif position == "INNER" then
 		--display into the GameTooltip
-		healthbar:ClearAllPoints();
-		healthbar:SetParent(GameTooltip);
-		healthbar:SetPoint("BOTTOMLEFT", 8 , 5);
-		healthbar:SetPoint("BOTTOMRIGHT", -8, 5);
-		healthbar:SetWidth(GameTooltip:GetWidth())
-		healthbar:SetHeight(self.db.size)
-		healthbar:SetOrientation("HORIZONTAL");
+		--healthbar:ClearAllPoints();
+		--healthbar:SetParent(GameTooltip);
+		--healthbar:SetPoint("BOTTOMLEFT", 8 , 5);
+		--healthbar:SetPoint("BOTTOMRIGHT", -8, 5);
+		--healthbar:SetWidth(GameTooltip:GetWidth())
+		--healthbar:SetHeight(self.db.size)
+		--healthbar:SetOrientation("HORIZONTAL");
 	end
 end
 
