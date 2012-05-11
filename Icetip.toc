@@ -25,7 +25,7 @@ locale\esES.lua
 locale\zhCN.lua
 locale\zhTW.lua
 
-core.lua
+Icetip.lua
 modules\position.lua
 modules\fade.lua
 modules\appstyle.lua

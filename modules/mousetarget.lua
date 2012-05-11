@@ -366,6 +366,39 @@ do
 		end
 	end
 
+	local function round(num, dec)
+		dec = dec or 0
+		return tonumber(string.format("%."..dec.."f", num))
+	end
+
+
+	local function GetUnitItemLevel(unit)
+		local sum, count = 0, 0;
+		if unit and UnitIsPlayer(unit) and CheckInteractDistance(unit, 1) then
+			for i = 1, 18, 1 do
+				local itemLink = GetInventoryItemLink(unit, i) or 0
+				local itemLevel = select(4, GetItemInfo(itemLink))
+
+				if itemLevel and itemLevel > 0 and i ~= 4 then
+					count = count + 1;
+					sum = sum	+ (itemLevel or 0)
+				end
+			end
+			
+			if GetInventoryItemLink(unit, 17) then
+				count = 17
+			else
+				count = 16
+			end
+		end
+		if sum >= count and count > 0 then
+			return round(sum/count, 1)
+		else
+			return nil
+		end
+
+	end
+
 	function mod:INSPECT_READY()
 		self:UnregisterEvent("INSPECT_READY");
 		local currTalentGroupId = GetActiveTalentGroup(true)
@@ -386,11 +419,14 @@ do
 		local talent_name2, talent_text2 = TalentSpecName({name1,name2,name3}, {point1,point2,point3},{pcolor1, pcolor2, pcolor3})
 
 		local tooltipunit = GameTooltip:GetUnit()
+		local iLvl = GetUnitItemLevel(tooltipunit);
 		if UnitExists("mouseover") and Icetip_InspectTalent[tooltipunit] then
 			GameTooltip:AddDoubleLine(L["Active Talent: "], talent_name);
 			if (talent_name2 ~= _G["NONE"] and talent_text2 ~= _G["NONE"]) then
 				GameTooltip:AddDoubleLine(L["Sec Talent: "], talent_name2);
 			end
+			GameTooltip:AddDoubleLine("iLvl: ", iLvl);
+
 			GameTooltip:Show();
 
 			--clear tbl
