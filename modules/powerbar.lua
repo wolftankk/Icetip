@@ -1,7 +1,6 @@
 local _, Icetip = ...
 
 local mod = Icetip:NewModule("PowerBar");
-local db
 local SM = LibStub("LibSharedMedia-3.0")
 local format = string.format
 local powerbar, pbtext;

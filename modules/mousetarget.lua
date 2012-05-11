@@ -383,9 +383,9 @@ do
 		end
 
 		if sum >= count and count > 0 then
-			GameTooltip:AddDoubleLine("iLvl: ", round(sum/count, 1));
+			GameTooltip:AddDoubleLine("iLvl: ", round(sum/count, 0));
 			GameTooltip:Show()
-			return round(sum/count, 1)
+			return round(sum/count, 0)
 		else
 			return nil
 		end
