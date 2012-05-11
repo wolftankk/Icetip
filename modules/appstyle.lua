@@ -1,16 +1,22 @@
 local _, Icetip = ...
 local SM = LibStub("LibSharedMedia-3.0");
 local mod = Icetip:NewModule("Appstyle");
-
---local Icetip_Appstyle = {};
---Icetip.Appstyle = Icetip_Appstyle;
+local backdrop = {insets = {}};
+local hooked = {}
 
 function mod:OnEnable()
 
 end
 
-local backdrop = {insets = {}};
-local hooked = {}
+function mod:PreOnTooltipShow(tooltip, ...)
+	if hooked[tooltip] then
+	else
+		hooked[tooltip] = true
+		self:UpdateBackdrop(tooltip, ...)
+	end
+	tooltip:SetBackdropBorderColor(self.db["border_color"].r, self.db["border_color"].g, self.db["border_color"].b, self.db["border_color"].a);
+end
+
 function mod:UpdateBackdrop(tooltip, ...)
 	if not tooltip then tooltip = GameTooltip end
 
@@ -28,14 +34,6 @@ function mod:UpdateBackdrop(tooltip, ...)
 	tooltip:SetBackdrop(backdrop);
 end
 
---Onshow
-function mod:Tooltip_OnShow(tooltip, ...)
-	if hooked[tooltip] then
-		return
-	end
-	hooked[tooltip] = true
-	self:UpdateBackdrop(tooltip, ...)
-end
 
 function mod:OnTooltipShow(tooltip)
 	if self.db["tooltipStyle"].customColor then

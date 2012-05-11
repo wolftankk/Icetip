@@ -6,11 +6,8 @@
 local addonName, Icetip = ...
 Icetip = LibStub("AceAddon-3.0"):NewAddon(Icetip, addonName, "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0");
 Icetip.vesion = GetAddOnMetadata(addonName, "Version") 
-Icetip.revision = tonumber(("$Revision$"):match("%d+"));
-
 local modules = {};
 Icetip.modules = modules;
-
 local SM = LibStub("LibSharedMedia-3.0");
 local LDB = LibStub("LibDataBroker-1.1", true);
 local icon = LibStub("LibDBIcon-1.0", true);
@@ -48,7 +45,6 @@ local default = {
 			b = 0,
 			a = 0,
 		},
-		--style
 		tooltipStyle = {
 			bgTexture = "Blizzard Tooltip",
 			borderTexture = "Blank",
@@ -183,7 +179,6 @@ function Icetip:NewModule(name, embedHook)
 	end
 	modules[name] = mod;
 
-	--need hooked lib?
 	if embedHook then
 		LibStub("AceHook-3.0"):Embed(mod);
 	end
@@ -211,7 +206,7 @@ function Icetip:HasModule(name)
 	return false
 end
 
-function Icetip:OnTooltipMethod(name)
+function Icetip:OnTooltipMethod(name, ...)
 	for i = 1, 3 do
 		local methodName;
 		if i == 1 then
@@ -221,7 +216,7 @@ function Icetip:OnTooltipMethod(name)
 		else
 			methodName = "PostTooltip"..name
 		end
-		self:CallMethodAllModules(methodName);
+		self:CallMethodAllModules(methodName, ...);
 	end
 end
 
@@ -237,9 +232,8 @@ function Icetip:CallMethodAllModules(methodName, ...)
 end
 
 ----------------------------------------------------------------
---- init addon  --------------------------------------------------------
+----------------------- init addon  ----------------------------
 ----------------------------------------------------------------
-
 function Icetip:OnInitialize()
 	--register sharedmedia
 	SM:Register("border", "Blank", [[Interface\AddOns\Icetip\media\blank.tga]]);
@@ -247,9 +241,9 @@ function Icetip:OnInitialize()
 	SM:Register("statusbar", "Smooth", [[Interface\AddOns\Icetip\media\Smooth.tga]]);
 
 	local db = LibStub("AceDB-3.0"):New("IcetipDB", default, "Default");
-	db.RegisterCallback(self, "OnProfileChanged", "ProfileChanged");
-	db.RegisterCallback(self, "OnProfileCopied", "ProfileChanged");
-	db.RegisterCallback(self, "OnProfileReset", "ProfileChanged");
+	--db.RegisterCallback(self, "OnProfileChanged", "ProfileChanged");
+	--db.RegisterCallback(self, "OnProfileCopied", "ProfileChanged");
+	--db.RegisterCallback(self, "OnProfileReset", "ProfileChanged");
 	self.acedb = db;
 	self.db = db.profile;
 
@@ -278,19 +272,22 @@ function Icetip:OnEnable()
 			mod["OnEnable"](mod);
 		end
 	end
-	--hook
+
 	for _, tooltip in pairs(tooltips) do
 		self:HookScript(tooltip, "OnShow", "GameTooltip_OnShow");
 		self:HookScript(tooltip, "OnHide", "GameTooltip_OnHide");
+
+		self:HookScript(tooltip, "OnUpdate", "GameTooltip_OnUpdate");
+		
+		--self:HookScript(GameTooltip, "OnTooltipCleared", "")
+		self:HookScript(tooltip, "OnTooltipSetUnit", "GameTooltip_SetUnit");
+		self:HookScript(tooltip, "OnTooltipSetItem", "GameTooltip_SetItem");
+		self:HookScript(tooltip, "OnTooltipSetSpell", "GameTooltip_SetSpell")
+		--self:HookScript(GameTooltip, "OnTooltipSetQuest", "GameTooltip_SetQuest")
+		--self:HookScript(GameTooltip, "OnTooltipSetAchievement", "GameTooltip_SetAchievement")
 	end
-	--self:HookScript(GameTooltip, "OnUpdate", "GameTooltip_OnUpdate");
-	self:HookScript(GameTooltip, "OnTooltipSetUnit", "GameTooltip_SetUnit");
-	self:HookScript(GameTooltip, "OnTooltipSetItem", "GameTooltip_SetItem");
-	self:HookScript(GameTooltip, "OnTooltipSetSpell", "GameTooltip_SetSpell")
 
-	--self:RawHook(GameTooltip, "FadeOut", "GameTooltip_FadeOut", true);
 
-	--hack gametooltip
 	local tt = GameTooltip;
 	tt.GetBackdropColor = function()
 		return unpack(self.db.bgColor["other"])
@@ -318,6 +315,7 @@ function Icetip:OnEnable()
 			previousDead = nil
 		end
 	end, 0.05)
+
 	self:RegisterEvent("MODIFIER_STATE_CHANGED");
 end
 
@@ -329,26 +327,53 @@ function Icetip:ShortValue(value)
 	end
 end
 
+function Icetip:GetMouseoverUnit()
+	local _, tooltipUnit = GameTooltip:GetUnit()
+	if not tooltipUnit or not UnitExists(tooltipUnit) or UnitIsUnit(tooltipUnit, "mouseover") then
+		return "mouseover"
+	else
+		return tooltipUnit
+	end
+end
+
+function Icetip:MODIFIER_STATE_CHANGED(event, modifier, down)
+	local m = self.db.tipmodifier.modifier;
+	if modifier:match(m) == nil then
+		return
+	end
+	local frame = GetMouseFocus();
+	if frame == WorldFrame or frame == UIParent then
+		local mouseover_unit = self:GetMouseoverUnit();
+		if not UnitExists(mouseover_unit) then
+			GameTooltip:Hide()
+		end
+		GameTooltip:Hide();
+		GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
+		GameTooltip:SetUnit(mouseover_unit);
+		GameTooltip:Show();
+	else
+		local onLeave, onEnter = frame:GetScript("OnLeave"), frame:GetScript("OnEnter");
+		if onLeave then
+			self.modifierFrame = frame;
+			onLeave(frame);
+			self.modifierFrame = nil;
+		end
+		if onEnter then
+			self.modifierFrame = frame;
+			onEnter(frame);
+			self.modifierFrame = nil;
+		end
+	end
+end
+
 local forgetNextOnTooltipMethod = false
-
---update db
-function Icetip:ProfileChanged(db)
-
-end
-
-function Icetip:GameTooltip_FadeOut(tooltip, ...)
-	self.hooks[tooltip].FadeOut(tooltip, ...)
-end
-
 function Icetip:GameTooltip_OnShow(tooltip, ...)
-	modules["Appstyle"]:Tooltip_OnShow(tooltip, ...);
-	tooltip:SetBackdropBorderColor(self.db["border_color"].r, self.db["border_color"].g, self.db["border_color"].b, self.db["border_color"].a);
+	self:CallMethodAllModules("PreOnTooltipShow", tooltip, ...);
 	
-	--only GameTooltip need fix
 	if tooltip == GameTooltip then
 		if not doneOnTooltipMethod then
 			if tooltip:GetUnit() then
-				self:OnTooltipMethod("SetUnit");
+				self:OnTooltipMethod("SetUnit", tooltip, ...);
 				forgetNextOnTooltipMethod = true
 			elseif tooltip:GetItem() then
 				forgetNextOnTooltipMethod = true
@@ -404,6 +429,7 @@ function Icetip:GameTooltip_OnShow(tooltip, ...)
 			tooltip.justHide = nil
 		end
 	end
+
 	self.hooks[tooltip].OnShow(tooltip, ...)
 	self:CallMethodAllModules("OnTooltipShow", tooltip);
 end
@@ -413,7 +439,6 @@ function Icetip:GameTooltip_OnHide(tooltip, ...)
 	forgetNextOnTooltipMethod = false
 
 	self:CallMethodAllModules("OnTooltipHide");
-
 	if self.hooks[tooltip] and self.hooks[tooltip].OnHide then
 		--reset gametooltip style
 		local ct = self.db.bgColor["other"];
@@ -429,63 +454,44 @@ function Icetip:GameTooltip_SetUnit(tooltip, ...)
 	if forgetNextOnTooltipMethod then
 		forgetNextOnTooltipMethod = false
 	else
-		self:OnTooltipMethod("SetUnit"); 
+		self:OnTooltipMethod("SetUnit", tooltip, ...); 
 	end
 end
 
 function Icetip:GameTooltip_SetItem(tooltip, ...)
-	--forgetNextOnTooltipMethod = true
+	--local doneOnTooltipMethod = true
 	if forgetNextOnTooltipMethod then
 		forgetNextOnTooltipMethod = false
 	else
-		self:OnTooltipMethod("SetItem");
+		self:OnTooltipMethod("SetItem", tooltip, ...);
 	end
 end
 
 function Icetip:GameTooltip_SetSpell(tooltip, ...)
-
-end
-
-function Icetip:GetMouseoverUnit()
-	local _, tooltipUnit = GameTooltip:GetUnit()
-	if not tooltipUnit or not UnitExists(tooltipUnit) or UnitIsUnit(tooltipUnit, "mouseover") then
-		return "mouseover"
+	--local doneOnTooltipMethod = true
+	if forgetNextOnTooltipMethod then
+		forgetNextOnTooltipMethod = false
 	else
-		return tooltipUnit
+		self:OnTooltipMethod("SetSpell", tooltip, ...);
 	end
 end
 
-function Icetip:MODIFIER_STATE_CHANGED(event, modifier, down)
-	local m = self.db.tipmodifier.modifier;
-	if modifier:match(m) == nil then
-		return
-	end
-	local frame = GetMouseFocus();
-	if frame == WorldFrame or frame == UIParent then
-		local mouseover_unit = self:GetMouseoverUnit();
-		if not UnitExists(mouseover_unit) then
-			GameTooltip:Hide()
-		end
-		GameTooltip:Hide();
-		GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
-		GameTooltip:SetUnit(mouseover_unit);
-		GameTooltip:Show();
+function Icetip:GameTooltip_SetQuest(tooltip, ...)
+	if forgetNextOnTooltipMethod then
+		forgetNextOnTooltipMethod = false
 	else
-		local onLeave, onEnter = frame:GetScript("OnLeave"), frame:GetScript("OnEnter");
-		if onLeave then
-			self.modifierFrame = frame;
-			onLeave(frame);
-			self.modifierFrame = nil;
-		end
-		if onEnter then
-			self.modifierFrame = frame;
-			onEnter(frame);
-			self.modifierFrame = nil;
-		end
+		self:OnTooltipMethod("SetQuest", tooltip, ...);
+	end
+end
+
+function Icetip:GameTooltip_SetAchievement(tooltip, ...)
+	if forgetNextOnTooltipMethod then
+		forgetNextOnTooltipMethod = false
+	else
+		self:OnTooltipMethod("SetAchievement", tooltip, ...);
 	end
 end
 
 function Icetip:GameTooltip_OnUpdate(tip, elapsed)
-
 
 end
