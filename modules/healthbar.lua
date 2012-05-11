@@ -81,7 +81,7 @@ function mod:SetBarPoint()
 	end
 end
 
-function mod:OnTooltipShow()
+function mod:OnTooltipSetUnit()
 	if not healthbar then
 		healthbar = CreateFrame("StatusBar", "Icetip_Health_Bar", GameTooltip);
 		healthbar:SetStatusBarTexture(SM:Fetch("statusbar", self.db.texture));

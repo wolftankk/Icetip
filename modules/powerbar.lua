@@ -81,7 +81,7 @@ function mod:SetBarPoint()
 	end
 end
 
-function mod:OnTooltipShow()
+function mod:OnTooltipSetUnit()
 	if not powerbar then
 		powerbar = CreateFrame("StatusBar", "Icetip_Power_Bar", GameTooltip);
 		powerbar:SetStatusBarTexture(SM:Fetch("statusbar", self.db.texture));
