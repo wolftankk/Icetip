@@ -1,16 +1,11 @@
 local _, Icetip = ...
 local mod = Icetip:NewModule("MouseTarget");
-local db
-local GameTooltipStatusBar = _G.GameTooltipStatusBar
 local L = LibStub("AceLocale-3.0"):GetLocale("Icetip")
-local unit
-local targetLine
 local Icetip_InspectTalent = setmetatable({}, {__mode="kv"});
 local CLASS_COLORS = {}
 for class, color in pairs(RAID_CLASS_COLORS) do
 	CLASS_COLORS[class] = ("%2x%2x%2x"):format(color.r*255, color.g*255, color.b*255)
 end
-
 local UnitReactionColor = {
 	{r = 1.0, g = 0.0, b = 0.0},
 	{r = 1.0, g = 0.0, b = 0.0},
@@ -22,72 +17,24 @@ local UnitReactionColor = {
 	{r = 0.0, g = 1.0, b = 0.0},
 }
 
-local function GetTargetLine(unit)
-	if not UnitExists(unit) then return end
-	if UnitIsUnit(unit, "player") then
-		return L["|cffff0000>YOU<|r"];
-	elseif UnitIsPlayer(unit) then
-		return "|cff"..CLASS_COLORS[select(2, UnitClass(unit))]..UnitName(unit).."|r"
-	else
-		unitreaction = UnitReactionColor[UnitReaction(unit, "player")];
-		if not unitreaction then
-			return
-		end
-		return format("|cff%2x%2x%2x%s|r", unitreaction.r*255, unitreaction.g*255, unitreaction.b*255, UnitName(unit))
-	end
-end
-
-function mod:OnTooltipSetUnit()
-	local _, unit = GameTooltip:GetUnit();
-	if not Icetip.db["mousetarget"].showTarget then return end
-	if not unit or not GameTooltip:IsVisible() then return end
-
-	if not unit or not UnitExists(unit.."target") then
-		targetLine = nil
-		return
-	end
-
-	if unit and UnitExists(unit) then
-		GameTooltip:AddLine(L["[Target] "]..GetTargetLine((unit and unit or "").."target"));
-		targetLine = GameTooltip:NumLines()
-	end
-end
-
-local updateTime = 0
-function mod:Update(elapsed)
-	updateTime = updateTime + elapsed;
-	if updateTime > 0.1 then
-		local unit = select(2, GameTooltip:GetUnit());
-		if not unit or not GameTooltip:IsVisible() then return end
-		if not UnitExists(unit) then return end
-		if UnitExists(unit.."target") then
-			for i = 1, GameTooltip:NumLines() do
-				if (_G["GameTooltipTextLeft"..i]:GetText()) then
-					if (_G["GameTooltipTextLeft"..i]:GetText():find(TARGET)) then
-						_G["GameTooltipTextLeft"..i]:SetText(L["[Target] "]..GetTargetLine(unit.."target"))
-						GameTooltip:Show()
-						break;
-					end
-				elseif i == GameTooltip:NumLines() then
-					GameTooltip:AddLine(L["[Target] "]..GetTargetLine(unit.."target"))
-					GameTooltip:Show()
-				end
-			end
-		end
-	end
+function mod:OnEnable()
+	local db = self.db["mousetarget"];
+	self.db = db
 end
 
 function mod:OnTooltipShow()
 	if GameTooltip:GetUnit() then
-		self:MouseOverInfo(select(2, GameTooltip:GetUnit()))
+		self:SetTooltipInfo(select(2, GameTooltip:GetUnit()));
 	end
 end
 
 function mod:OnTooltipHide()
+	if self.targetFrame then
+		self.targetFrame:Hide()
+	end
 	self:UnregisterEvent("INSPECT_READY");
 end
 
---rgb
 local function GetDiffLevelColor(level)
 	local playerLevel = UnitLevel("player")
 	local levelDiff = level - playerLevel;
@@ -111,17 +58,80 @@ local function GetDiffLevelColor(level)
 	return hexcolor
 end
 
-local lastMouseUnit = nil
-function mod:MouseOverInfo(unit)
-	local db = self.db["mousetarget"];
-	if not unit or not unit == "mouseover" then return end
-	isPlayer = UnitIsPlayer(unit);
-	unitname = UnitName(unit)
-	reaction = UnitReaction(unit, "player")
-	lastMouseUnit = GameTooltip:GetUnit()
+local function GetTarget(unit)
+	if not UnitExists(unit) then return end
+	if UnitIsUnit(unit, "player") then
+		return L["|cffff0000>YOU<|r"];
+	elseif UnitIsPlayer(unit) then
+		return "|cff"..CLASS_COLORS[select(2, UnitClass(unit))]..UnitName(unit).."|r"
+	else
+		unitreaction = UnitReactionColor[UnitReaction(unit, "player")];
+		if not unitreaction then
+			return
+		end
+		return format("|cff%2x%2x%2x%s|r", unitreaction.r*255, unitreaction.g*255, unitreaction.b*255, UnitName(unit))
+	end
+end
+
+local updateTime = 0
+local function targetFrameUpdate(self, elapsed)
+	updateTime = updateTime + elapsed;
+	if updateTime > 0.5 then
+		local unit = select(2, GameTooltip:GetUnit());
+		if not unit or not GameTooltip:IsVisible() then return end
+		if not UnitExists(unit) then return end
+		if UnitExists(unit.."target") then
+			local targetLine;
+			local targetName = GetTarget(unit.."target");
+
+			for i = 1, GameTooltip:NumLines() do
+				local tip = _G["GameTooltipTextLeft"..i]:GetText()
+				if (tip and tip:find(TARGET)) then
+					targetLine = true;
+					if targetName then
+						_G["GameTooltipTextLeft"..i]:SetText("["..TARGET.."] "..GetTarget(unit.."target"))
+					else
+						--_G["GameTooltipTextLeft"..i]:SetText();
+					end
+					GameTooltip:Show()
+					break;
+				end
+			end
+			if (not targetLine) and targetName then
+				GameTooltip:AddLine("["..TARGET.."] "..GetTarget(unit.."target"))
+				GameTooltip:Show()
+			end
+		end
+	end
+end
+
+function mod:GetTargetLine(unit)
+	if not self.db.showTarget then return end
+	if not unit or not GameTooltip:IsVisible() then return end
+
+	if not self.targetFrame then
+		self.targetFrame = CreateFrame("Frame");
+		self.targetFrame:SetScript("OnUpdate", targetFrameUpdate)
+		self.targetFrame:Hide();
+	end
+
+	if unit and UnitExists(unit) then
+		self.targetFrame:Show();
+	else
+		self.targetFrame:Hide();
+	end
+end
+
+function mod:SetTooltipInfo(unit)
+	if (not unit) or (not UnitExists(unit)) then return end
+
+	local isPlayer = UnitIsPlayer(unit);
+	local unitname = UnitName(unit)
+	local reaction = UnitReaction(unit, "player")
 
 	local tooltipLines;
 	local levelline
+
 	tooltipLines = GameTooltip:NumLines();
 	for i=2, tooltipLines do
 		leftText = _G["GameTooltipTextLeft"..i];
@@ -136,15 +146,15 @@ function mod:MouseOverInfo(unit)
 			elseif  (tipText == NOT_TAMEABLE) then
 				leftText:SetText(format("|cffFF6035%s|r", tipText))
 			else
-				otherInfo = tipText
 			end
 		end
 	end
-
+	
 	if levelline then
 		local tmpString;
-		unitLevel = UnitLevel(unit);
-		unitIsDead = UnitHealth(unit) < 0 and (not isPlayer or UnitIsDeadOrGhost(unit));
+		local unitLevel = UnitLevel(unit);
+		local unitIsDead = UnitHealth(unit) < 0 and (not isPlayer or UnitIsDeadOrGhost(unit));
+
 		if unitIsDead then
 			if unitLevel > 0 then
 				tmpString = LEVEL..(format(" |cff888888%d %s|r", unitLevel, CORPSE));
@@ -161,8 +171,8 @@ function mod:MouseOverInfo(unit)
 			tmpString = LEVEL..(" |cffFF0000 ??|r")
 		end
 
-		unitRace = UnitRace(unit);
-		creatureType = UnitCreatureType(unit);
+		local unitRace = UnitRace(unit);
+		local creatureType = UnitCreatureType(unit);
 
 		if unitRace and isPlayer then
 			local factionColor;
@@ -178,14 +188,11 @@ function mod:MouseOverInfo(unit)
 		elseif UnitPlayerControlled(unit) then
 			tmpString = format("%s %s", tmpString, (UnitCreatureFamily(unit) or creatureType or ""));
 		elseif creatureType then
-			--reaction>4
-			if db.showFaction and reaction and reaction>4 then--faction 
+			if self.db.showFaction and reaction and reaction>4 then--faction 
 				reactionColor = UnitReactionColor[reaction];
 				local factionLabel = _G["FACTION_STANDING_LABEL"..reaction]
 				factionLabel = format("|cff%2x%2x%2x(%s)|r", reactionColor.r*255, reactionColor.g*255, reactionColor.b*255, factionLabel)
-				--print(factionLabel)
 				tmpString = format("%s |cffFFFFFF%s|r %s" , tmpString, creatureType, factionLabel)
-				--print(tmpString)
 			elseif creatureType == L["Not Specified"] then
 				tmpString = format("%s %s", tmpString, UNKNOWN);
 			else
@@ -200,7 +207,7 @@ function mod:MouseOverInfo(unit)
 		if isPlayer then
 			tmpString = " ("..PLAYER..") ";
 		elseif not UnitPlayerControlled(unit) then
-			classType = UnitClassification(unit);
+			local classType = UnitClassification(unit);
 			if classType and classType ~= "normal" and UnitHealth(unit) > 0 then
 				if classType == "elite" then
 					tmpString = format("|cffffff33(%s)|r", ELITE);
@@ -215,24 +222,24 @@ function mod:MouseOverInfo(unit)
 				end
 			end
 		end
-
 		_G["GameTooltipTextLeft"..levelline]:SetText(format("%s %s", tipString, tmpString))
 	end
 
-	unitGuild, unitGuildRank = GetGuildInfo(unit);
+	local unitGuild, unitGuildRank = GetGuildInfo(unit);
 	local playerGuild = GetGuildInfo("player")
+	local gTipString;
 	if isPlayer then
 		if unitGuild and playerGuild then
 			if unitGuild == playerGuild then
-				gTipString = format("|cff%2x%2x%2x< %s > - %s|r", db.SGuildColor.r*255, db.SGuildColor.g*255, db.SGuildColor.b*255, unitGuild, unitGuildRank)
+				gTipString = format("|cff%2x%2x%2x< %s > - %s|r", self.db.SGuildColor.r*255, self.db.SGuildColor.g*255, self.db.SGuildColor.b*255, unitGuild, unitGuildRank)
 			else
-				gTipString = format("|cff%2x%2x%2x< %s > - %s|r", db.DGuildColor.r*255, db.DGuildColor.g*255, db.DGuildColor.b*255, unitGuild, unitGuildRank)
+				gTipString = format("|cff%2x%2x%2x< %s > - %s|r", self.db.DGuildColor.r*255, self.db.DGuildColor.g*255, self.db.DGuildColor.b*255, unitGuild, unitGuildRank)
 			end
 		elseif unitGuild then
-			gTipString = format("|cff%2x%2x%2x< %s > - %s|r", db.DGuildColor.r*255, db.DGuildColor.g*255, db.DGuildColor.b*255, unitGuild, unitGuildRank)
+			gTipString = format("|cff%2x%2x%2x< %s > - %s|r", self.db.DGuildColor.r*255, self.db.DGuildColor.g*255, self.db.DGuildColor.b*255, unitGuild, unitGuildRank)
 		end
 		local _, unitServer = UnitName(unit)
-		if (db.showServer) and (unitServer or gTipString) then
+		if (self.db.showServer) and (unitServer or gTipString) then
 			if (unitServer and gTipString) then
 				realmTag = " @ "
 			else
@@ -243,46 +250,29 @@ function mod:MouseOverInfo(unit)
 		if gTipString then
 			if unitGuild then
 				_G["GameTooltipTextLeft2"]:SetText(gTipString);
-			else
-				--其余状态暂时不处理
 			end
 		end
 	end
 
-	--talent
-	if isPlayer and db.showTalent and UnitIsConnected(unit) then
+	self:GetTargetLine(unit)
+
+	if isPlayer and self.db.showTalent and UnitIsConnected(unit) then
 		if UnitLevel(unit) >= 10 then
-			local name = UnitName(unit);
+			local guid = UnitGUID(unit);
 			mod:RegisterEvent("INSPECT_READY");
 			--save it
-			if not Icetip_InspectTalent[name] then
-				Icetip_InspectTalent[name] = {}
+			if not Icetip_InspectTalent[guid] then
+				Icetip_InspectTalent[guid] = {}
 			end
 			NotifyInspect(unit)
 		end
 	end
 
-	--update target
-	--self:OnTooltipSetUnit();
-	--local offset = 0;
-	--local healthbar = Icetip_Health_Bar;
-	--local powerbar = Icetip_Power_Bar;
-	--if healthbar and healthbar.side == "INNER" then
-	--	offset = offset + healthbar:GetHeight() + 2;	
-	--end
-
-	--if powerbar and powerbar.side == "INNER" then
-	--	offset = offset + powerbar:GetHeight() + 2;	
-	--end
-	--
-	--if (offset > 0) then
-	--	GameTooltip._tipNewHeight = GameTooltip:GetHeight() + offset;
-	--end
-
 	local color = RAID_CLASS_COLORS[select(2, UnitClass(unit))];
-	if db.colorBorderByClass and isPlayer then
+	if self.db.colorBorderByClass and isPlayer then
 		GameTooltip:SetBackdropBorderColor(color.r, color.g, color.b)
 	end
+
 
 	GameTooltip:Show();
 end
@@ -391,22 +381,45 @@ do
 				count = 16
 			end
 		end
+
 		if sum >= count and count > 0 then
+			GameTooltip:AddDoubleLine("iLvl: ", round(sum/count, 1));
+			GameTooltip:Show()
 			return round(sum/count, 1)
 		else
 			return nil
 		end
-
 	end
 
-	function mod:INSPECT_READY()
-		self:UnregisterEvent("INSPECT_READY");
-		local currTalentGroupId = GetActiveTalentGroup(true)
+	local function GetUnitByGUID(unitGUID)
+		local unitID
+		for i = 1, 4, 1 do
+			if UnitGUID("party"..i) == unitGUID then unitID = "party"..i end
+		end
+		for i = 1, 40, 1 do
+			if UnitGUID("raid"..i) == unitGUID then unitID = "raid"..i end
+		end
+		if UnitGUID("player") == unitGUID then
+			unitID = "player"
+		elseif UnitGUID("mouseover") == unitGUID then
+			unitID = "mouseover"
+		elseif UnitGUID("target") == unitGUID then
+			unitID = "target"
+		elseif UnitGUID("focus") == unitGUID then
+			unitID = "focus"
+		end
+		return unitID
+	end
 
+	function mod:INSPECT_READY(event, guid)
+		self:UnregisterEvent("INSPECT_READY");
+		local unit = GetUnitByGUID(guid);
+		local iLvl = GetUnitItemLevel(unit);
+
+		local currTalentGroupId = GetActiveTalentGroup(true)
 		local name1,_,point1 = self:GetTalentTabInfo(1,true, nil, currTalentGroupId)
 		local name2,_,point2 = self:GetTalentTabInfo(2,true, nil, currTalentGroupId)
 		local name3,_,point3 = self:GetTalentTabInfo(3,true, nil, currTalentGroupId)
-
 		local pcolor1, pcolor2, pcolor3 = ColorTalent(point1), ColorTalent(point2),ColorTalent(point3)
 		local talent_name, talent_text = TalentSpecName({name1,name2,name3}, {point1,point2,point3},{pcolor1, pcolor2, pcolor3})
 
@@ -418,17 +431,12 @@ do
 		local pcolor1, pcolor2, pcolor3 = ColorTalent(point1), ColorTalent(point2),ColorTalent(point3);
 		local talent_name2, talent_text2 = TalentSpecName({name1,name2,name3}, {point1,point2,point3},{pcolor1, pcolor2, pcolor3})
 
-		local tooltipunit = GameTooltip:GetUnit()
-		local iLvl = GetUnitItemLevel(tooltipunit);
-		if UnitExists("mouseover") and Icetip_InspectTalent[tooltipunit] then
+		if UnitExists(unit) and Icetip_InspectTalent[guid] then
 			GameTooltip:AddDoubleLine(L["Active Talent: "], talent_name);
 			if (talent_name2 ~= _G["NONE"] and talent_text2 ~= _G["NONE"]) then
 				GameTooltip:AddDoubleLine(L["Sec Talent: "], talent_name2);
 			end
-			GameTooltip:AddDoubleLine("iLvl: ", iLvl);
-
 			GameTooltip:Show();
-
 			--clear tbl
 			wipe(Icetip_InspectTalent);
 		end

@@ -1,6 +1,5 @@
 local _, Icetip = ...
 local mod = Icetip:NewModule("HealthBar");
-local db
 local GameTooltipStatusBar = _G.GameTooltipStatusBar
 local SM = LibStub("LibSharedMedia-3.0")
 local format = string.format
