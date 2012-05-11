@@ -22,7 +22,7 @@ function mod:OnEnable()
 	self.db = db
 end
 
-function mod:OnTooltipShow()
+function mod:PreTooltipSetUnit()
 	if GameTooltip:GetUnit() then
 		self:SetTooltipInfo(select(2, GameTooltip:GetUnit()));
 	end
