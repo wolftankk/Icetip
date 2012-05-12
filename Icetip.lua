@@ -40,12 +40,6 @@ local default = {
 	    otherFrames = "always",
 	    modifier = "NONE",
 	},
-	--tooltipFade = {
-	--    units = "hide",
-	--    objects ="fade",
-	--    unitFrames = "fade",
-	--    otherFrames = "hide",
-	--},
 	--buff = {
 	--    enable = false,
 	--}

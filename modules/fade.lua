@@ -1,14 +1,24 @@
-local addonName, Icetip = ...
-local mod = Icetip:NewModule("Fade", true);
+local _, Icetip = ...
+local mod = Icetip:NewModule("fade", true);
+local db
+local defaults = {
+    profile = {
+        units = "hide",
+        objects ="fade",
+        unitFrames = "fade",
+        otherFrames = "hide",
+    },
+}
 
 function mod:OnEnable()
+    self.db = self:RegisterDB(defaults)
+    db = self.db.profile;
     self:RawHook(GameTooltip, "FadeOut", "GameTooltip_FadeOut", true);
     self:RawHook(GameTooltip, "Hide", "GameTooltip_Hide", true);
     self:RegisterEvent("CURSOR_UPDATE");
 end
 
 function mod:GameTooltip_Hide(tooltip, ...)
-    local db = self.db["tooltipFade"]
     if tooltip.justHide then
         return self.hooks[tooltip].Hide(tooltip, ...)
     end
@@ -37,7 +47,6 @@ end
 function mod:GameTooltip_FadeOut(tooltip, ...)
     self.hooks[tooltip].FadeOut(tooltip, ...)
     local kind
-    local db = self.db["tooltipFade"];
 
     if GameTooltip:GetUnit() then
         if GameTooltip:IsOwned(UIParent) then
@@ -66,7 +75,6 @@ local function checkUnitExistance()
     if not GameTooltip:GetUnit() or not UnitExists(mouseover_unit) or (lastMouseoverUnit == "mouseover" and mouseover_unit ~= "mouseover") then
         Icetip:CancelTimer(Icetip_Fade_checkUnitExistance, true)
         local kind
-        local db = mod.db["tooltipFade"]
         if GameTooltip:IsOwned(UIParent) then
             kind = db.units
         else
@@ -84,7 +92,6 @@ local function checkAlphaFrame()
     if GameTooltip:GetAlpha() < 1 then
         Icetip:CancelTimer(Icetip_Fade_checkUnitExistance, true)
         local kind
-        local db = mod.db["tooltipFade"]
         if GameTooltip:IsOwned(UIParent) then
             kind = db.objects
         else
@@ -127,7 +134,6 @@ function mod:OnTooltipSetUnit()
 end
 
 local function runHide()
-    local db = mod.db["tooltipFade"]
     if db.objects == "fade" then
         GameTooltip:FadeOut()
     else
