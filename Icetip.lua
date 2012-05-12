@@ -158,16 +158,18 @@ end)
 
 local modPrototype = {};
 function modPrototype:Enable()
-    --self._enabled = true
-    --self:OnEnable();
+    self._enabled = true
+    self:OnEnable();
 end
 
 function modPrototype:Disable()
-    --self._enabled = false;
-    --self:OnDisable();
+    self._enabled = false;
+    self:OnDisable();
 end
 
 function modPrototype:RegisterDB()
+    print(modPrototype.name)
+    --Icetip.acedb:RegisterNamespace()
 end
 
 function Icetip:NewModule(name, embedHook, slince)
