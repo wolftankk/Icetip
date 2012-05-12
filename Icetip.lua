@@ -85,18 +85,6 @@ local default = {
 	--    otherFrames = "always",
 	--    modifier = "NONE",
 	--},
-	--healthbar = {
-	--    texture = "Smooth",
-	--    size = 5,
-	--    position = "BOTTOM",
-	--    enable = true,
-	--    showText = false,
-	--    font = "Friz Quadrata TT",
-	--    fontSize = 9,
-	--    fontflag = "Outline",
-	--    style = "number",
-	--    short = true,
-	--},
 	--powerbar = {
 	--    texture = "Smooth",
 	--    size = 5,
@@ -195,7 +183,7 @@ function modPrototype:RegisterDB(profile)
     return db
 end
 
-function modPrototype:RegisterOption()
+function modPrototype:GetOptions()
 
 end
 

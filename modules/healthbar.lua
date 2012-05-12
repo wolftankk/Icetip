@@ -8,16 +8,12 @@ local db
 
 local Powerbar = Icetip:GetModule("Powerbar", true);
 local powerbar
-if Powerbar then
-    powerbar = Powerbar:GetBar()
-end
 
 local default = {
     profile = {
 	texture = "Smooth",
 	size = 5,
 	position = "BOTTOM",
-	enable = true,
 	showText = false,
 	font = "Friz Quadrata TT",
 	fontSize = 9,
@@ -30,6 +26,7 @@ local default = {
 function mod:OnEnable()
     self.db = mod:RegisterDB(default)
     db = self.db.profile
+    self:CreateBar();
     self:SetBarPoint();
 end
 
@@ -38,6 +35,22 @@ function mod:OnDisable()
     if healthbar then
         healthbar:Hide()
         healthbar.side = nil;
+    end
+end
+
+function mod:CreateBar()
+    if not healthbar then
+        healthbar = CreateFrame("StatusBar", nil, GameTooltip);
+        healthbar:SetStatusBarTexture(SM:Fetch("statusbar", db.texture));
+        healthbar:SetMinMaxValues(0, 1);
+        hbtext = healthbar:CreateFontString(nil, "ARTWORK");
+	healthbar.text = hbtext;
+
+        hbtext:SetFont(SM:Fetch("font", db.font), db.fontSize, "Outline");
+        hbtext:SetJustifyH("CENTER");
+        hbtext:SetAllPoints(healthbar);
+
+	self.healthbar = healthbar;
     end
 end
 
@@ -65,6 +78,11 @@ function mod:SetBarPoint()
     healthbar:SetHeight(0);
     healthbar:ClearAllPoints();
     healthbar.side = position
+    
+    if Powerbar then
+	powerbar = Powerbar:GetBar()
+    end
+
     if position == "BOTTOM" then
         healthbar:SetPoint("TOPLEFT", GameTooltip, "BOTTOMLEFT", 2, -2);
         healthbar:SetPoint("TOPRIGHT", GameTooltip, "BOTTOMRIGHT", -2, -2);
@@ -99,21 +117,8 @@ function mod:GetBar()
     return self.healthbar
 end
 
+
 function mod:OnTooltipSetUnit()
-    if not healthbar then
-        healthbar = CreateFrame("StatusBar", nil, GameTooltip);
-        healthbar:SetStatusBarTexture(SM:Fetch("statusbar", db.texture));
-        healthbar:SetMinMaxValues(0, 1);
-        hbtext = healthbar:CreateFontString(nil, "ARTWORK");
-	healthbar.text = hbtext;
-
-        hbtext:SetFont(SM:Fetch("font", db.font), db.fontSize, "Outline");
-        hbtext:SetJustifyH("CENTER");
-        hbtext:SetAllPoints(healthbar);
-
-	self.healthbar = healthbar;
-    end
-
     self:SetBarPoint();
 
     if not GameTooltip:GetUnit() then

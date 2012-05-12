@@ -30,7 +30,7 @@ Icetip.lua
 #modules\fade.lua
 #modules\appstyle.lua
 modules\healthbar.lua
-#modules\powerbar.lua
+modules\powerbar.lua
 #modules\mousetarget.lua
 modules\raidTarget.lua
 #modules\itemref.lua
