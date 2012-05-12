@@ -1,11 +1,51 @@
 local _, Icetip = ...
 local SM = LibStub("LibSharedMedia-3.0");
-local mod = Icetip:NewModule("Appstyle");
+local mod = Icetip:NewModule("style");
 local backdrop = {insets = {}};
 local hooked = {}
+local db
+
+local defaults = {
+    profile = {
+	scale = 1,
+	bgColor = {
+	    guild = {0, 0.15, 0, 1},
+	    faction = {0.25, 0.25, 0, 1},
+	    hostilePC = {0.25, 0, 0, 1},
+	    hostileNPC = {0.15, 0, 0, 1},
+	    neutralNPC = {0.15, 0.15, 0, 1},
+	    friendlyPC = {0, 0, 0.25, 1},
+	    friendlyNPC = {0, 0, 0.15, 1},
+	    other = {0, 0, 0, 1},
+	    dead = {0.15, 0.15, 0.15, 1},
+	    tapped = {0.25, 0.25, 0.25, 1},
+	},
+	border_color = {
+	    r = 0,
+	    g = 0,
+	    b = 0,
+	    a = 0,
+	},
+	tooltipStyle = {
+	    bgTexture = "Blizzard Tooltip",
+	    borderTexture = "Blank",
+	    tile = false,
+	    tileSize = 8,
+	    EdgeSize = 2,
+	    customColor = true,
+	},
+    }
+}
 
 function mod:OnEnable()
-
+    self.db = mod:RegisterDB(defaults)
+    db = self.db.profile
+    GameTooltip.GetBackdropColor = function()
+	return unpack(db.bgColor["other"])
+    end
+    GameTooltip.GetBackdropBorderColor = function()
+	return db.border_color["r"], db.border_color["g"], db.border_color["b"], db.border_color["a"]
+    end
 end
 
 function mod:PreOnTooltipShow(tooltip, ...)
@@ -14,19 +54,26 @@ function mod:PreOnTooltipShow(tooltip, ...)
         hooked[tooltip] = true
         self:UpdateBackdrop(tooltip, ...)
     end
-    tooltip:SetBackdropBorderColor(self.db["border_color"].r, self.db["border_color"].g, self.db["border_color"].b, self.db["border_color"].a);
+    tooltip:SetBackdropBorderColor(db["border_color"].r, db["border_color"].g, db["border_color"].b, db["border_color"].a);
+end
+
+function mod:PostOnTooltipHide(tooltip, ...)
+    --reset gametooltip style
+    local ct = db.bgColor["other"];
+    tooltip:SetBackdropColor(unpack(ct));
+    tooltip:SetBackdropBorderColor(db.border_color["r"], db.border_color["g"], db.border_color["b"], db.border_color["a"]);
 end
 
 function mod:UpdateBackdrop(tooltip, ...)
     if not tooltip then tooltip = GameTooltip end
 
-    local db = self.db.tooltipStyle
-    backdrop.bgFile = SM:Fetch("background", db.bgTexture);
-    backdrop.edgeFile = SM:Fetch("border", db.borderTexture)
-    backdrop.tile = db.tile
-    backdrop.tileSize = db.tileSize
-    backdrop.edgeSize = db.EdgeSize
-    local inset = floor(db.EdgeSize/3);
+    local _db = db.tooltipStyle
+    backdrop.bgFile = SM:Fetch("background", _db.bgTexture);
+    backdrop.edgeFile = SM:Fetch("border", _db.borderTexture)
+    backdrop.tile = _db.tile
+    backdrop.tileSize = _db.tileSize
+    backdrop.edgeSize = _db.EdgeSize
+    local inset = floor(_db.EdgeSize/3);
     backdrop.insets.left = inset
     backdrop.insets.right = inset
     backdrop.insets.top = inset
@@ -36,10 +83,10 @@ end
 
 
 function mod:OnTooltipShow(tooltip)
-    if self.db["tooltipStyle"].customColor then
+    if db["tooltipStyle"].customColor then
         self:SetBackgroundColor(nil, nil, nil, nil, nil, tooltip)
     end
-    self:SetTooltipScale(nil, self.db.scale)
+    self:SetTooltipScale(nil, db.scale)
 end
 
 local currentSameFaction = false
@@ -116,7 +163,7 @@ function mod:SetBackgroundColor(given_kind, r, g,b,a, tooltip)
         end
     end
 
-    local bgColor = self.db.bgColor[kind]
+    local bgColor = db.bgColor[kind]
     if r then
         bgColor[1] = r
         bgColor[2] = g

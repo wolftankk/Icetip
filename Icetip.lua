@@ -37,32 +37,6 @@ local default = {
 	--minimap = {
 	--    hide = false, 
 	--},
-	--bgColor = {
-	--    guild = {0, 0.15, 0, 1},
-	--    faction = {0.25, 0.25, 0, 1},
-	--    hostilePC = {0.25, 0, 0, 1},
-	--    hostileNPC = {0.15, 0, 0, 1},
-	--    neutralNPC = {0.15, 0.15, 0, 1},
-	--    friendlyPC = {0, 0, 0.25, 1},
-	--    friendlyNPC = {0, 0, 0.15, 1},
-	--    other = {0, 0, 0, 1},
-	--    dead = {0.15, 0.15, 0.15, 1},
-	--    tapped = {0.25, 0.25, 0.25, 1},
-	--},
-	--border_color = {
-	--    r = 0,
-	--    g = 0,
-	--    b = 0,
-	--    a = 0,
-	--},
-	--tooltipStyle = {
-	--    bgTexture = "Blizzard Tooltip",
-	--    borderTexture = "Blank",
-	--    tile = false,
-	--    tileSize = 8,
-	--    EdgeSize = 2,
-	--    customColor = true,
-	--},
 	--itemQBorder = true,
 	--setAnchor = {
 	--    unitAnchor = "CURSOR_BOTTOM",
@@ -311,13 +285,6 @@ function Icetip:OnEnable()
     GameTooltipStatusBar:Hide();
     GameTooltipStatusBar:ClearAllPoints();
 
-    --GameTooltip.GetBackdropColor = function()
-    --    return unpack(self.db.bgColor["other"])
-    --end
-    --GameTooltip.GetBackdropBorderColor = function()
-    --    return self.db.border_color["r"], self.db.border_color["g"], self.db.border_color["b"], self.db.border_color["a"]
-    --end
-
     --local previousDead = false
     --self:ScheduleRepeatingTimer(function() 
     --    local mouse_unit = Icetip:GetMouseoverUnit()
@@ -462,10 +429,8 @@ function Icetip:Tooltip_OnHide(tooltip, ...)
 
     self:CallMethodAllModules("OnTooltipHide");
     if self.hooks[tooltip] and self.hooks[tooltip].OnHide then
-	--reset gametooltip style
-	--local ct = self.db.bgColor["other"];
-	--tooltip:SetBackdropColor(unpack(ct));
-	--tooltip:SetBackdropBorderColor(self.db.border_color["r"], self.db.border_color["g"], self.db.border_color["b"], self.db.border_color["a"]);
+	self:CallMethodAllModules("PostOnTooltipHide", tooltip, ...);
+
 	self.hooks[tooltip].OnHide(tooltip, ...)
     end
 end
