@@ -304,11 +304,10 @@ function Icetip:OnEnable()
     GameTooltipStatusBar:Hide();
     GameTooltipStatusBar:ClearAllPoints();
 
-    local tt = GameTooltip;
-    tt.GetBackdropColor = function()
+    GameTooltip.GetBackdropColor = function()
 	return unpack(self.db.bgColor["other"])
     end
-    tt.GetBackdropBorderColor = function()
+    GameTooltip.GetBackdropBorderColor = function()
 	return self.db.border_color["r"], self.db.border_color["g"], self.db.border_color["b"], self.db.border_color["a"]
     end
 
