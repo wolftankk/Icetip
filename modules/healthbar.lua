@@ -1,5 +1,7 @@
 local _, Icetip = ...
 local mod = Icetip:NewModule("HealthBar");
+local PowerBar = Icetip:GetModule("PowerBar");
+
 local SM = LibStub("LibSharedMedia-3.0")
 local format = string.format
 local hbtext, healthbar
@@ -45,7 +47,7 @@ function mod:SetBarPoint()
     healthbar:SetHeight(0);
     healthbar:ClearAllPoints();
     healthbar.side = position
-    local powerbar = _G.Icetip_Power_Bar
+    local powerbar = PowerBar:GetBar()
     if position == "BOTTOM" then
         healthbar:SetPoint("TOPLEFT", GameTooltip, "BOTTOMLEFT", 2, -2);
         healthbar:SetPoint("TOPRIGHT", GameTooltip, "BOTTOMRIGHT", -2, -2);
@@ -76,16 +78,23 @@ function mod:SetBarPoint()
     end
 end
 
+function mod:GetBar()
+    return self.healthbar
+end
+
 function mod:OnTooltipSetUnit()
     if not healthbar then
-        healthbar = CreateFrame("StatusBar", "Icetip_Health_Bar", GameTooltip);
+        healthbar = CreateFrame("StatusBar", nil, GameTooltip);
         healthbar:SetStatusBarTexture(SM:Fetch("statusbar", self.db.texture));
         healthbar:SetMinMaxValues(0, 1);
-        hbtext = healthbar:CreateFontString("Icetip_Health_BarText", "ARTWORK");
+        hbtext = healthbar:CreateFontString(nil, "ARTWORK");
+	healthbar.text = hbtext;
 
         hbtext:SetFont(SM:Fetch("font", self.db.font), self.db.fontSize, "Outline");
         hbtext:SetJustifyH("CENTER");
         hbtext:SetAllPoints(healthbar);
+
+	self.healthbar = healthbar;
     end
 
     self:SetBarPoint();
@@ -151,13 +160,5 @@ function update(frame, elapsed, force)
         hbtext:Show();
     else
         hbtext:Hide()
-    end
-end
-
-function mod:ToggleHealthbar(flag)
-    if flag then
-        self:Enable();
-    else
-        self:Disable();
     end
 end

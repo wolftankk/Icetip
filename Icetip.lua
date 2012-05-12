@@ -172,6 +172,10 @@ function modPrototype:RegisterDB()
     --Icetip.acedb:RegisterNamespace()
 end
 
+function modPrototype:RegisterOption()
+
+end
+
 function Icetip:NewModule(name, embedHook, slince)
     if modules[name] then
 	if not slince then
@@ -293,12 +297,13 @@ function Icetip:OnEnable()
 
 	self:HookScript(tooltip, "OnUpdate", "Tooltip_OnUpdate");
 
-	self:HookScript(tooltip, "OnTooltipCleared", "Tooltip_Cleared")
+	self:HookScript(tooltip, "OnTooltipCleared", "Tooltip_Cleared");
 	self:HookScript(tooltip, "OnTooltipSetUnit", "Tooltip_SetUnit");
 	self:HookScript(tooltip, "OnTooltipSetItem", "Tooltip_SetItem");
-	self:HookScript(tooltip, "OnTooltipSetSpell", "Tooltip_SetSpell")
-	self:HookScript(tooltip, "OnTooltipSetQuest", "Tooltip_SetQuest")
-	self:HookScript(tooltip, "OnTooltipSetAchievement", "Tooltip_SetAchievement")
+	self:HookScript(tooltip, "OnTooltipSetSpell", "Tooltip_SetSpell");
+	self:HookScript(tooltip, "OnTooltipSetQuest", "Tooltip_SetQuest");
+	self:HookScript(tooltip, "OnTooltipSetAchievement", "Tooltip_SetAchievement");
+	--self:HookScript(tooltip, "OnTooltipSetDefaultAnchor", "Tooltip_SetDefaultAnchor");
     end
 
     GameTooltipStatusBar:Hide();
@@ -510,6 +515,10 @@ function Icetip:Tooltip_SetAchievement(tooltip, ...)
 end
 
 function Icetip:Tooltip_Cleared(tooltip, ...)
+
+end
+
+function Icetip:Tooltip_SetDefaultAnchor(tooltip, ...)
 
 end
 

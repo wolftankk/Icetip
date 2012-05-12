@@ -1,6 +1,7 @@
 local _, Icetip = ...
 
 local mod = Icetip:NewModule("PowerBar");
+local HealthBar = Icetip:GetModule("HealthBar");
 local SM = LibStub("LibSharedMedia-3.0")
 local format = string.format
 local powerbar, pbtext;
@@ -31,7 +32,7 @@ function mod:SetBarPoint()
     powerbar:SetHeight(0)
     powerbar:ClearAllPoints()
     powerbar.side = position
-    local healthbar = _G.Icetip_Health_Bar
+    local healthbar = HealthBar:GetBar()
     if position == "BOTTOM" then
         if healthbar and healthbar.side == "BOTTOM" and self.db.showText then
             powerbar:SetPoint("TOPLEFT", healthbar, "BOTTOMLEFT", 0, -(self.db.fontSize-5));
@@ -72,15 +73,17 @@ end
 
 function mod:OnTooltipSetUnit()
     if not powerbar then
-        powerbar = CreateFrame("StatusBar", "Icetip_Power_Bar", GameTooltip);
+        powerbar = CreateFrame("StatusBar", nil, GameTooltip);
         powerbar:SetStatusBarTexture(SM:Fetch("statusbar", self.db.texture));
         powerbar:SetMinMaxValues(0, 1);
 
-        pbtext = powerbar:CreateFontString("Icetip_Power_BarText", "ARTWORK");
+        pbtext = powerbar:CreateFontString(nil, "ARTWORK");
         pbtext:SetFont(SM:Fetch("font", self.db.font), self.db.fontSize, "Outline");
         pbtext:SetJustifyH("CENTER");
         pbtext:SetAllPoints(powerbar);
+	powerbar.pbtext = pbtext
 
+	self.powerbar = powerbar
     end
 
     self:SetBarPoint();
@@ -97,6 +100,10 @@ function mod:OnTooltipSetUnit()
     powerbar.updateTooltip = TOOLTIP_UPDATE_TIME;
     update(powerbar, 0, true);
     powerbar:SetScript("OnUpdate", update)
+end
+
+function mod:GetBar()
+    return self.powerbar
 end
 
 function mod:OnTooltipHide()
@@ -163,13 +170,5 @@ function update(frame, elapsed, force)
         pbtext:Show();
     else
         pbtext:Hide()
-    end
-end
-
-function mod:TogglePowerbar(flag)
-    if flag then
-        self:Enable();
-    else
-        self:Disable();
     end
 end

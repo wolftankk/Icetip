@@ -10,8 +10,8 @@ local _order = 0
 local options;
 
 --load module
-local Icetip_HealthBar = Icetip:GetModule("HealthBar");
-local Icetip_PowerBar = Icetip:GetModule("PowerBar");
+local HealthBar = Icetip:GetModule("HealthBar");
+local PowerBar = Icetip:GetModule("PowerBar");
 local Icetip_AppStyle = Icetip:GetModule("Appstyle")
 local Icetip_MouseTarget = Icetip:GetModule("MouseTarget");
 local Icetip_RaidTarget = Icetip:GetModule("RaidTarget");
@@ -699,8 +699,12 @@ local function CreateOption()
 				    get = function() return db["healthbar"].enable end,
 				    set = function(_, v)
 					db["healthbar"].enable = v
-					Icetip_HealthBar:ToggleHealthbar(v)
-					Icetip_HealthBar:SetBarPoint()
+					if v then
+					    HealthBar:Enable()
+					else
+					    HealthBar:Disable()
+					end
+					HealthBar:SetBarPoint()
 				    end
 				},
 				texture = {
@@ -714,7 +718,7 @@ local function CreateOption()
 				    get = function() return db["healthbar"].texture end,
 				    set = function(_, v)
 					db["healthbar"].texture = v
-					Icetip_Health_Bar:SetStatusBarTexture(SM:Fetch("statusbar", v));
+					HealthBar.healthbar:SetStatusBarTexture(SM:Fetch("statusbar", v));
 				    end
 				},
 				size = {
@@ -729,7 +733,7 @@ local function CreateOption()
 				    get = function() return db["healthbar"].size end,
 				    set = function(_, v)
 					db["healthbar"].size = v
-					Icetip_Health_Bar:SetHeight(tonumber(v));
+					HealthBar.healthbar:SetHeight(tonumber(v));
 				    end,
 				},
 				position = {
@@ -742,7 +746,7 @@ local function CreateOption()
 				    get = function() return db["healthbar"].position end,
 				    set = function(_, v) 
 					db["healthbar"].position = v
-					Icetip_HealthBar:SetBarPoint()
+					HealthBar:SetBarPoint()
 				    end,
 				},
 
@@ -769,7 +773,7 @@ local function CreateOption()
 				    get = function() return db["healthbar"].font end,
 				    set = function(_, v)
 					db["healthbar"].font = v
-					Icetip_Health_BarText:SetFont(SM:Fetch("font", v), db["healthbar"].fontSize, "Outline");
+					HealthBar.healthbar.hbtext:SetFont(SM:Fetch("font", v), db["healthbar"].fontSize, "Outline");
 				    end
 				},
 				hbfontsize = {
@@ -785,7 +789,7 @@ local function CreateOption()
 				    get = function() return db["healthbar"].fontSize end,
 				    set = function(_, v)
 					db["healthbar"].fontSize = v
-					Icetip_Health_BarText:SetFont(SM:Fetch("font", v), db["healthbar"].fontSize, "Outline");
+					HealthBar.healthbar.hbtext:SetFont(SM:Fetch("font", v), db["healthbar"].fontSize, "Outline");
 				    end,
 				},
 				hbtextstyle = {
@@ -817,8 +821,12 @@ local function CreateOption()
 				    get = function() return db["powerbar"].enable end,
 				    set = function(_, v)
 					db["powerbar"].enable = v
-					Icetip_PowerBar:TogglePowerbar(v)
-					Icetip_PowerBar:SetBarPoint()
+					if v then
+					    PowerBar:Enable()
+					else
+					    PowerBar:Disable()
+					end
+					PowerBar:SetBarPoint()
 				    end
 				},
 				texture = {
@@ -832,7 +840,7 @@ local function CreateOption()
 				    get = function() return db["powerbar"].texture end,
 				    set = function(_, v)
 					db["powerbar"].texture = v
-					Icetip_Power_Bar:SetStatusBarTexture(SM:Fetch("statusbar", v));
+					PowerBar.powerbar:SetStatusBarTexture(SM:Fetch("statusbar", v));
 				    end
 				},
 				size = {
@@ -847,7 +855,7 @@ local function CreateOption()
 				    get = function() return db["powerbar"].size end,
 				    set = function(_, v)
 					db["powerbar"].size = v
-					Icetip_Power_Bar:SetHeight(tonumber(v));
+					PowerBar.powerbar:SetHeight(tonumber(v));
 				    end,
 				},
 				position = {
@@ -860,7 +868,7 @@ local function CreateOption()
 				    get = function() return db["powerbar"].position end,
 				    set = function(_, v) 
 					db["powerbar"].position = v
-					Icetip_PowerBar:SetBarPoint()
+					PowerBar:SetBarPoint()
 				    end,
 				},
 				showpbtext = {
@@ -886,7 +894,7 @@ local function CreateOption()
 				    get = function() return db["powerbar"].font end,
 				    set = function(_, v)
 					db["powerbar"].font = v
-					Icetip_Power_BarText:SetFont(SM:Fetch("font", v), db["powerbar"].fontSize, "Outline");
+					PowerBar.powerbar.pbtext:SetFont(SM:Fetch("font", v), db["powerbar"].fontSize, "Outline");
 				    end
 				},
 				pbfontsize = {
@@ -902,7 +910,7 @@ local function CreateOption()
 				    get = function() return db["powerbar"].fontSize end,
 				    set = function(_, v)
 					db["powerbar"].fontSize = v
-					Icetip_Power_BarText:SetFont(SM:Fetch("font", v), db["powerbar"].fontSize, "Outline");
+					PowerBar.powerbar.pbtext:SetFont(SM:Fetch("font", v), db["powerbar"].fontSize, "Outline");
 				    end,
 				},
 				pbtextstyle = {
