@@ -277,66 +277,62 @@ function Icetip:OnInitialize()
     if icon and iceLDB then
 	icon:Register("Icetip", iceLDB, self.db.minimap);
     end
-
-    for name, mod in self:GetModules() do
-	
-    end
 end
 
 function Icetip:OnEnable()
     for name, mod in self:GetModules() do
-	mod.db = self.db;
-	if mod["OnEnable"] and type(mod["OnEnable"]) then
-	    mod:Enable();
-	end
+        mod.db = self.db;
+        if mod["OnEnable"] and type(mod["OnEnable"]) then
+            mod:Enable();
+        end
     end
 
-    for _, tooltip in pairs(tooltips) do
-	self:HookScript(tooltip, "OnShow", "Tooltip_OnShow");
-	self:HookScript(tooltip, "OnHide", "Tooltip_OnHide");
+    --for _, tooltip in pairs(tooltips) do
+    --    self:HookScript(tooltip, "OnShow", "Tooltip_OnShow");
+    --    self:HookScript(tooltip, "OnHide", "Tooltip_OnHide");
 
-	self:HookScript(tooltip, "OnUpdate", "Tooltip_OnUpdate");
+    --    self:HookScript(tooltip, "OnUpdate", "Tooltip_OnUpdate");
 
-	self:HookScript(tooltip, "OnTooltipCleared", "Tooltip_Cleared");
-	self:HookScript(tooltip, "OnTooltipSetUnit", "Tooltip_SetUnit");
-	self:HookScript(tooltip, "OnTooltipSetItem", "Tooltip_SetItem");
-	self:HookScript(tooltip, "OnTooltipSetSpell", "Tooltip_SetSpell");
-	self:HookScript(tooltip, "OnTooltipSetQuest", "Tooltip_SetQuest");
-	self:HookScript(tooltip, "OnTooltipSetAchievement", "Tooltip_SetAchievement");
-	--self:HookScript(tooltip, "OnTooltipSetDefaultAnchor", "Tooltip_SetDefaultAnchor");
-    end
+    --    self:HookScript(tooltip, "OnTooltipCleared", "Tooltip_Cleared");
+    --    self:HookScript(tooltip, "OnTooltipSetUnit", "Tooltip_SetUnit");
+    --    self:HookScript(tooltip, "OnTooltipSetItem", "Tooltip_SetItem");
+    --    self:HookScript(tooltip, "OnTooltipSetSpell", "Tooltip_SetSpell");
+    --    self:HookScript(tooltip, "OnTooltipSetQuest", "Tooltip_SetQuest");
+    --    self:HookScript(tooltip, "OnTooltipSetAchievement", "Tooltip_SetAchievement");
+    --    --self:HookScript(tooltip, "OnTooltipSetDefaultAnchor", "Tooltip_SetDefaultAnchor");
+    --end
 
-    GameTooltipStatusBar:Hide();
-    GameTooltipStatusBar:ClearAllPoints();
+    --GameTooltipStatusBar:Hide();
+    --GameTooltipStatusBar:ClearAllPoints();
 
-    GameTooltip.GetBackdropColor = function()
-	return unpack(self.db.bgColor["other"])
-    end
-    GameTooltip.GetBackdropBorderColor = function()
-	return self.db.border_color["r"], self.db.border_color["g"], self.db.border_color["b"], self.db.border_color["a"]
-    end
+    --GameTooltip.GetBackdropColor = function()
+    --    return unpack(self.db.bgColor["other"])
+    --end
+    --GameTooltip.GetBackdropBorderColor = function()
+    --    return self.db.border_color["r"], self.db.border_color["g"], self.db.border_color["b"], self.db.border_color["a"]
+    --end
 
-    local previousDead = false
-    self:ScheduleRepeatingTimer(function() 
-	local mouse_unit = Icetip:GetMouseoverUnit()
-	if UnitExists(mouse_unit) then
-	    if UnitIsDeadOrGhost(mouse_unit) then
-		if previousDead == false then
-		    GameTooltip:Hide()
-		    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
-		    GameTooltip:SetUnit(mouse_unit)
-		    GameTooltip:Show()
-		end
-		previousDead = true
-	    else
-		previousDead = false
-	    end
-	else
-	    previousDead = nil
-	end
-    end, 0.05)
+    --local previousDead = false
+    --self:ScheduleRepeatingTimer(function() 
+    --    local mouse_unit = Icetip:GetMouseoverUnit()
+    --    if UnitExists(mouse_unit) then
+    --        if UnitIsDeadOrGhost(mouse_unit) then
+    --    	if previousDead == false then
+    --    	    GameTooltip:Hide()
+    --    	    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
+    --    	    GameTooltip:SetUnit(mouse_unit)
+    --    	    GameTooltip:Show()
+    --    	end
+    --    	previousDead = true
+    --        else
+    --    	previousDead = false
+    --        end
+    --    else
+    --        previousDead = nil
+    --    end
+    --end, 0.05)
 
-    self:RegisterEvent("MODIFIER_STATE_CHANGED");
+    --self:RegisterEvent("MODIFIER_STATE_CHANGED");
 end
 
 function Icetip:ShortValue(value)

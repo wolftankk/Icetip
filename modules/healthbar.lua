@@ -8,11 +8,12 @@ local hbtext, healthbar
 local update;
 
 function mod:OnEnable()
-    local db = self.db["healthbar"];
-    self.db = db
-    if db.enabled then
-        self:SetBarPoint();
-    end
+    --local db = self.db["healthbar"];
+    --self.db = db
+    --if db.enabled then
+    --    self:SetBarPoint();
+    --end
+    mod:RegisterDB();
 end
 
 function mod:OnDisable()
