@@ -39,14 +39,15 @@ local defaults = {
     }
 }
 
-local origin_GetBackdropColor = GameTooltip.GetBackdropColor
-local origin_GetBackdropBorderColor = GameTooltip.GetBackdropBorderColor
 
 function mod:OnInitialize()
     self.db = mod:RegisterDB(defaults)
     db = self.db.profile
 end
 
+local origin_GetBackdropColor = GameTooltip.GetBackdropColor
+local origin_GetBackdropBorderColor = GameTooltip.GetBackdropBorderColor
+local origin_backdrop = GameTooltip:GetBackdrop();
 function mod:OnEnable()
     GameTooltip.GetBackdropColor = function()
 	return unpack(db.bgColor["other"])
@@ -59,7 +60,7 @@ end
 function mod:OnDisable()
     GameTooltip.GetBackdropColor = origin_GetBackdropColor
     GameTooltip.GetBackdropBorderColor = origin_GetBackdropBorderColor
-    --reset
+    GameTooltip:SetBackdrop(origin_backdrop)
 end
 
 function mod:PreOnTooltipShow(tooltip, ...)
@@ -94,7 +95,6 @@ function mod:UpdateBackdrop(tooltip, ...)
     backdrop.insets.bottom = inset
     tooltip:SetBackdrop(backdrop);
 end
-
 
 function mod:OnTooltipShow(tooltip)
     if db["tooltipStyle"].customColor then

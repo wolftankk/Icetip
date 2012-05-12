@@ -29,7 +29,7 @@ Icetip.lua
 
 modules\position.lua
 modules\fade.lua
-modules\appstyle.lua
+modules\style.lua
 modules\healthbar.lua
 modules\powerbar.lua
 modules\mousetarget.lua
