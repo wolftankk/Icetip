@@ -1,11 +1,9 @@
 local _, Icetip = ...;
-local mod = Icetip:NewModule("ItemRef");
+local mod = Icetip:NewModule("itemref");
 local db;
-
 local colors = {}
 
 function mod:OnEnable()
-    local db = self.db
 end
 
 function mod:PreTooltipSetItem(tooltip, ...)
@@ -22,7 +20,7 @@ function mod:PreTooltipSetItem(tooltip, ...)
 end
 
 function mod:OnTooltipShow(tooltip)
-    if self.db.itemQBorder and colors[tooltip] then
+    if colors[tooltip] then
         local r, g, b = unpack(colors[tooltip])
         tooltip:SetBackdropBorderColor(r, g, b);
     end

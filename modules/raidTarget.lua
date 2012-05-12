@@ -3,11 +3,17 @@ local mod = Icetip:NewModule("raidtarget");
 local db
 local raidTargetIcon
 
+local defaults = {
+    profile = {
+	position = "TOP",
+	size = 20,
+    }
+}
+
 function mod:OnEnable()
-    --self.db = self.db["raidtarget"];
-    --if self.db.enable then
-    --  self:RegisterEvent("RAID_TARGET_UPDATE");
-    --end
+    self.db = self:RegisterDB(defaults)
+    db = self.db.profile
+    self:RegisterEvent("RAID_TARGET_UPDATE");
 end
 
 function mod:OnDisable()
@@ -22,8 +28,8 @@ function mod:Update()
         raidTargetIcon = GameTooltip:CreateTexture("Icetip_RaidTargetIcon_Icon", "ARTWORK");
         raidTargetIcon:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons");
         raidTargetIcon:Hide()
-        raidTargetIcon:SetWidth(self.db.size)
-        raidTargetIcon:SetHeight(self.db.size)
+        raidTargetIcon:SetWidth(db.size)
+        raidTargetIcon:SetHeight(db.size)
         self:Reposition()
     end
 
@@ -32,11 +38,13 @@ function mod:Update()
         return
     end
 
-    if not UnitExists("mouseover") then
+    local _, unit = GameTooltip:GetUnit();
+    if not UnitExists(unit) then
         return
     end
+    
 
-    local index = GetRaidTargetIndex("mouseover");
+    local index = GetRaidTargetIndex(unit);
 
     if index then
         SetRaidTargetIconTexture(raidTargetIcon, index);
@@ -47,9 +55,7 @@ function mod:Update()
 end
 
 function mod:OnTooltipShow()
-    if self.db.enable then 
-      self:Update()
-    end
+    self:Update()
 end
 
 function mod:RAID_TARGET_UPDATE()
@@ -58,16 +64,16 @@ end
 
 function mod:Reposition()
     if not raidTargetIcon then return end
-    raidTargetIcon:SetPoint("CENTER", GameTooltip, self.db.position)
+    raidTargetIcon:SetPoint("CENTER", GameTooltip, db.position)
 end
 
 function mod:SetPosition(value)
-    self.db.position = value
+    db.position = value
     self:Reposition();
 end
 
 function mod:SetSize(value)
-    self.db.size = value
+    db.size = value
 
     if raidTargetIcon then
         raidTargetIcon:SetWidth(value)
