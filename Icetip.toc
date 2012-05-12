@@ -27,7 +27,7 @@ locale\zhTW.lua
 
 Icetip.lua
 
-#modules\position.lua
+modules\position.lua
 #modules\fade.lua
 modules\appstyle.lua
 modules\healthbar.lua

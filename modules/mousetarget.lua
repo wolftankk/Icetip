@@ -1,5 +1,5 @@
 local _, Icetip = ...
-local mod = Icetip:NewModule("MouseTarget");
+local mod = Icetip:NewModule("mousetarget");
 local L = LibStub("AceLocale-3.0"):GetLocale("Icetip")
 local Icetip_InspectTalent = setmetatable({}, {__mode="kv"});
 local CLASS_COLORS = {}

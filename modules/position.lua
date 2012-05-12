@@ -1,5 +1,5 @@
 local addonName, Icetip = ...;
-local mod = Icetip:NewModule("Position", true);
+local mod = Icetip:NewModule("position", true);
 local db;
 
 local currentOffsetX, currentOffsetY = 0, 0
@@ -18,9 +18,21 @@ local anchorOpposite = {
     TOPRIGHT = "BOTTOMRIGHT",
 }
 
+local defaults = {
+    profile = {
+	unitAnchor = "CURSOR_BOTTOM",
+	unitOffsetX = 0,
+	unitOffsetY = 0,
+	frameAnchor = "BOTTOMRIGHT",
+	frameOffsetX = -93,
+	frameOffsetY = 110,
+    }
+}
+
 function mod:OnEnable()
-    db = self.db["setAnchor"]
-    hooksecurefunc("GameTooltip_SetDefaultAnchor", function(tooltip, parent) mod:SetTooltipAnchor(tooltip, parent) end);
+    self.db = self:RegisterDB(defaults)
+    db = self.db.profile
+    self:SecureHook("GameTooltip_SetDefaultAnchor", "SetTooltipAnchor");
 end
 
 local function ReanchorTooltip()
@@ -38,7 +50,7 @@ end
 function mod:SetTooltipAnchor(tooltip, parent, ...)
     local anchor, offsetX, offsetY
     currentOwner = parent
-    if parent == UIParent then --
+    if parent == UIParent then
         anchor = db.unitAnchor
         offsetX = db.unitOffsetX
         offsetY = db.unitOffsetY

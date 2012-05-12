@@ -40,14 +40,6 @@ local default = {
 	    otherFrames = "always",
 	    modifier = "NONE",
 	},
-	--setAnchor = {
-	--    unitAnchor = "CURSOR_BOTTOM",
-	--    unitOffsetX = 0,
-	--    unitOffsetY = 0,
-	--    frameAnchor = "BOTTOMRIGHT",
-	--    frameOffsetX = -93,
-	--    frameOffsetY = 110,
-	--},
 	--tooltipFade = {
 	--    units = "hide",
 	--    objects ="fade",
@@ -451,7 +443,6 @@ function Icetip:Tooltip_Cleared(tooltip, ...)
 end
 
 function Icetip:Tooltip_SetDefaultAnchor(tooltip, ...)
-
 end
 
 function Icetip:Tooltip_OnUpdate(tooltip, elapsed)
