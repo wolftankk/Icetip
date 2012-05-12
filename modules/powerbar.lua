@@ -1,4 +1,5 @@
-local _, Icetip = ...
+local addonName, Icetip = ...
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local mod = Icetip:NewModule("powerbar", "PowerBar");
 local SM = LibStub("LibSharedMedia-3.0")
 local format = string.format
@@ -194,4 +195,116 @@ function update(frame, elapsed, force)
     else
         pbtext:Hide()
     end
+end
+
+
+local barPosition = {
+    ["TOP"] = L["Tooltip Top"],
+    ["BOTTOM"] = L["Tooltip Bottom"],
+    --["INNER"] = L["Tooltip inner"]
+    --["LEFT"] = L["Tooltip Left"],
+    --["RIGHT"] = L["Tooltip Right"],
+}
+
+local bartextStyle = {
+    ["number"] = L["Num"],
+    ["percent"] = L["Percent"],
+    ["pernumber"] = L["Num(precent)"],
+}
+function mod:GetOptions()
+    local options = {
+	texture = {
+	    type = "select",
+	    order = 1,
+	    name = L["Texture"],
+	    desc = L["The texture which the power bar uses."],
+	    dialogControl = "LSM30_Statusbar",
+	    values = AceGUIWidgetLSMlists.statusbar,
+	    get = function() return db.texture end,
+	    set = function(_, v)
+		db.texture = v
+		powerbar:SetStatusBarTexture(SM:Fetch("statusbar", v));
+	    end
+	},
+	size = {
+	    type = "range",
+	    order = 2,
+	    name = L["Size"],
+	    desc = L["The size of the power bar."],
+	    min = 1,
+	    max = 20,
+	    step = 1,
+	    get = function() return db.size end,
+	    set = function(_, v)
+		db.size = v
+		powerbar:SetHeight(tonumber(v));
+	    end,
+	},
+	position = {
+	    type = "select",
+	    order = 3,
+	    name = L["Position"],
+	    desc = L["The position of the power bar relative to the tooltip."],
+	    values = barPosition,
+	    get = function() return db.position end,
+	    set = function(_, v) 
+		db.position = v
+		self:SetBarPoint()
+	    end,
+	},
+	showpbtext = {
+	    type = "toggle",
+	    order = 4,
+	    width = "full",
+	    name = L["Power bar text"],
+	    desc = L["Show the status text on the power bar."],
+	    get = function() return db.showText end,
+	    set = function(_, v)
+		db.showText = v
+	    end
+	},
+	pbfont = {
+	    type = "select",
+	    order = 5,
+	    name = L["Font"],
+	    desc = L["What font face to use."],
+	    hidden = function() return not db.showText end,
+	    dialogControl = "LSM30_Font",
+	    values = AceGUIWidgetLSMlists.font,
+	    get = function() return db.font end,
+	    set = function(_, v)
+		db.font = v
+		pbtext:SetFont(SM:Fetch("font", v), db.fontSize, "Outline");
+	    end
+	},
+	pbfontsize = {
+	    type = "range",
+	    order = 6,
+	    name = L["Font size"],
+	    desc = L["Change what size is the font."],
+	    hidden = function() return not db.showText end,
+	    min = 8,
+	    max = 16,
+	    step = 1,
+	    get = function() return db.fontSize end,
+	    set = function(_, v)
+		db.fontSize = v
+		pbtext:SetFont(SM:Fetch("font", v), db.fontSize, "Outline");
+	    end,
+	},
+	pbtextstyle = {
+	    type = "select",
+	    order = 7,
+	    name = L["Text style"],
+	    desc = L["Sets the text style."],
+	    hidden = function() return not db.showText end,
+	    values = bartextStyle,
+	    get = function() return db.style end,
+	    set = function(_, v)
+		db.style = v
+	    end
+	}
+    }
+
+    return options
 end
