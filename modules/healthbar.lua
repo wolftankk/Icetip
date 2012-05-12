@@ -1,6 +1,5 @@
 local _, Icetip = ...
 local mod = Icetip:NewModule("HealthBar");
-local GameTooltipStatusBar = _G.GameTooltipStatusBar
 local SM = LibStub("LibSharedMedia-3.0")
 local format = string.format
 local hbtext, healthbar
@@ -11,8 +10,6 @@ function mod:OnEnable()
     local db = self.db["healthbar"];
     self.db = db
     if db.enabled then
-        GameTooltipStatusBar:Hide();
-        GameTooltipStatusBar:ClearAllPoints();
         self:SetBarPoint();
     end
 end
@@ -23,7 +20,6 @@ function mod:OnDisable()
         healthbar:Hide()
         healthbar.side = nil;
     end
-    GameTooltipStatusBar:Hide()
 end
 
 local function HealthGradient(precent)
@@ -102,7 +98,6 @@ function mod:OnTooltipSetUnit()
 
     if self.db.enable then
         healthbar:Show();
-        GameTooltipStatusBar:Hide();
     end
 
     healthbar.updateTooltip = TOOLTIP_UPDATE_TIME;
