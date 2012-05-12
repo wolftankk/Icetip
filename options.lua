@@ -954,6 +954,13 @@ local function CreateOption()
 		    }
 		}
 	    }
+
+	    local modOptions = mod:GetOptions();
+	    if modOptions and type(modOptions) == "table" then
+		for key, value in pairs(modOptions) do
+		    options.args["module_"..name].args[key] = value
+		end
+	    end
 	end
 
 	options.args.profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(Icetip.acedb);
