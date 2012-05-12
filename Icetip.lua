@@ -158,21 +158,27 @@ end)
 
 local modPrototype = {};
 function modPrototype:Enable()
-    self.db = Icetip.db
-    self._enabled = true
-    self:OnEnable();
+    --self._enabled = true
+    --self:OnEnable();
 end
 
 function modPrototype:Disable()
-    self._enabled = false;
-    self:OnDisable();
+    --self._enabled = false;
+    --self:OnDisable();
 end
 
-function Icetip:NewModule(name, embedHook)
-    --has module
+function modPrototype:RegisterDB()
+end
+
+function Icetip:NewModule(name, embedHook, slince)
     if modules[name] then
-	return
+	if not slince then
+	    error("Icetip has `" .. name .. "` module", 2)
+	else
+	    return
+	end
     end
+
     local mod = setmetatable({}, {__index = modPrototype});
     mod.name = name;
     for k, v in pairs(modmethod) do
@@ -245,6 +251,7 @@ function Icetip:OnInitialize()
     --db.RegisterCallback(self, "OnProfileChanged", "ProfileChanged");
     --db.RegisterCallback(self, "OnProfileCopied", "ProfileChanged");
     --db.RegisterCallback(self, "OnProfileReset", "ProfileChanged");
+
     self.acedb = db;
     self.db = db.profile;
 
@@ -264,15 +271,18 @@ function Icetip:OnInitialize()
     if icon and iceLDB then
 	icon:Register("Icetip", iceLDB, self.db.minimap);
     end
+
+    for name, mod in self:GetModules() do
+	
+    end
 end
 
 function Icetip:OnEnable()
     for name, mod in self:GetModules() do
-	mod.db = self.db;
-	if mod["OnEnable"] and type(mod["OnEnable"]) then
-	    --mod["OnEnable"](mod);
-	    mod:Enable();
-	end
+	--mod.db = self.db;
+	--if mod["OnEnable"] and type(mod["OnEnable"]) then
+	--    mod:Enable();
+	--end
     end
 
     for _, tooltip in pairs(tooltips) do
@@ -285,13 +295,12 @@ function Icetip:OnEnable()
 	self:HookScript(tooltip, "OnTooltipSetUnit", "GameTooltip_SetUnit");
 	self:HookScript(tooltip, "OnTooltipSetItem", "GameTooltip_SetItem");
 	self:HookScript(tooltip, "OnTooltipSetSpell", "GameTooltip_SetSpell")
-	--self:HookScript(GameTooltip, "OnTooltipSetQuest", "GameTooltip_SetQuest")
-	--self:HookScript(GameTooltip, "OnTooltipSetAchievement", "GameTooltip_SetAchievement")
+	self:HookScript(tooltip, "OnTooltipSetQuest", "GameTooltip_SetQuest")
+	self:HookScript(tooltip, "OnTooltipSetAchievement", "GameTooltip_SetAchievement")
     end
 
     GameTooltipStatusBar:Hide();
     GameTooltipStatusBar:ClearAllPoints();
-
 
     local tt = GameTooltip;
     tt.GetBackdropColor = function()

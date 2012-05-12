@@ -136,7 +136,6 @@ local function runHide()
 end
 
 local function donothing() end
-
 function mod:CURSOR_UPDATE(...)
     --reset
     Icetip:CancelTimer(Icetip_Fade_runHide, true);

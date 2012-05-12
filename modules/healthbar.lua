@@ -3,7 +3,6 @@ local mod = Icetip:NewModule("HealthBar");
 local SM = LibStub("LibSharedMedia-3.0")
 local format = string.format
 local hbtext, healthbar
-
 local update;
 
 function mod:OnEnable()

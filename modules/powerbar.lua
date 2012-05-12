@@ -11,10 +11,6 @@ function mod:OnEnable(event, unit)
     self.db = db
 
     if db.enable then
-        --self:RegisterEvent("UNIT_POWER", "UNIT_MANA");
-        --self:RegisterEvent("UNIT_MAXPOWER", "UNIT_MANA");
-        --self:RegisterEvent("UNIT_DISPLAYPOWER", "UNIT_MANA");
-
         self:SetBarPoint();
     end
 end
@@ -26,13 +22,6 @@ function mod:OnDisable()
         powerbar.side = nil;
     end
 end
-
---function mod:UNIT_MANA(event, unit)
---    if not UnitIsUnit(unit, "mouseover") then
---        return
---    end
---    self:Update()
---end
 
 function mod:SetBarPoint()
     if not powerbar then return end
@@ -105,7 +94,6 @@ function mod:OnTooltipSetUnit()
         powerbar:Show();
     end
 
-    --self:Update()
     powerbar.updateTooltip = TOOLTIP_UPDATE_TIME;
     update(powerbar, 0, true);
     powerbar:SetScript("OnUpdate", update)
