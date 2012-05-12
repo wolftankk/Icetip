@@ -281,24 +281,24 @@ end
 
 function Icetip:OnEnable()
     for name, mod in self:GetModules() do
-	--mod.db = self.db;
-	--if mod["OnEnable"] and type(mod["OnEnable"]) then
-	--    mod:Enable();
-	--end
+	mod.db = self.db;
+	if mod["OnEnable"] and type(mod["OnEnable"]) then
+	    mod:Enable();
+	end
     end
 
     for _, tooltip in pairs(tooltips) do
-	self:HookScript(tooltip, "OnShow", "GameTooltip_OnShow");
-	self:HookScript(tooltip, "OnHide", "GameTooltip_OnHide");
+	self:HookScript(tooltip, "OnShow", "Tooltip_OnShow");
+	self:HookScript(tooltip, "OnHide", "Tooltip_OnHide");
 
-	self:HookScript(tooltip, "OnUpdate", "GameTooltip_OnUpdate");
+	self:HookScript(tooltip, "OnUpdate", "Tooltip_OnUpdate");
 
-	--self:HookScript(GameTooltip, "OnTooltipCleared", "")
-	self:HookScript(tooltip, "OnTooltipSetUnit", "GameTooltip_SetUnit");
-	self:HookScript(tooltip, "OnTooltipSetItem", "GameTooltip_SetItem");
-	self:HookScript(tooltip, "OnTooltipSetSpell", "GameTooltip_SetSpell")
-	self:HookScript(tooltip, "OnTooltipSetQuest", "GameTooltip_SetQuest")
-	self:HookScript(tooltip, "OnTooltipSetAchievement", "GameTooltip_SetAchievement")
+	self:HookScript(tooltip, "OnTooltipCleared", "Tooltip_Cleared")
+	self:HookScript(tooltip, "OnTooltipSetUnit", "Tooltip_SetUnit");
+	self:HookScript(tooltip, "OnTooltipSetItem", "Tooltip_SetItem");
+	self:HookScript(tooltip, "OnTooltipSetSpell", "Tooltip_SetSpell")
+	self:HookScript(tooltip, "OnTooltipSetQuest", "Tooltip_SetQuest")
+	self:HookScript(tooltip, "OnTooltipSetAchievement", "Tooltip_SetAchievement")
     end
 
     GameTooltipStatusBar:Hide();
@@ -383,7 +383,7 @@ function Icetip:MODIFIER_STATE_CHANGED(event, modifier, down)
 end
 
 local forgetNextOnTooltipMethod = false
-function Icetip:GameTooltip_OnShow(tooltip, ...)
+function Icetip:Tooltip_OnShow(tooltip, ...)
     self:CallMethodAllModules("PreOnTooltipShow", tooltip, ...);
 
     if tooltip == GameTooltip then
@@ -450,7 +450,7 @@ function Icetip:GameTooltip_OnShow(tooltip, ...)
     self:CallMethodAllModules("OnTooltipShow", tooltip);
 end
 
-function Icetip:GameTooltip_OnHide(tooltip, ...)
+function Icetip:Tooltip_OnHide(tooltip, ...)
     doneOnTooltipMethod = false;
     forgetNextOnTooltipMethod = false
 
@@ -465,7 +465,7 @@ function Icetip:GameTooltip_OnHide(tooltip, ...)
 end
 
 local doneOnTooltipMethod;
-function Icetip:GameTooltip_SetUnit(tooltip, ...)
+function Icetip:Tooltip_SetUnit(tooltip, ...)
     GameTooltipStatusBar:Hide();
     GameTooltipStatusBar:ClearAllPoints();
     local doneOnTooltipMethod = true
@@ -476,7 +476,7 @@ function Icetip:GameTooltip_SetUnit(tooltip, ...)
     end
 end
 
-function Icetip:GameTooltip_SetItem(tooltip, ...)
+function Icetip:Tooltip_SetItem(tooltip, ...)
     --local doneOnTooltipMethod = true
     if forgetNextOnTooltipMethod then
 	forgetNextOnTooltipMethod = false
@@ -485,7 +485,7 @@ function Icetip:GameTooltip_SetItem(tooltip, ...)
     end
 end
 
-function Icetip:GameTooltip_SetSpell(tooltip, ...)
+function Icetip:Tooltip_SetSpell(tooltip, ...)
     --local doneOnTooltipMethod = true
     if forgetNextOnTooltipMethod then
 	forgetNextOnTooltipMethod = false
@@ -494,7 +494,7 @@ function Icetip:GameTooltip_SetSpell(tooltip, ...)
     end
 end
 
-function Icetip:GameTooltip_SetQuest(tooltip, ...)
+function Icetip:Tooltip_SetQuest(tooltip, ...)
     if forgetNextOnTooltipMethod then
 	forgetNextOnTooltipMethod = false
     else
@@ -502,7 +502,7 @@ function Icetip:GameTooltip_SetQuest(tooltip, ...)
     end
 end
 
-function Icetip:GameTooltip_SetAchievement(tooltip, ...)
+function Icetip:Tooltip_SetAchievement(tooltip, ...)
     if forgetNextOnTooltipMethod then
 	forgetNextOnTooltipMethod = false
     else
@@ -510,6 +510,10 @@ function Icetip:GameTooltip_SetAchievement(tooltip, ...)
     end
 end
 
-function Icetip:GameTooltip_OnUpdate(tip, elapsed)
+function Icetip:Tooltip_Cleared(tooltip, ...)
+
+end
+
+function Icetip:Tooltip_OnUpdate(tooltip, elapsed)
 
 end
