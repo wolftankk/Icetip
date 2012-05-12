@@ -1,5 +1,5 @@
 local _, Icetip = ...;
-local mod = Icetip:NewModule("itemref");
+local mod = Icetip:NewModule("itemref", "ItemRef");
 local db;
 local colors = {}
 

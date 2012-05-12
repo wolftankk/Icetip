@@ -1,5 +1,5 @@
 local _, Icetip = ...
-local mod = Icetip:NewModule("healthbar");
+local mod = Icetip:NewModule("healthbar", "HealthBar");
 local SM = LibStub("LibSharedMedia-3.0")
 local format = string.format
 local hbtext, healthbar

@@ -1,6 +1,6 @@
 local _, Icetip = ...
 local SM = LibStub("LibSharedMedia-3.0");
-local mod = Icetip:NewModule("style");
+local mod = Icetip:NewModule("style", "Style");
 local backdrop = {insets = {}};
 local hooked = {}
 local db
@@ -37,6 +37,8 @@ local defaults = {
     }
 }
 
+local origin_GetBackdropColor = GameTooltip.GetBackdropColor
+local origin_GetBackdropBorderColor = GameTooltip.GetBackdropBorderColor
 function mod:OnEnable()
     self.db = mod:RegisterDB(defaults)
     db = self.db.profile
@@ -46,6 +48,12 @@ function mod:OnEnable()
     GameTooltip.GetBackdropBorderColor = function()
 	return db.border_color["r"], db.border_color["g"], db.border_color["b"], db.border_color["a"]
     end
+end
+
+function mod:OnDisable()
+    GameTooltip.GetBackdropColor = origin_GetBackdropColor
+    GameTooltip.GetBackdropBorderColor = origin_GetBackdropBorderColor
+    --reset
 end
 
 function mod:PreOnTooltipShow(tooltip, ...)

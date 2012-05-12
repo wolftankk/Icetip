@@ -1,5 +1,5 @@
 local addonName, Icetip = ...;
-local mod = Icetip:NewModule("Buff");
+local mod = Icetip:NewModule("Buff", "Buff");
 local db
 --update function
 local update

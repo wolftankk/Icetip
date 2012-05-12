@@ -1,5 +1,5 @@
 local _, Icetip = ...
-local mod = Icetip:NewModule("fade", true);
+local mod = Icetip:NewModule("fade", "FadeOut",true);
 local db
 local defaults = {
     profile = {

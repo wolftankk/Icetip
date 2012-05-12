@@ -1,6 +1,6 @@
-local _, Icetip = ...
-local mod = Icetip:NewModule("mousetarget");
-local L = LibStub("AceLocale-3.0"):GetLocale("Icetip")
+local addonName, Icetip = ...
+local mod = Icetip:NewModule("mousetarget", "TooltipInfo");
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local Icetip_InspectTalent = setmetatable({}, {__mode="kv"});
 local CLASS_COLORS = {}
 for class, color in pairs(RAID_CLASS_COLORS) do

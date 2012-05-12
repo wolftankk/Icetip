@@ -78,12 +78,16 @@ end)
 local modPrototype = {};
 function modPrototype:Enable()
     self._enabled = true
-    self:OnEnable();
+    if self["OnEnable"] then
+	self:OnEnable()
+    end
 end
 
 function modPrototype:Disable()
     self._enabled = false;
-    self:OnDisable();
+    if self["OnDisable"] then
+	self:OnDisable() 
+    end
 end
 
 function modPrototype:IsEnabled()
@@ -97,9 +101,13 @@ end
 function modPrototype:GetName()
     return self.name
 end
-
 function modPrototype:RegisterDB(profile)
-    local db = Icetip.acedb:RegisterNamespace(self.name, profile)
+    local db
+    if not Icetip.acedb:GetNamespace(self.name, true) then
+	db = Icetip.acedb:RegisterNamespace(self.name, profile)
+    else
+	db = Icetip.acedb:GetNamespace(self.name, true)
+    end
     return db
 end
 
@@ -107,7 +115,7 @@ function modPrototype:GetOptions()
 
 end
 
-function Icetip:NewModule(name, embedHook, slince)
+function Icetip:NewModule(name, label, embedHook, slince)
     if modules[name] then
 	if not slince then
 	    error("Icetip has `" .. name .. "` module", 2)
@@ -116,7 +124,8 @@ function Icetip:NewModule(name, embedHook, slince)
 	end
     end
     local mod = setmetatable({}, {__index = modPrototype});
-    mod:SetName(name)
+    mod:SetName(name);
+    mod.label = label;
     for k, v in pairs(modmethod) do
 	mod[v] = modhandler[v];
     end
@@ -207,6 +216,8 @@ function Icetip:OnInitialize()
     if icon and iceLDB then
 	icon:Register("Icetip", iceLDB, self.db.minimap);
     end
+
+    Icetip:RegisterOptions();
 end
 
 function Icetip:OnEnable()
@@ -230,33 +241,33 @@ function Icetip:OnEnable()
         self:HookScript(tooltip, "OnTooltipSetSpell", "Tooltip_SetSpell");
         self:HookScript(tooltip, "OnTooltipSetQuest", "Tooltip_SetQuest");
         self:HookScript(tooltip, "OnTooltipSetAchievement", "Tooltip_SetAchievement");
-        --self:HookScript(tooltip, "OnTooltipSetDefaultAnchor", "Tooltip_SetDefaultAnchor");
+        self:HookScript(tooltip, "OnTooltipSetDefaultAnchor", "Tooltip_SetDefaultAnchor");
     end
 
     GameTooltipStatusBar:Hide();
     GameTooltipStatusBar:ClearAllPoints();
 
-    --local previousDead = false
-    --self:ScheduleRepeatingTimer(function() 
-    --    local mouse_unit = Icetip:GetMouseoverUnit()
-    --    if UnitExists(mouse_unit) then
-    --        if UnitIsDeadOrGhost(mouse_unit) then
-    --    	if previousDead == false then
-    --    	    GameTooltip:Hide()
-    --    	    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
-    --    	    GameTooltip:SetUnit(mouse_unit)
-    --    	    GameTooltip:Show()
-    --    	end
-    --    	previousDead = true
-    --        else
-    --    	previousDead = false
-    --        end
-    --    else
-    --        previousDead = nil
-    --    end
-    --end, 0.05)
+    local previousDead = false
+    self:ScheduleRepeatingTimer(function() 
+        local mouse_unit = Icetip:GetMouseoverUnit()
+        if UnitExists(mouse_unit) then
+            if UnitIsDeadOrGhost(mouse_unit) then
+        	if previousDead == false then
+        	    GameTooltip:Hide()
+        	    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
+        	    GameTooltip:SetUnit(mouse_unit)
+        	    GameTooltip:Show()
+        	end
+        	previousDead = true
+            else
+        	previousDead = false
+            end
+        else
+            previousDead = nil
+        end
+    end, 0.05)
 
-    --self:RegisterEvent("MODIFIER_STATE_CHANGED");
+    self:RegisterEvent("MODIFIER_STATE_CHANGED");
 end
 
 function Icetip:ShortValue(value)

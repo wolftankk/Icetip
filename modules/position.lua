@@ -1,5 +1,5 @@
 local addonName, Icetip = ...;
-local mod = Icetip:NewModule("position", true);
+local mod = Icetip:NewModule("position", "Position", true);
 local db;
 
 local currentOffsetX, currentOffsetY = 0, 0
@@ -33,6 +33,10 @@ function mod:OnEnable()
     self.db = self:RegisterDB(defaults)
     db = self.db.profile
     self:SecureHook("GameTooltip_SetDefaultAnchor", "SetTooltipAnchor");
+end
+
+function mod:OnDisable()
+    self:Unhook("GameTooltip_SetDefaultAnchor")
 end
 
 local function ReanchorTooltip()

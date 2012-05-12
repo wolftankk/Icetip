@@ -1,5 +1,5 @@
 local _, Icetip = ...
-local mod = Icetip:NewModule("raidtarget");
+local mod = Icetip:NewModule("raidtarget", "RaidTarget");
 local db
 local raidTargetIcon
 
