@@ -22,108 +22,119 @@ local tooltips = {
 
 local default = {
     profile = {
-	scale = 1,
 	minimap = {
-	    hide = false, 
+	    hide = false
 	},
-	bgColor = {
-	    guild = {0, 0.15, 0, 1},
-	    faction = {0.25, 0.25, 0, 1},
-	    hostilePC = {0.25, 0, 0, 1},
-	    hostileNPC = {0.15, 0, 0, 1},
-	    neutralNPC = {0.15, 0.15, 0, 1},
-	    friendlyPC = {0, 0, 0.25, 1},
-	    friendlyNPC = {0, 0, 0.15, 1},
-	    other = {0, 0, 0, 1},
-	    dead = {0.15, 0.15, 0.15, 1},
-	    tapped = {0.25, 0.25, 0.25, 1},
-	},
-	border_color = {
-	    r = 0,
-	    g = 0,
-	    b = 0,
-	    a = 0,
-	},
-	tooltipStyle = {
-	    bgTexture = "Blizzard Tooltip",
-	    borderTexture = "Blank",
-	    tile = false,
-	    tileSize = 8,
-	    EdgeSize = 2,
-	    customColor = true,
-	},
-	itemQBorder = true,
-	setAnchor = {
-	    unitAnchor = "CURSOR_BOTTOM",
-	    unitOffsetX = 0,
-	    unitOffsetY = 0,
-	    frameAnchor = "BOTTOMRIGHT",
-	    frameOffsetX = -93,
-	    frameOffsetY = 110,
-	},
-	tooltipFade = {
-	    units = "hide",
-	    objects ="fade",
-	    unitFrames = "fade",
-	    otherFrames = "hide",
-	},
-	tipmodifier = {
-	    units = "always",
-	    objects = "always",
-	    unitFrames = "always",
-	    otherFrames = "always",
-	    modifier = "NONE",
-	},
-	healthbar = {
-	    texture = "Smooth",
-	    size = 5,
-	    position = "BOTTOM",
-	    enable = true,
-	    showText = false,
-	    font = "Friz Quadrata TT",
-	    fontSize = 9,
-	    fontflag = "Outline",
-	    style = "number",
-	    short = true,
-	},
-	powerbar = {
-	    texture = "Smooth",
-	    size = 5,
-	    position = "BOTTOM",
-	    enable = true,
-	    showText = false,
-	    font = "Friz Quadrata TT",
-	    fontSize = 9,
-	    fontflag = "Outline",
-	    style = "number",
-	    short = true,
-	},
-	mousetarget = {
-	    showTalent = true,
-	    showTarget = true,
-	    showFaction = true,
-	    showServer = true,
-	    colorBorderByClass = true,
-	    colorNameByClass = false,
-	    SGuildColor = {
-		r = 0.9,
-		g = 0.45,
-		b = 0.7,
+	modules = {
+	    ['*'] = {
+		enabled = true
 	    },
-	    DGuildColor = {
-		r = 0.8,
-		g = 0.8,
-		b = 0.8,
+	    raidtarget = {
+		enabled = false
 	    }
-	},
-	raidtarget = {
-	    enable = false,
-	    position = "TOP",
-	    size = 20,
-	},
-	buff = {
-	    enable = false,
 	}
+	--scale = 1,
+	--minimap = {
+	--    hide = false, 
+	--},
+	--bgColor = {
+	--    guild = {0, 0.15, 0, 1},
+	--    faction = {0.25, 0.25, 0, 1},
+	--    hostilePC = {0.25, 0, 0, 1},
+	--    hostileNPC = {0.15, 0, 0, 1},
+	--    neutralNPC = {0.15, 0.15, 0, 1},
+	--    friendlyPC = {0, 0, 0.25, 1},
+	--    friendlyNPC = {0, 0, 0.15, 1},
+	--    other = {0, 0, 0, 1},
+	--    dead = {0.15, 0.15, 0.15, 1},
+	--    tapped = {0.25, 0.25, 0.25, 1},
+	--},
+	--border_color = {
+	--    r = 0,
+	--    g = 0,
+	--    b = 0,
+	--    a = 0,
+	--},
+	--tooltipStyle = {
+	--    bgTexture = "Blizzard Tooltip",
+	--    borderTexture = "Blank",
+	--    tile = false,
+	--    tileSize = 8,
+	--    EdgeSize = 2,
+	--    customColor = true,
+	--},
+	--itemQBorder = true,
+	--setAnchor = {
+	--    unitAnchor = "CURSOR_BOTTOM",
+	--    unitOffsetX = 0,
+	--    unitOffsetY = 0,
+	--    frameAnchor = "BOTTOMRIGHT",
+	--    frameOffsetX = -93,
+	--    frameOffsetY = 110,
+	--},
+	--tooltipFade = {
+	--    units = "hide",
+	--    objects ="fade",
+	--    unitFrames = "fade",
+	--    otherFrames = "hide",
+	--},
+	--tipmodifier = {
+	--    units = "always",
+	--    objects = "always",
+	--    unitFrames = "always",
+	--    otherFrames = "always",
+	--    modifier = "NONE",
+	--},
+	--healthbar = {
+	--    texture = "Smooth",
+	--    size = 5,
+	--    position = "BOTTOM",
+	--    enable = true,
+	--    showText = false,
+	--    font = "Friz Quadrata TT",
+	--    fontSize = 9,
+	--    fontflag = "Outline",
+	--    style = "number",
+	--    short = true,
+	--},
+	--powerbar = {
+	--    texture = "Smooth",
+	--    size = 5,
+	--    position = "BOTTOM",
+	--    enable = true,
+	--    showText = false,
+	--    font = "Friz Quadrata TT",
+	--    fontSize = 9,
+	--    fontflag = "Outline",
+	--    style = "number",
+	--    short = true,
+	--},
+	--mousetarget = {
+	--    showTalent = true,
+	--    showTarget = true,
+	--    showFaction = true,
+	--    showServer = true,
+	--    colorBorderByClass = true,
+	--    colorNameByClass = false,
+	--    SGuildColor = {
+	--	r = 0.9,
+	--	g = 0.45,
+	--	b = 0.7,
+	--    },
+	--    DGuildColor = {
+	--	r = 0.8,
+	--	g = 0.8,
+	--	b = 0.8,
+	--    }
+	--},
+	--raidtarget = {
+	--    enable = false,
+	--    position = "TOP",
+	--    size = 20,
+	--},
+	--buff = {
+	--    enable = false,
+	--}
     }
 }
 
@@ -167,9 +178,21 @@ function modPrototype:Disable()
     self:OnDisable();
 end
 
-function modPrototype:RegisterDB()
-    print(modPrototype.name)
-    --Icetip.acedb:RegisterNamespace()
+function modPrototype:IsEnabled()
+    return self._enabled
+end
+
+function modPrototype:SetName(name)
+    self.name = name
+end
+
+function modPrototype:GetName()
+    return self.name
+end
+
+function modPrototype:RegisterDB(profile)
+    local db = Icetip.acedb:RegisterNamespace(self.name, profile)
+    return db
 end
 
 function modPrototype:RegisterOption()
@@ -184,14 +207,13 @@ function Icetip:NewModule(name, embedHook, slince)
 	    return
 	end
     end
-
     local mod = setmetatable({}, {__index = modPrototype});
-    mod.name = name;
+    mod:SetName(name)
     for k, v in pairs(modmethod) do
 	mod[v] = modhandler[v];
     end
     modules[name] = mod;
-
+    
     if embedHook then
 	LibStub("AceHook-3.0"):Embed(mod);
     end
@@ -281,29 +303,30 @@ end
 
 function Icetip:OnEnable()
     for name, mod in self:GetModules() do
-        mod.db = self.db;
-        if mod["OnEnable"] and type(mod["OnEnable"]) then
-            mod:Enable();
-        end
+	if (self.db.modules[name].enabled) then
+	    if mod["OnEnable"] and type(mod["OnEnable"]) then
+	       mod:Enable();
+	    end
+	end
     end
 
-    --for _, tooltip in pairs(tooltips) do
-    --    self:HookScript(tooltip, "OnShow", "Tooltip_OnShow");
-    --    self:HookScript(tooltip, "OnHide", "Tooltip_OnHide");
+    for _, tooltip in pairs(tooltips) do
+        self:HookScript(tooltip, "OnShow", "Tooltip_OnShow");
+        self:HookScript(tooltip, "OnHide", "Tooltip_OnHide");
 
-    --    self:HookScript(tooltip, "OnUpdate", "Tooltip_OnUpdate");
+        self:HookScript(tooltip, "OnUpdate", "Tooltip_OnUpdate");
 
-    --    self:HookScript(tooltip, "OnTooltipCleared", "Tooltip_Cleared");
-    --    self:HookScript(tooltip, "OnTooltipSetUnit", "Tooltip_SetUnit");
-    --    self:HookScript(tooltip, "OnTooltipSetItem", "Tooltip_SetItem");
-    --    self:HookScript(tooltip, "OnTooltipSetSpell", "Tooltip_SetSpell");
-    --    self:HookScript(tooltip, "OnTooltipSetQuest", "Tooltip_SetQuest");
-    --    self:HookScript(tooltip, "OnTooltipSetAchievement", "Tooltip_SetAchievement");
-    --    --self:HookScript(tooltip, "OnTooltipSetDefaultAnchor", "Tooltip_SetDefaultAnchor");
-    --end
+        self:HookScript(tooltip, "OnTooltipCleared", "Tooltip_Cleared");
+        self:HookScript(tooltip, "OnTooltipSetUnit", "Tooltip_SetUnit");
+        self:HookScript(tooltip, "OnTooltipSetItem", "Tooltip_SetItem");
+        self:HookScript(tooltip, "OnTooltipSetSpell", "Tooltip_SetSpell");
+        self:HookScript(tooltip, "OnTooltipSetQuest", "Tooltip_SetQuest");
+        self:HookScript(tooltip, "OnTooltipSetAchievement", "Tooltip_SetAchievement");
+        --self:HookScript(tooltip, "OnTooltipSetDefaultAnchor", "Tooltip_SetDefaultAnchor");
+    end
 
-    --GameTooltipStatusBar:Hide();
-    --GameTooltipStatusBar:ClearAllPoints();
+    GameTooltipStatusBar:Hide();
+    GameTooltipStatusBar:ClearAllPoints();
 
     --GameTooltip.GetBackdropColor = function()
     --    return unpack(self.db.bgColor["other"])
@@ -386,65 +409,65 @@ local forgetNextOnTooltipMethod = false
 function Icetip:Tooltip_OnShow(tooltip, ...)
     self:CallMethodAllModules("PreOnTooltipShow", tooltip, ...);
 
-    if tooltip == GameTooltip then
-	if not doneOnTooltipMethod then
-	    if tooltip:GetUnit() then
-		self:OnTooltipMethod("SetUnit", tooltip, ...);
-		forgetNextOnTooltipMethod = true
-	    elseif tooltip:GetItem() then
-		forgetNextOnTooltipMethod = true
-	    elseif tooltip:GetSpell() then
-		forgetNextOnTooltipMethod = true;
-	    end
-	end
+    --if tooltip == GameTooltip then
+    --    if not doneOnTooltipMethod then
+    --        if tooltip:GetUnit() then
+    --    	self:OnTooltipMethod("SetUnit", tooltip, ...);
+    --    	forgetNextOnTooltipMethod = true
+    --        elseif tooltip:GetItem() then
+    --    	forgetNextOnTooltipMethod = true
+    --        elseif tooltip:GetSpell() then
+    --    	forgetNextOnTooltipMethod = true;
+    --        end
+    --    end
 
-	local show;
-	if tooltip:IsOwned(UIParent) then
-	    if tooltip:GetUnit() then
-		show = self.db.tipmodifier.units;
-	    else
-		show = self.db.tipmodifier.objects
-	    end
-	else
-	    if tooltip:GetUnit() then
-		show = self.db.tipmodifier.unitFrames;
-	    else
-		show = self.db.tipmodifier.otherFrames;
-	    end
-	end
+    --    local show;
+    --    if tooltip:IsOwned(UIParent) then
+    --        if tooltip:GetUnit() then
+    --    	show = self.db.tipmodifier.units;
+    --        else
+    --    	show = self.db.tipmodifier.objects
+    --        end
+    --    else
+    --        if tooltip:GetUnit() then
+    --    	show = self.db.tipmodifier.unitFrames;
+    --        else
+    --    	show = self.db.tipmodifier.otherFrames;
+    --        end
+    --    end
 
-	local modifier = self.db.tipmodifier.modifier;
+    --    local modifier = self.db.tipmodifier.modifier;
 
-	if modifier == "ALT" then
-	    if not IsAltKeyDown() then
-		tooltip:Hide()
-		return;
-	    end
-	elseif modifier == "SHIFT" then
-	    if not IsShiftKeyDown() then
-		tooltip:Hide()
-		return;
-	    end
-	elseif modifier == "CTRL" then
-	    if not IsControlKeyDown() then
-		tooltip:Hide()
-		return;
-	    end
-	end
+    --    if modifier == "ALT" then
+    --        if not IsAltKeyDown() then
+    --    	tooltip:Hide()
+    --    	return;
+    --        end
+    --    elseif modifier == "SHIFT" then
+    --        if not IsShiftKeyDown() then
+    --    	tooltip:Hide()
+    --    	return;
+    --        end
+    --    elseif modifier == "CTRL" then
+    --        if not IsControlKeyDown() then
+    --    	tooltip:Hide()
+    --    	return;
+    --        end
+    --    end
 
-	if show == "notcombat" then
-	    if InCombatLockdown() then
-		tooltip.justHide = true;
-		tooltip:Hide()
-		tooltip.justHide = nil;
-		return;
-	    end
-	elseif show == "never" then
-	    tooltip.justHide = true;
-	    tooltip:Hide();
-	    tooltip.justHide = nil
-	end
-    end
+    --    if show == "notcombat" then
+    --        if InCombatLockdown() then
+    --    	tooltip.justHide = true;
+    --    	tooltip:Hide()
+    --    	tooltip.justHide = nil;
+    --    	return;
+    --        end
+    --    elseif show == "never" then
+    --        tooltip.justHide = true;
+    --        tooltip:Hide();
+    --        tooltip.justHide = nil
+    --    end
+    --end
 
     self.hooks[tooltip].OnShow(tooltip, ...)
     self:CallMethodAllModules("OnTooltipShow", tooltip);
@@ -457,9 +480,9 @@ function Icetip:Tooltip_OnHide(tooltip, ...)
     self:CallMethodAllModules("OnTooltipHide");
     if self.hooks[tooltip] and self.hooks[tooltip].OnHide then
 	--reset gametooltip style
-	local ct = self.db.bgColor["other"];
-	tooltip:SetBackdropColor(unpack(ct));
-	tooltip:SetBackdropBorderColor(self.db.border_color["r"], self.db.border_color["g"], self.db.border_color["b"], self.db.border_color["a"]);
+	--local ct = self.db.bgColor["other"];
+	--tooltip:SetBackdropColor(unpack(ct));
+	--tooltip:SetBackdropBorderColor(self.db.border_color["r"], self.db.border_color["g"], self.db.border_color["b"], self.db.border_color["a"]);
 	self.hooks[tooltip].OnHide(tooltip, ...)
     end
 end

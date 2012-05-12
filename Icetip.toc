@@ -32,7 +32,7 @@ Icetip.lua
 modules\healthbar.lua
 #modules\powerbar.lua
 #modules\mousetarget.lua
-#modules\raidTarget.lua
+modules\raidTarget.lua
 #modules\itemref.lua
 #modules\buff.lua
 

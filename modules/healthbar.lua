@@ -1,19 +1,36 @@
 local _, Icetip = ...
-local mod = Icetip:NewModule("HealthBar");
-local PowerBar = Icetip:GetModule("PowerBar");
-
+local mod = Icetip:NewModule("healthbar");
 local SM = LibStub("LibSharedMedia-3.0")
 local format = string.format
 local hbtext, healthbar
-local update;
+local update
+local db
+
+local Powerbar = Icetip:GetModule("Powerbar", true);
+local powerbar
+if Powerbar then
+    powerbar = Powerbar:GetBar()
+end
+
+local default = {
+    profile = {
+	texture = "Smooth",
+	size = 5,
+	position = "BOTTOM",
+	enable = true,
+	showText = false,
+	font = "Friz Quadrata TT",
+	fontSize = 9,
+	fontflag = "Outline",
+	style = "number",
+	short = true,
+    }
+}
 
 function mod:OnEnable()
-    --local db = self.db["healthbar"];
-    --self.db = db
-    --if db.enabled then
-    --    self:SetBarPoint();
-    --end
-    mod:RegisterDB();
+    self.db = mod:RegisterDB(default)
+    db = self.db.profile
+    self:SetBarPoint();
 end
 
 function mod:OnDisable()
@@ -43,21 +60,20 @@ end
 function mod:SetBarPoint()
     if not healthbar then return end
 
-    local position = self.db.position
+    local position = db.position
     healthbar:SetWidth(0);
     healthbar:SetHeight(0);
     healthbar:ClearAllPoints();
     healthbar.side = position
-    local powerbar = PowerBar:GetBar()
     if position == "BOTTOM" then
         healthbar:SetPoint("TOPLEFT", GameTooltip, "BOTTOMLEFT", 2, -2);
         healthbar:SetPoint("TOPRIGHT", GameTooltip, "BOTTOMRIGHT", -2, -2);
-        healthbar:SetHeight(self.db.size);
+        healthbar:SetHeight(db.size);
         healthbar:SetOrientation("HORIZONTAL");
     elseif position == "TOP" then
-        if powerbar and powerbar.side == "TOP" and self.db.showText then
-            healthbar:SetPoint("BOTTOMLEFT", powerbar, "TOPLEFT", 0, self.db.fontSize-5);
-            healthbar:SetPoint("BOTTOMRIGHT", powerbar, "TOPRIGHT", 0, self.db.fontSize-5);
+        if powerbar and powerbar.side == "TOP" and db.showText then
+            healthbar:SetPoint("BOTTOMLEFT", powerbar, "TOPLEFT", 0, db.fontSize-5);
+            healthbar:SetPoint("BOTTOMRIGHT", powerbar, "TOPRIGHT", 0, db.fontSize-5);
         elseif powerbar and powerbar.side == "TOP" then
             healthbar:SetPoint("BOTTOMLEFT", powerbar, "TOPLEFT", 0, 2);
             healthbar:SetPoint("BOTTOMRIGHT", powerbar, "TOPRIGHT", 0, 2);
@@ -65,7 +81,7 @@ function mod:SetBarPoint()
             healthbar:SetPoint("BOTTOMLEFT", GameTooltip, "TOPLEFT", 2, 0);
             healthbar:SetPoint("BOTTOMRIGHT", GameTooltip, "TOPRIGHT", 2, 0);
         end
-        healthbar:SetHeight(self.db.size);
+        healthbar:SetHeight(db.size);
         healthbar:SetOrientation("HORIZONTAL");
     elseif position == "INNER" then
         --display into the GameTooltip
@@ -74,7 +90,7 @@ function mod:SetBarPoint()
         --healthbar:SetPoint("BOTTOMLEFT", 8 , 5);
         --healthbar:SetPoint("BOTTOMRIGHT", -8, 5);
         --healthbar:SetWidth(GameTooltip:GetWidth())
-        --healthbar:SetHeight(self.db.size)
+        --healthbar:SetHeight(db.size)
         --healthbar:SetOrientation("HORIZONTAL");
     end
 end
@@ -86,12 +102,12 @@ end
 function mod:OnTooltipSetUnit()
     if not healthbar then
         healthbar = CreateFrame("StatusBar", nil, GameTooltip);
-        healthbar:SetStatusBarTexture(SM:Fetch("statusbar", self.db.texture));
+        healthbar:SetStatusBarTexture(SM:Fetch("statusbar", db.texture));
         healthbar:SetMinMaxValues(0, 1);
         hbtext = healthbar:CreateFontString(nil, "ARTWORK");
 	healthbar.text = hbtext;
 
-        hbtext:SetFont(SM:Fetch("font", self.db.font), self.db.fontSize, "Outline");
+        hbtext:SetFont(SM:Fetch("font", db.font), db.fontSize, "Outline");
         hbtext:SetJustifyH("CENTER");
         hbtext:SetAllPoints(healthbar);
 
@@ -105,10 +121,7 @@ function mod:OnTooltipSetUnit()
         return
     end
 
-    if self.db.enable then
-        healthbar:Show();
-    end
-
+    healthbar:Show();
     healthbar.updateTooltip = TOOLTIP_UPDATE_TIME;
     update(healthbar, 0, true)
     healthbar:SetScript("OnUpdate", update);
@@ -148,13 +161,13 @@ function update(frame, elapsed, force)
     healthbar:SetValue(value);
     healthbar:SetStatusBarColor(HealthGradient(value))
 
-    if self.db.showText then
+    if db.showText then
         local hbtextformat;
-        if self.db.style == "number" then
+        if db.style == "number" then
             hbtextformat = format("%d / %d", hp, hpmax);
-        elseif self.db.style == "percent" then
+        elseif db.style == "percent" then
             hbtextformat = format("%d %%", value * 100);
-        elseif self.db.style == "pernumber" then
+        elseif db.style == "pernumber" then
             hbtextformat = format("%d / %d (%d%%)", hp, hpmax, value * 100);
         end
         hbtext:SetText(hbtextformat)

@@ -1,14 +1,13 @@
 local _, Icetip = ...
-
-local mod = Icetip:NewModule("RaidTarget");
+local mod = Icetip:NewModule("raidtarget");
 local db
 local raidTargetIcon
 
 function mod:OnEnable()
-    self.db = self.db["raidtarget"];
-    if self.db.enable then
-      self:RegisterEvent("RAID_TARGET_UPDATE");
-    end
+    --self.db = self.db["raidtarget"];
+    --if self.db.enable then
+    --  self:RegisterEvent("RAID_TARGET_UPDATE");
+    --end
 end
 
 function mod:OnDisable()
