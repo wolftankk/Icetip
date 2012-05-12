@@ -32,12 +32,14 @@ local default = {
 	    raidtarget = {
 		enabled = false
 	    }
-	}
-	--scale = 1,
-	--minimap = {
-	--    hide = false, 
-	--},
-	--itemQBorder = true,
+	},
+	tipmodifier = {
+	    units = "always",
+	    objects = "always",
+	    unitFrames = "always",
+	    otherFrames = "always",
+	    modifier = "NONE",
+	},
 	--setAnchor = {
 	--    unitAnchor = "CURSOR_BOTTOM",
 	--    unitOffsetX = 0,
@@ -51,43 +53,6 @@ local default = {
 	--    objects ="fade",
 	--    unitFrames = "fade",
 	--    otherFrames = "hide",
-	--},
-	--tipmodifier = {
-	--    units = "always",
-	--    objects = "always",
-	--    unitFrames = "always",
-	--    otherFrames = "always",
-	--    modifier = "NONE",
-	--},
-	--powerbar = {
-	--    texture = "Smooth",
-	--    size = 5,
-	--    position = "BOTTOM",
-	--    enable = true,
-	--    showText = false,
-	--    font = "Friz Quadrata TT",
-	--    fontSize = 9,
-	--    fontflag = "Outline",
-	--    style = "number",
-	--    short = true,
-	--},
-	--mousetarget = {
-	--    showTalent = true,
-	--    showTarget = true,
-	--    showFaction = true,
-	--    showServer = true,
-	--    colorBorderByClass = true,
-	--    colorNameByClass = false,
-	--    SGuildColor = {
-	--	r = 0.9,
-	--	g = 0.45,
-	--	b = 0.7,
-	--    },
-	--    DGuildColor = {
-	--	r = 0.8,
-	--	g = 0.8,
-	--	b = 0.8,
-	--    }
 	--},
 	--buff = {
 	--    enable = false,
@@ -359,65 +324,65 @@ local forgetNextOnTooltipMethod = false
 function Icetip:Tooltip_OnShow(tooltip, ...)
     self:CallMethodAllModules("PreOnTooltipShow", tooltip, ...);
 
-    --if tooltip == GameTooltip then
-    --    if not doneOnTooltipMethod then
-    --        if tooltip:GetUnit() then
-    --    	self:OnTooltipMethod("SetUnit", tooltip, ...);
-    --    	forgetNextOnTooltipMethod = true
-    --        elseif tooltip:GetItem() then
-    --    	forgetNextOnTooltipMethod = true
-    --        elseif tooltip:GetSpell() then
-    --    	forgetNextOnTooltipMethod = true;
-    --        end
-    --    end
+    if tooltip == GameTooltip then
+        if not doneOnTooltipMethod then
+            if tooltip:GetUnit() then
+        	self:OnTooltipMethod("SetUnit", tooltip, ...);
+        	forgetNextOnTooltipMethod = true
+            elseif tooltip:GetItem() then
+        	forgetNextOnTooltipMethod = true
+            elseif tooltip:GetSpell() then
+        	forgetNextOnTooltipMethod = true;
+            end
+        end
 
-    --    local show;
-    --    if tooltip:IsOwned(UIParent) then
-    --        if tooltip:GetUnit() then
-    --    	show = self.db.tipmodifier.units;
-    --        else
-    --    	show = self.db.tipmodifier.objects
-    --        end
-    --    else
-    --        if tooltip:GetUnit() then
-    --    	show = self.db.tipmodifier.unitFrames;
-    --        else
-    --    	show = self.db.tipmodifier.otherFrames;
-    --        end
-    --    end
+        local show;
+        if tooltip:IsOwned(UIParent) then
+            if tooltip:GetUnit() then
+        	show = self.db.tipmodifier.units;
+            else
+        	show = self.db.tipmodifier.objects
+            end
+        else
+            if tooltip:GetUnit() then
+        	show = self.db.tipmodifier.unitFrames;
+            else
+        	show = self.db.tipmodifier.otherFrames;
+            end
+        end
 
-    --    local modifier = self.db.tipmodifier.modifier;
+        local modifier = self.db.tipmodifier.modifier;
 
-    --    if modifier == "ALT" then
-    --        if not IsAltKeyDown() then
-    --    	tooltip:Hide()
-    --    	return;
-    --        end
-    --    elseif modifier == "SHIFT" then
-    --        if not IsShiftKeyDown() then
-    --    	tooltip:Hide()
-    --    	return;
-    --        end
-    --    elseif modifier == "CTRL" then
-    --        if not IsControlKeyDown() then
-    --    	tooltip:Hide()
-    --    	return;
-    --        end
-    --    end
+        if modifier == "ALT" then
+            if not IsAltKeyDown() then
+        	tooltip:Hide()
+        	return;
+            end
+        elseif modifier == "SHIFT" then
+            if not IsShiftKeyDown() then
+        	tooltip:Hide()
+        	return;
+            end
+        elseif modifier == "CTRL" then
+            if not IsControlKeyDown() then
+        	tooltip:Hide()
+        	return;
+            end
+        end
 
-    --    if show == "notcombat" then
-    --        if InCombatLockdown() then
-    --    	tooltip.justHide = true;
-    --    	tooltip:Hide()
-    --    	tooltip.justHide = nil;
-    --    	return;
-    --        end
-    --    elseif show == "never" then
-    --        tooltip.justHide = true;
-    --        tooltip:Hide();
-    --        tooltip.justHide = nil
-    --    end
-    --end
+        if show == "notcombat" then
+            if InCombatLockdown() then
+        	tooltip.justHide = true;
+        	tooltip:Hide()
+        	tooltip.justHide = nil;
+        	return;
+            end
+        elseif show == "never" then
+            tooltip.justHide = true;
+            tooltip:Hide();
+            tooltip.justHide = nil
+        end
+    end
 
     self.hooks[tooltip].OnShow(tooltip, ...)
     self:CallMethodAllModules("OnTooltipShow", tooltip);

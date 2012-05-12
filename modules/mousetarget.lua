@@ -17,9 +17,32 @@ local UnitReactionColor = {
     {r = 0.0, g = 1.0, b = 0.0},
 }
 
+local defaults = {
+    profile = {
+	showTalent = true,
+	showTarget = true,
+	showFaction = true,
+	showServer = true,
+	showItemLevel = true,
+	colorBorderByClass = true,
+	colorNameByClass = false,
+	SGuildColor = {
+	    r = 0.9,
+	    g = 0.45,
+	    b = 0.7,
+	},
+	DGuildColor = {
+	    r = 0.8,
+	    g = 0.8,
+	    b = 0.8,
+	}
+    }
+}
+local db
+
 function mod:OnEnable()
-    local db = self.db["mousetarget"];
-    self.db = db
+    self.db = self:RegisterDB(defaults)
+    db = self.db.profile
 end
 
 function mod:PreTooltipSetUnit()
@@ -106,7 +129,7 @@ local function targetFrameUpdate(self, elapsed)
 end
 
 function mod:GetTargetLine(unit)
-    if not self.db.showTarget then return end
+    if not db.showTarget then return end
     if not unit or not GameTooltip:IsVisible() then return end
 
     if not self.targetFrame then
@@ -188,7 +211,7 @@ function mod:SetTooltipInfo(unit)
         elseif UnitPlayerControlled(unit) then
             tmpString = format("%s %s", tmpString, (UnitCreatureFamily(unit) or creatureType or ""));
         elseif creatureType then
-            if self.db.showFaction and reaction and reaction>4 then--faction 
+            if db.showFaction and reaction and reaction>4 then--faction 
                 reactionColor = UnitReactionColor[reaction];
                 local factionLabel = _G["FACTION_STANDING_LABEL"..reaction]
                 factionLabel = format("|cff%2x%2x%2x(%s)|r", reactionColor.r*255, reactionColor.g*255, reactionColor.b*255, factionLabel)
@@ -231,15 +254,15 @@ function mod:SetTooltipInfo(unit)
     if isPlayer then
         if unitGuild and playerGuild then
             if unitGuild == playerGuild then
-                gTipString = format("|cff%2x%2x%2x< %s > - %s|r", self.db.SGuildColor.r*255, self.db.SGuildColor.g*255, self.db.SGuildColor.b*255, unitGuild, unitGuildRank)
+                gTipString = format("|cff%2x%2x%2x< %s > - %s|r", db.SGuildColor.r*255, db.SGuildColor.g*255, db.SGuildColor.b*255, unitGuild, unitGuildRank)
             else
-                gTipString = format("|cff%2x%2x%2x< %s > - %s|r", self.db.DGuildColor.r*255, self.db.DGuildColor.g*255, self.db.DGuildColor.b*255, unitGuild, unitGuildRank)
+                gTipString = format("|cff%2x%2x%2x< %s > - %s|r", db.DGuildColor.r*255, db.DGuildColor.g*255, db.DGuildColor.b*255, unitGuild, unitGuildRank)
             end
         elseif unitGuild then
-            gTipString = format("|cff%2x%2x%2x< %s > - %s|r", self.db.DGuildColor.r*255, self.db.DGuildColor.g*255, self.db.DGuildColor.b*255, unitGuild, unitGuildRank)
+            gTipString = format("|cff%2x%2x%2x< %s > - %s|r", db.DGuildColor.r*255, db.DGuildColor.g*255, db.DGuildColor.b*255, unitGuild, unitGuildRank)
         end
         local _, unitServer = UnitName(unit)
-        if (self.db.showServer) and (unitServer or gTipString) then
+        if (db.showServer) and (unitServer or gTipString) then
             if (unitServer and gTipString) then
                 realmTag = " @ "
             else
@@ -256,7 +279,7 @@ function mod:SetTooltipInfo(unit)
 
     self:GetTargetLine(unit)
 
-    if isPlayer and self.db.showTalent and UnitIsConnected(unit) then
+    if isPlayer and db.showTalent and UnitIsConnected(unit) then
         if UnitLevel(unit) >= 10 then
             local guid = UnitGUID(unit);
             mod:RegisterEvent("INSPECT_READY");
@@ -269,7 +292,7 @@ function mod:SetTooltipInfo(unit)
     end
 
     local color = RAID_CLASS_COLORS[select(2, UnitClass(unit))];
-    if self.db.colorBorderByClass and isPlayer then
+    if db.colorBorderByClass and isPlayer then
         GameTooltip:SetBackdropBorderColor(color.r, color.g, color.b)
     end
 
@@ -363,6 +386,9 @@ do
 
 
     local function GetUnitItemLevel(unit)
+	if not db.showItemLevel then
+	    return
+	end
         local sum, count = 0, 0;
         if unit and UnitIsPlayer(unit) and CheckInteractDistance(unit, 1) then
             for i = 1, 18, 1 do
