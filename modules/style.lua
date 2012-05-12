@@ -61,6 +61,7 @@ function mod:OnDisable()
     GameTooltip.GetBackdropColor = origin_GetBackdropColor
     GameTooltip.GetBackdropBorderColor = origin_GetBackdropBorderColor
     GameTooltip:SetBackdrop(origin_backdrop)
+    hooked[GameTooltip] = false
 end
 
 function mod:PreOnTooltipShow(tooltip, ...)

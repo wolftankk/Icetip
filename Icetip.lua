@@ -39,10 +39,7 @@ local default = {
 	    unitFrames = "always",
 	    otherFrames = "always",
 	    modifier = "NONE",
-	},
-	--buff = {
-	--    enable = false,
-	--}
+	}
     }
 }
 
