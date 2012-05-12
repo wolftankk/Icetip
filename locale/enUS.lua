@@ -129,6 +129,7 @@ L["Tooltip Bottom"] = true
 L["Tooltip Left"] = true
 L["Tooltip Right"] = true
 L["Tooltip Top"] = true
+L["Tooltip inner"] = true
 L["Tooltip's style configure"] = true
 L["Top"] = true
 L["Top Left"] = true

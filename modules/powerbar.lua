@@ -92,11 +92,12 @@ function mod:SetBarPoint()
         powerbar:SetPoint("BOTTOMRIGHT", GameTooltip, "TOPRIGHT", -2, 0);
         powerbar:SetHeight(db.size);
         powerbar:SetOrientation("HORIZONTAL");
-    elseif position == "INNER" then
+    elseif position == "INNER" and powerbar.hasPower then
         if healthbar and healthbar.side == "INNER" then
             powerbar:ClearAllPoints();
             powerbar:SetPoint("TOPLEFT", healthbar, "BOTTOMLEFT", 0, -4);
             powerbar:SetPoint("TOPRIGHT", healthbar, "BOTTOMRIGHT",0, -4);
+	    powerbar:Hide();
         else
             powerbar:ClearAllPoints();
             powerbar:SetParent(GameTooltip);
@@ -111,15 +112,12 @@ end
 
 
 function mod:OnTooltipSetUnit()
-
     self:SetBarPoint();
 
     if not GameTooltip:GetUnit() then
         powerbar:Hide()
         return
     end
-
-    powerbar:Show();
 
     powerbar.updateTooltip = TOOLTIP_UPDATE_TIME;
     update(powerbar, 0, true);
@@ -134,6 +132,52 @@ function mod:OnTooltipHide()
     if not powerbar then return end
     powerbar:Hide()
     powerbar:SetScript("OnUpdate", nil);
+    powerbar.hasPower = nil
+end
+
+function mod:PostTooltipShow(tooltip, ...)
+    if tooltip == GameTooltip and db.position == "INNER" and tooltip:GetUnit() then
+	if Healthbar then
+	    healthbar = Healthbar:GetBar();
+	end
+
+	if not powerbar.hasPower and healthbar and healthbar.side == "INNER" then 
+	    if (tooltip._offset) then
+		tooltip._offset = tooltip._origin_offset + healthbar:GetHeight() + 5
+	    end
+	    return 
+	end
+
+	if (tooltip._offset == tooltip:GetHeight()) then
+	    return
+	end
+
+	if healthbar and healthbar.side == "INNER" then
+	    if tooltip._offset then
+	        tooltip._offset = tooltip._origin_offset + db.size + healthbar:GetHeight() + 5
+	    end
+	    healthbar:SetPoint("BOTTOMLEFT", 8 , 8 + db.size )
+	    healthbar:SetPoint("BOTTOMRIGHT", -8, 8 + db.size )
+	else
+	    powerbar:ClearAllPoints();
+	    powerbar:SetParent(GameTooltip);
+	    powerbar:SetPoint("BOTTOMLEFT", 8 , 8);
+	    powerbar:SetPoint("BOTTOMRIGHT", -8, 8);
+	    powerbar:SetWidth(GameTooltip:GetWidth())
+	    powerbar:SetHeight(db.size)
+	    powerbar:SetOrientation("HORIZONTAL");
+	    if not tooltip._offset then
+		tooltip._offset = db.size + tooltip:GetHeight()
+	    else
+		if tooltip._offset < tooltip:GetHeight() then
+		    tooltip._offset = tooltip:GetHeight() + db.size
+		end
+	    end
+	end
+	powerbar:SetHeight(db.size)
+	powerbar:SetOrientation("HORIZONTAL");
+	powerbar:Show();
+    end
 end
 
 function update(frame, elapsed, force)
@@ -152,6 +196,14 @@ function update(frame, elapsed, force)
     local powerType = UnitPowerType(unit);
     local maxpower = UnitPowerMax(unit);
     local power = UnitPower(unit);
+    
+    --rage / runic power
+    powerbar.hasPower = false
+    if (powerType == 1 or powerType == 6) and power <= 0 then
+	powerbar.hasPower = false
+    else
+	powerbar.hasPower = true
+    end
 
     local value;
     if maxpower == 0 then
@@ -195,13 +247,16 @@ function update(frame, elapsed, force)
     else
         pbtext:Hide()
     end
+
+    self:PostTooltipShow(GameTooltip)
+    powerbar:Show()
 end
 
 
 local barPosition = {
     ["TOP"] = L["Tooltip Top"],
     ["BOTTOM"] = L["Tooltip Bottom"],
-    --["INNER"] = L["Tooltip inner"]
+    ["INNER"] = L["Tooltip inner"]
     --["LEFT"] = L["Tooltip Left"],
     --["RIGHT"] = L["Tooltip Right"],
 }

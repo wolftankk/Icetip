@@ -240,6 +240,8 @@ function Icetip:OnEnable()
         self:HookScript(tooltip, "OnTooltipSetQuest", "Tooltip_SetQuest");
         self:HookScript(tooltip, "OnTooltipSetAchievement", "Tooltip_SetAchievement");
         self:HookScript(tooltip, "OnTooltipSetDefaultAnchor", "Tooltip_SetDefaultAnchor");
+
+	self:RawHook(tooltip, "Show", "Tooltip_Show", true);
     end
 
     GameTooltipStatusBar:Hide();
@@ -315,8 +317,17 @@ function Icetip:MODIFIER_STATE_CHANGED(event, modifier, down)
     end
 end
 
+function Icetip:Tooltip_Show(tooltip, ...)
+    --self:CallMethodAllModules("PreTooltipShow", tooltip, ...)
+    tooltip:SetHeight(0)
+    self.hooks[tooltip].Show(tooltip, ...)
+    tooltip._origin_offset = tooltip:GetHeight()
+    self:CallMethodAllModules("PostTooltipShow", tooltip, ...)
+end
+
 local forgetNextOnTooltipMethod = false
 function Icetip:Tooltip_OnShow(tooltip, ...)
+    tooltip._offset = nil
     self:CallMethodAllModules("PreOnTooltipShow", tooltip, ...);
 
     if tooltip == GameTooltip then
@@ -386,6 +397,7 @@ end
 function Icetip:Tooltip_OnHide(tooltip, ...)
     doneOnTooltipMethod = false;
     forgetNextOnTooltipMethod = false
+    tooltip._offset = nil
 
     self:CallMethodAllModules("OnTooltipHide");
     if self.hooks[tooltip] and self.hooks[tooltip].OnHide then
@@ -449,5 +461,9 @@ function Icetip:Tooltip_SetDefaultAnchor(tooltip, ...)
 end
 
 function Icetip:Tooltip_OnUpdate(tooltip, elapsed)
-
+    if tooltip._offset and tooltip._offset > 0 then
+	if tooltip:GetHeight() <= tooltip._offset then
+	    tooltip:SetHeight(tooltip._offset)
+	end
+    end
 end

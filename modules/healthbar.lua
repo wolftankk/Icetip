@@ -107,13 +107,13 @@ function mod:SetBarPoint()
         healthbar:SetOrientation("HORIZONTAL");
     elseif position == "INNER" then
         --display into the GameTooltip
-        --healthbar:ClearAllPoints();
-        --healthbar:SetParent(GameTooltip);
-        --healthbar:SetPoint("BOTTOMLEFT", 8 , 5);
-        --healthbar:SetPoint("BOTTOMRIGHT", -8, 5);
-        --healthbar:SetWidth(GameTooltip:GetWidth())
-        --healthbar:SetHeight(db.size)
-        --healthbar:SetOrientation("HORIZONTAL");
+        healthbar:ClearAllPoints();
+        healthbar:SetParent(GameTooltip);
+        healthbar:SetPoint("BOTTOMLEFT", 8 , 8);
+        healthbar:SetPoint("BOTTOMRIGHT", -8, 8);
+        healthbar:SetWidth(GameTooltip:GetWidth())
+        healthbar:SetHeight(db.size)
+        healthbar:SetOrientation("HORIZONTAL");
     end
 end
 
@@ -186,10 +186,31 @@ function update(frame, elapsed, force)
     end
 end
 
+function mod:PostTooltipShow(tooltip, ...)
+    if tooltip == GameTooltip and db.position == "INNER" and tooltip:GetUnit() then
+        healthbar:ClearAllPoints();
+        healthbar:SetParent(GameTooltip);
+        healthbar:SetPoint("BOTTOMLEFT", 8 , 8);
+        healthbar:SetPoint("BOTTOMRIGHT", -8, 8);
+        healthbar:SetWidth(GameTooltip:GetWidth())
+        healthbar:SetHeight(db.size)
+        healthbar:SetOrientation("HORIZONTAL");
+	if not tooltip._offset then
+	    tooltip._offset = db.size + tooltip:GetHeight()
+	else
+	    if tooltip._offset < tooltip:GetHeight() then
+		tooltip._offset = tooltip:GetHeight() + db.size
+	    end
+	end
+    end
+
+    return true
+end
+
 local barPosition = {
     ["TOP"] = L["Tooltip Top"],
     ["BOTTOM"] = L["Tooltip Bottom"],
-    --["INNER"] = L["Tooltip inner"]
+    ["INNER"] = L["Tooltip inner"]
     --["LEFT"] = L["Tooltip Left"],
     --["RIGHT"] = L["Tooltip Right"],
 }
@@ -240,7 +261,7 @@ function mod:GetOptions()
 	    get = function() return db.position end,
 	    set = function(_, v) 
 	        db.position = v
-	        HealthBar:SetBarPoint()
+	        self:SetBarPoint()
 	    end,
 	},
 	showhbtext = {
