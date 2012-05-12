@@ -1,6 +1,7 @@
 local addonName, Icetip = ...
-local mod = Icetip:NewModule("mousetarget", "TooltipInfo");
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
+local mod = Icetip:NewModule("mousetarget", "TooltipInfo");
+mod.order = 1
 local Icetip_InspectTalent = setmetatable({}, {__mode="kv"});
 local CLASS_COLORS = {}
 for class, color in pairs(RAID_CLASS_COLORS) do
@@ -40,9 +41,12 @@ local defaults = {
 }
 local db
 
-function mod:OnEnable()
+function mod:OnInitialize()
     self.db = self:RegisterDB(defaults)
     db = self.db.profile
+end
+
+function mod:OnEnable()
 end
 
 function mod:PreTooltipSetUnit()
@@ -467,4 +471,55 @@ do
             wipe(Icetip_InspectTalent);
         end
     end
+end
+
+function mod:GetOptions()
+    local options = {
+	colorclass = {
+	    type = "toggle",
+	    order = 1,
+	    name = L["Color border by class"],
+	    desc = L["Enable/Disable colored the tooltip border by the player's class"],
+	    width = "full",
+	    get = function() return db.colorBorderByClass end,
+	    set = function(_, v)
+		db.colorBorderByClass = v
+	    end
+	},
+	tot = {
+	    type = "toggle",
+	    order = 2,
+	    name = L["Toggle show target of target"],
+	    desc = L["Enable/Disable show target of target"],
+	    width = "full",
+	    get = function() return db.showTarget end,
+	    set = function(_, v)
+		db.showTarget = v
+	    end
+	},
+	showtalent = {
+	    type = "toggle",
+	    order = 3,
+	    name = L["Toggle show target's talent"],
+	    width = "full",
+	    desc = L["Enable/Disable show target's talent"],
+	    get = function() return db.showTalent end,
+	    set = function(_, v)
+		db.showTalent = v
+	    end
+	},
+	showfaction = {
+	    type = "toggle",
+	    width = "full",
+	    order = 4,
+	    name = L["Toggle show npc faction"],
+	    desc = L["Enable/Disable to show a npc's reputation information between you"],
+	    get = function() return db.showFaction end,
+	    set = function(_, v)
+		db.showFaction = v
+	    end,
+	},
+    }
+
+    return options
 end

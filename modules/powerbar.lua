@@ -23,9 +23,12 @@ local default = {
     }
 }
 
-function mod:OnEnable()
+function mod:OnInitialize()
     self.db = mod:RegisterDB(default)
     db = self.db.profile
+end
+
+function mod:OnEnable()
     self:CreateBar()
     self:SetBarPoint();
 end

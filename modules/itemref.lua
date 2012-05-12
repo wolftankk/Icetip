@@ -1,5 +1,7 @@
-local _, Icetip = ...;
+local addonName, Icetip = ...;
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local mod = Icetip:NewModule("itemref", "ItemRef");
+mod.description = L["When you watch a item, colored tooltip by item's quality color"]
 local db;
 local colors = {}
 

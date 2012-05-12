@@ -1,4 +1,5 @@
-local _, Icetip = ...
+local addonName, Icetip = ...
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local mod = Icetip:NewModule("raidtarget", "RaidTarget");
 local db
 local raidTargetIcon
@@ -10,9 +11,12 @@ local defaults = {
     }
 }
 
-function mod:OnEnable()
+function mod:OnInitialize()
     self.db = self:RegisterDB(defaults)
     db = self.db.profile
+end
+
+function mod:OnEnable()
     self:RegisterEvent("RAID_TARGET_UPDATE");
 end
 
@@ -85,4 +89,44 @@ function mod:OnTooltipHide()
     if raidTargetIcon then
         raidTargetIcon:Hide()
     end
+end
+
+function mod:GetOptions()
+    local options = {
+	showPos = {
+	    type = "select",
+	    order = 1,
+	    name = L["Position"],
+	    desc = L["Position of the raid target icon."],
+	    values = {
+		    LEFT = L["Left"],
+		    RIGHT = L["Right"],
+		    TOP = L["Top"],
+		    BOTTOM = L["Bottom"],
+		    TOPLEFT = L["Top-left"],
+		    TOPRIGHT = L["Top-right"],
+		    BOTTOMLEFT = L["Bottom-left"],
+		    BOTTOMRIGHT = L["Bottom-right"]
+	    },
+	    get = function() return db.position end,
+	    set = function(_, v)
+		self:SetPosition(v)
+	    end
+	},
+	size = {
+	    type = "range",
+	    order = 2,
+	    name = L["Size"],
+	    desc = L["Size of the raid target icon."],
+	    min = 5,
+	    max = 50,
+	    step = 1,
+	    get = function() return db.size end,
+	    set = function(_, v)
+		self:SetSize(v)
+	    end
+	}
+    }
+
+    return options
 end

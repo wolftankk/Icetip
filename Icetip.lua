@@ -111,10 +111,6 @@ function modPrototype:RegisterDB(profile)
     return db
 end
 
-function modPrototype:GetOptions()
-
-end
-
 function Icetip:NewModule(name, label, embedHook, slince)
     if modules[name] then
 	if not slince then
@@ -217,6 +213,11 @@ function Icetip:OnInitialize()
 	icon:Register("Icetip", iceLDB, self.db.minimap);
     end
 
+    for name, mod in self:GetModules() do
+	if mod["OnInitialize"] and type(mod["OnInitialize"]) then
+	    mod:OnInitialize();
+	end
+    end
     Icetip:RegisterOptions();
 end
 

@@ -164,3 +164,4 @@ L["Show the tooltip for unit frames if..."] = true
 L["Show the tooltip for non-unit framers if..."] = true
 L["Only show with modifiekey"] = true
 L["Show the tooltip if the specified modifier is being held down"] = true
+L["Toggle %s module."] = true

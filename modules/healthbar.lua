@@ -1,4 +1,5 @@
-local _, Icetip = ...
+local addonName, Icetip = ...
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local mod = Icetip:NewModule("healthbar", "HealthBar");
 local SM = LibStub("LibSharedMedia-3.0")
 local format = string.format
@@ -23,9 +24,12 @@ local default = {
     }
 }
 
-function mod:OnEnable()
+function mod:OnInitialize()
     self.db = mod:RegisterDB(default)
     db = self.db.profile
+end
+
+function mod:OnEnable()
     self:CreateBar();
     self:SetBarPoint();
 end
@@ -180,4 +184,121 @@ function update(frame, elapsed, force)
     else
         hbtext:Hide()
     end
+end
+
+local barPosition = {
+    ["TOP"] = L["Tooltip Top"],
+    ["BOTTOM"] = L["Tooltip Bottom"],
+    --["INNER"] = L["Tooltip inner"]
+    --["LEFT"] = L["Tooltip Left"],
+    --["RIGHT"] = L["Tooltip Right"],
+}
+
+local bartextStyle = {
+    ["number"] = L["Num"],
+    ["percent"] = L["Percent"],
+    ["pernumber"] = L["Num(precent)"],
+}
+function mod:GetOptions()
+    local options = {
+	texture = {
+	    type = "select",
+	    order = 1,
+	    name = L["Texture"],
+	    desc = L["The texture which the health bar uses."],
+	    disabled = function() return not mod:IsEnabled() end,
+	    dialogControl = "LSM30_Statusbar",
+	    values = AceGUIWidgetLSMlists.statusbar,
+	    get = function() return db.texture end,
+	    set = function(_, v)
+	        db.texture = v
+	        healthbar:SetStatusBarTexture(SM:Fetch("statusbar", v));
+	    end
+	},
+	size = {
+	    type = "range",
+	    order = 2,
+	    name = L["Size"],
+	    desc = L["The size of the health bar"],
+	    disabled = function() return not mod:IsEnabled() end,
+	    min = 1,
+	    max = 20,
+	    step = 1,
+	    get = function() return db.size end,
+	    set = function(_, v)
+	        db.size = v
+	        healthbar:SetHeight(tonumber(v));
+	    end,
+	},
+	position = {
+	    type = "select",
+	    order = 3,
+	    name = L["Position"],
+	    desc = L["The position of the health bar relative to the tooltip."],
+	    disabled = function() return not mod:IsEnabled() end,
+	    values = barPosition,
+	    get = function() return db.position end,
+	    set = function(_, v) 
+	        db.position = v
+	        HealthBar:SetBarPoint()
+	    end,
+	},
+	showhbtext = {
+	    type = "toggle",
+	    order = 4,
+	    width = "full",
+	    name = L["Health bar text"],
+	    desc = L["Toggle show the status text on the health bar."],
+	    disabled = function() return not mod:IsEnabled() end,
+	    get = function() return db.showText end,
+	    set = function(_, v)
+	        db.showText = v
+	    end
+	},
+	hbfont = {
+	    type = "select",
+	    order = 5,
+	    name = L["Font"],
+	    desc = L["What font face to use."],
+	    disabled = function() return not mod:IsEnabled() end,
+	    hidden = function() return not db.showText end,
+	    dialogControl = "LSM30_Font",
+	    values = AceGUIWidgetLSMlists.font,
+	    get = function() return db.font end,
+	    set = function(_, v)
+	        db.font = v
+	        hbtext:SetFont(SM:Fetch("font", v), db.fontSize, "Outline");
+	    end
+	},
+	hbfontsize = {
+	    type = "range",
+	    order = 6,
+	    name = L["Font size"],
+	    desc = L["Change what size is the font."],
+	    disabled = function() return not mod:IsEnabled() end,
+	    hidden = function() return not db.showText end,
+	    min = 8,
+	    max = 16,
+	    step = 1,
+	    get = function() return db.fontSize end,
+	    set = function(_, v)
+	        db.fontSize = v
+	        hbtext:SetFont(SM:Fetch("font", v), db.fontSize, "Outline");
+	    end,
+	},
+	hbtextstyle = {
+	    type = "select",
+	    order = 7,
+	    name = L["Text style"],
+	    desc = L["Sets the text style."],
+	    disabled = function() return not mod:IsEnabled() end,
+	    hidden = function() return not db.showText end,
+	    values = bartextStyle,
+	    get = function() return db.style end,
+	    set = function(_, v)
+	        db.style = v
+	    end
+	}
+    }
+    return options
 end
