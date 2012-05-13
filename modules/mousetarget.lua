@@ -508,10 +508,21 @@ function mod:GetOptions()
 		db.showTalent = v
 	    end
 	},
+	--showItemLevel = {
+	--    type = "toggle",
+	--    order = 4,
+	--    name = L["Toggle show target's equipped item level"],
+	--    width = "full",
+	--    desc = L["Enable/Disable show target's equipped item level"],
+	--    get = function() return db.showItemLevel end,
+	--    set = function(_, v)
+	--	db.showItemLevel = v
+	--    end
+	--},
 	showfaction = {
 	    type = "toggle",
 	    width = "full",
-	    order = 4,
+	    order = 5,
 	    name = L["Toggle show npc faction"],
 	    desc = L["Enable/Disable to show a npc's reputation information between you"],
 	    get = function() return db.showFaction end,

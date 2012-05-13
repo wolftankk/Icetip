@@ -310,7 +310,10 @@ function mod:GetOptions()
 		    isPercent = true,
 		    step = 0.01,
 		    get = function() return db.scale end,
-		    set = function(_, v) db.scale = v end,
+		    set = function(_, v) 
+			db.scale = v 
+			self:SetTooltipScale(nil, v)
+		    end,
 		},
 	    }
 	},
