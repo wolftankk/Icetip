@@ -35,6 +35,6 @@ modules\powerbar.lua
 modules\mousetarget.lua
 modules\raidTarget.lua
 modules\itemref.lua
-modules\buff.lua
+modules\aura.lua
 
 options.lua
