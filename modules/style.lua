@@ -1,7 +1,7 @@
 local addonName, Icetip = ...
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local SM = LibStub("LibSharedMedia-3.0");
-local mod = Icetip:NewModule("style", "Style");
+local mod = Icetip:NewModule("style", L["Style"]);
 mod.order = 2
 local backdrop = {insets = {}};
 local hooked = {}

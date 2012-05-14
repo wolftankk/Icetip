@@ -1,6 +1,6 @@
 local addonName, Icetip = ...
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-local mod = Icetip:NewModule("healthbar", "HealthBar");
+local mod = Icetip:NewModule("healthbar", L["HealthBar"]);
 local SM = LibStub("LibSharedMedia-3.0")
 local format = string.format
 local hbtext, healthbar
@@ -178,6 +178,10 @@ function update(frame, elapsed, force)
             hbtextformat = format("%d %%", value * 100);
         elseif db.style == "pernumber" then
             hbtextformat = format("%d / %d (%d%%)", hp, hpmax, value * 100);
+	elseif db.style == "short" then
+	    hbtextformat = format("%s / %s", Icetip:ShortValue(hp), Icetip:ShortValue(hpmax));
+	elseif db.style == "pershort" then
+	    hbtextformat = format("%s / %s (%d%%)", Icetip:ShortValue(hp), Icetip:ShortValue(hpmax), value * 100);
         end
         hbtext:SetText(hbtextformat)
         hbtext:Show();
@@ -208,17 +212,19 @@ function mod:PostTooltipShow(tooltip, ...)
 end
 
 local barPosition = {
-    ["TOP"] = L["Tooltip Top"],
-    ["BOTTOM"] = L["Tooltip Bottom"],
+    ["TOP"] = L["Tooltip top"],
+    ["BOTTOM"] = L["Tooltip bottom"],
     ["INNER"] = L["Tooltip inner"]
     --["LEFT"] = L["Tooltip Left"],
     --["RIGHT"] = L["Tooltip Right"],
 }
 
 local bartextStyle = {
-    ["number"] = L["Num"],
+    ["number"] = L["Number"],
+    ["short"]  = L["Smarty"],
     ["percent"] = L["Percent"],
-    ["pernumber"] = L["Num(precent)"],
+    ["pernumber"] = L["Number(precent)"],
+    ["pershort"] = L["Smarty(precent)"]
 }
 function mod:GetOptions()
     local options = {
@@ -310,8 +316,8 @@ function mod:GetOptions()
 	hbtextstyle = {
 	    type = "select",
 	    order = 7,
-	    name = L["Text style"],
-	    desc = L["Sets the text style."],
+	    name = L["Text format"],
+	    desc = L["Format health value"],
 	    disabled = function() return not mod:IsEnabled() end,
 	    hidden = function() return not db.showText end,
 	    values = bartextStyle,

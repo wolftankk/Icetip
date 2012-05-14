@@ -39,14 +39,13 @@ local function CreateOption()
 		general = {
 		    type = "group",
 		    name = L["General"],
-		    desc = L["Change how the tooltip appearance in grneral."],
+		    desc = L["General settings"],
 		    order = order(),
 		    args = {
 			minimap = {
 			    type = "toggle",
 			    order = order(),
 			    name = L["Show minimap icon"],
-			    desc = L["Show the icon on the minimap"],
 			    get = function()
 				return (not db.minimap.hide)
 			    end,

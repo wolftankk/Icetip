@@ -1,6 +1,6 @@
 local addonName, Icetip = ...
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-local mod = Icetip:NewModule("mousetarget", "TooltipInfo");
+local mod = Icetip:NewModule("mousetarget", L["TooltipInfo"]);
 mod.order = 1
 local Icetip_InspectTalent = setmetatable({}, {__mode="kv"});
 local CLASS_COLORS = {}
@@ -479,7 +479,7 @@ function mod:GetOptions()
 	    type = "toggle",
 	    order = 1,
 	    name = L["Color border by class"],
-	    desc = L["Enable/Disable colored the tooltip border by the player's class"],
+	    desc = L["Enable/Disable colored the tooltip border by the target's class"],
 	    width = "full",
 	    get = function() return db.colorBorderByClass end,
 	    set = function(_, v)
@@ -490,7 +490,7 @@ function mod:GetOptions()
 	    type = "toggle",
 	    order = 2,
 	    name = L["Toggle show target of target"],
-	    desc = L["Enable/Disable show target of target"],
+	    desc = L["Enable/Disable display target of target"],
 	    width = "full",
 	    get = function() return db.showTarget end,
 	    set = function(_, v)
@@ -500,25 +500,25 @@ function mod:GetOptions()
 	showtalent = {
 	    type = "toggle",
 	    order = 3,
-	    name = L["Toggle show target's talent"],
+	    name = L["Toggle show talent"],
 	    width = "full",
-	    desc = L["Enable/Disable show target's talent"],
+	    desc = L["Enable/Disable display the target's talent"],
 	    get = function() return db.showTalent end,
 	    set = function(_, v)
 		db.showTalent = v
 	    end
 	},
-	--showItemLevel = {
-	--    type = "toggle",
-	--    order = 4,
-	--    name = L["Toggle show target's equipped item level"],
-	--    width = "full",
-	--    desc = L["Enable/Disable show target's equipped item level"],
-	--    get = function() return db.showItemLevel end,
-	--    set = function(_, v)
-	--	db.showItemLevel = v
-	--    end
-	--},
+	showItemLevel = {
+	    type = "toggle",
+	    order = 4,
+	    name = L["Toggle show item level"],
+	    width = "full",
+	    desc = L["Enable/Disable display the target's equipped item level"],
+	    get = function() return db.showItemLevel end,
+	    set = function(_, v)
+		db.showItemLevel = v
+	    end
+	},
 	showfaction = {
 	    type = "toggle",
 	    width = "full",
@@ -528,8 +528,8 @@ function mod:GetOptions()
 	    get = function() return db.showFaction end,
 	    set = function(_, v)
 		db.showFaction = v
-	    end,
-	},
+	    end
+	}
     }
 
     return options

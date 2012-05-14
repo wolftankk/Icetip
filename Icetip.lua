@@ -272,9 +272,14 @@ end
 
 function Icetip:ShortValue(value)
     if value ~= nil then
-	if value >= 1000000 then return format('%.1fm', value / 1000000)
-	elseif value >= 1000 then return format('%.1fk', value / 1000)
-	else return value end
+	if( value < 9999 ) then
+	    return value 
+	elseif( value < 999999 ) then
+	    return string.format("%.1fk", value / 1000)
+	elseif( value < 99999999 ) then
+	    return string.format("%.2fm", value / 1000000)
+	end
+	return string.format("%dm", value / 1000000)
     end
 end
 

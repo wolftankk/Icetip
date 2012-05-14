@@ -1,6 +1,6 @@
 local addonName, Icetip = ...
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-local mod = Icetip:NewModule("raidtarget", "RaidTarget");
+local mod = Icetip:NewModule("raidtarget", L["RaidTarget"]);
 local db
 local raidTargetIcon
 

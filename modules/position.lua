@@ -1,6 +1,6 @@
 local addonName, Icetip = ...;
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-local mod = Icetip:NewModule("position", "Position", true);
+local mod = Icetip:NewModule("position", L["Position"], true);
 local db;
 
 local currentOffsetX, currentOffsetY = 0, 0

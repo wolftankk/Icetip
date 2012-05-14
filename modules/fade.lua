@@ -1,6 +1,6 @@
 local addonName, Icetip = ...
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-local mod = Icetip:NewModule("fade", "FadeOut",true);
+local mod = Icetip:NewModule("fade", L["Fadeout"],true);
 local db
 local defaults = {
     profile = {

@@ -1,6 +1,6 @@
 local addonName, Icetip = ...
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-local mod = Icetip:NewModule("powerbar", "PowerBar");
+local mod = Icetip:NewModule("powerbar", L["PowerBar"]);
 local SM = LibStub("LibSharedMedia-3.0")
 local format = string.format
 local powerbar, pbtext;
@@ -241,6 +241,10 @@ function update(frame, elapsed, force)
             pbtextformat = format("%d %%", value * 100);
         elseif db.style == "pernumber" and maxpower > 0 then
             pbtextformat = format("%d / %d (%d%%)", power, maxpower, value * 100);
+	elseif db.style == "short" then
+	    pbtextformat = format("%s / %s", Icetip:ShortValue(power), Icetip:ShortValue(maxpower));
+	elseif db.style == "pershort" then
+	    pbtextformat = format("%s / %s (%d%%)", Icetip:ShortValue(power), Icetip:ShortValue(maxpower), value * 100);
         end
         pbtext:SetText(pbtextformat)
         pbtext:Show();
@@ -254,18 +258,21 @@ end
 
 
 local barPosition = {
-    ["TOP"] = L["Tooltip Top"],
-    ["BOTTOM"] = L["Tooltip Bottom"],
+    ["TOP"] = L["Tooltip top"],
+    ["BOTTOM"] = L["Tooltip bottom"],
     ["INNER"] = L["Tooltip inner"]
     --["LEFT"] = L["Tooltip Left"],
     --["RIGHT"] = L["Tooltip Right"],
 }
 
 local bartextStyle = {
-    ["number"] = L["Num"],
+    ["number"] = L["Number"],
+    ["short"]  = L["Smarty"],
     ["percent"] = L["Percent"],
-    ["pernumber"] = L["Num(precent)"],
+    ["pernumber"] = L["Number(precent)"],
+    ["pershort"] = L["Smarty(precent)"]
 }
+
 function mod:GetOptions()
     local options = {
 	texture = {
@@ -350,8 +357,8 @@ function mod:GetOptions()
 	pbtextstyle = {
 	    type = "select",
 	    order = 7,
-	    name = L["Text style"],
-	    desc = L["Sets the text style."],
+	    name = L["Text format"],
+	    desc = L["Format power value"],
 	    hidden = function() return not db.showText end,
 	    values = bartextStyle,
 	    get = function() return db.style end,

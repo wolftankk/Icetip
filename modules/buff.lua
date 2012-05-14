@@ -1,6 +1,6 @@
 local addonName, Icetip = ...;
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-local mod = Icetip:NewModule("Buff", "Aura")
+local mod = Icetip:NewModule("Buff", L["Aura"])
 local db
 local update
 local buffFrame, debuffFrame;
