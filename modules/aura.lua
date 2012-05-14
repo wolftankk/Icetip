@@ -1,6 +1,6 @@
 local addonName, Icetip = ...;
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-local mod = Icetip:NewModule("aura", "Aura")
+local mod = Icetip:NewModule("aura", L["Aura"])
 local db
 local update
 local auraFrame, auras = nil, {};
@@ -195,4 +195,71 @@ end
 
 function mod:OnTooltipHide()
     auraFrame:Hide();
+end
+
+function mod:GetOptions()
+    local options = {
+	size = {
+	    type = "range",
+	    order = 1,
+	    name = L["Size"],
+	    desc = L["Sets aura button size"],
+	    min = 16,
+	    max = 64,
+	    step = 2,
+	    get = function() return db.size end,
+	    set = function(_, v)
+		db.size = tonumber(v)
+		for i =1, #auras do
+		    if auras[i] then
+			auras[i]:SetSize(db.size, db.size)
+		    end
+		end
+	    end
+	},
+	auraMaxRows = {
+	    type = "range",
+	    order = 2,
+	    name = L["Max rows"],
+	    desc = L["Sets max rows"],
+	    min = 1,
+	    max = 5,
+	    step = 1,
+	    get = function() return db.auraMaxRows end,
+	    set = function(_, v)
+		db.auraMaxRows = tonumber(v)
+	    end
+	}
+    }
+
+    for _, t in pairs({"buff", "debuff"}) do
+	options[t] = {
+	    type = "group",
+	    order = 3,
+	    name = t,
+	    inline = true,
+	    args = {
+		enabled = {
+		    type = "toggle",
+		    name = L["Enable"],
+		    order = 1,
+		    get = function() return db[t].enabled end,
+		    set = function(_, v)
+			db[t].enabled = v
+		    end
+		},
+		cooldown = {
+		    type = "toggle",
+		    name = L["Toggle Cooldown"],
+		    order = 2,
+		    get = function() return db[t].cooldown end,
+		    set = function(_, v)
+			db[t].cooldown = v
+		    end
+		}
+	    }
+	}
+    end
+
+    return options
 end
