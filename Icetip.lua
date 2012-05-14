@@ -31,6 +31,9 @@ local default = {
 	    },
 	    raidtarget = {
 		enabled = false
+	    },
+	    aura = {
+		enabled = false
 	    }
 	},
 	tipmodifier = {
