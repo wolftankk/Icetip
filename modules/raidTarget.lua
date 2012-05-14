@@ -103,10 +103,10 @@ function mod:GetOptions()
 		    RIGHT = L["Right"],
 		    TOP = L["Top"],
 		    BOTTOM = L["Bottom"],
-		    TOPLEFT = L["Top-left"],
-		    TOPRIGHT = L["Top-right"],
-		    BOTTOMLEFT = L["Bottom-left"],
-		    BOTTOMRIGHT = L["Bottom-right"]
+		    TOPLEFT = L["Top Left"],
+		    TOPRIGHT = L["Top Right"],
+		    BOTTOMLEFT = L["Bottom Left"],
+		    BOTTOMRIGHT = L["Bottom Right"]
 	    },
 	    get = function() return db.position end,
 	    set = function(_, v)

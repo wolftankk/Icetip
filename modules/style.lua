@@ -209,8 +209,7 @@ function mod:GetOptions()
 	tooltipBG = {
 	    type = "group",
 	    order = 1,
-	    name = L["Tooltip's style configure"],
-	    desc = L["Sets the tooltip's style"],
+	    name = L["Style"],
 	    inline = true,
 	    args = {
 		bgtexture = {
