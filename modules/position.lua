@@ -21,9 +21,9 @@ local anchorOpposite = {
 
 local defaults = {
     profile = {
-	unitAnchor = "CURSOR_BOTTOM",
-	unitOffsetX = 0,
-	unitOffsetY = 0,
+	unitAnchor = "BOTTOMRIGHT",
+	unitOffsetX = -93,
+	unitOffsetY = 110,
 	frameAnchor = "BOTTOMRIGHT",
 	frameOffsetX = -93,
 	frameOffsetY = 110,
