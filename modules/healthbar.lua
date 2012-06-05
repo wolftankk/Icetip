@@ -190,6 +190,24 @@ function update(frame, elapsed, force)
     end
 end
 
+function mod:OnTooltipShow()
+    local min, max = GameTooltipStatusBar:GetMinMaxValues();
+    local value = GameTooltipStatusBar:GetValue();
+    if not self.healthbar then return end
+
+    if min == 0 and max == 1 and value <= 1 and GameTooltipStatusBar:IsShown() then
+	healthbar:SetMinMaxValues(min, max)
+	healthbar:SetValue(value)
+
+	healthbar:SetStatusBarColor(HealthGradient(value));
+
+	healthbar:Show();
+	if db.showText then
+	    hbtext:Hide()
+	end
+    end
+end
+
 function mod:PostTooltipShow(tooltip, ...)
     if tooltip == GameTooltip and db.position == "INNER" and tooltip:GetUnit() then
         healthbar:ClearAllPoints();
