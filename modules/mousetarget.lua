@@ -362,13 +362,23 @@ do
         return unitID
     end
 
+    local function getTalent(guid)
+	
+    end
+
     function mod:INSPECT_READY(event, guid)
         self:UnregisterEvent("INSPECT_READY");
         local unit = GetUnitByGUID(guid);
         local iLvl = GetUnitItemLevel(unit);
+	local _, _, classid = UnitClass(unit)
 
-        if UnitExists(unit) and Icetip_InspectTalent[guid] then
-            --GameTooltip:AddDoubleLine(L["Active Talent: "], talent_name);
+        if UnitExists(unit) and Icetip_InspectTalent[guid] and db.showTalent then
+	    local spec = GetInspectSpecialization(unit);
+	    local role1 = GetSpecializationRoleByID(spec)
+	    local _, name = GetSpecializationInfoByID(spec);
+	    if role1 then
+		GameTooltip:AddDoubleLine(L["Active Talent: "], name.." (".._G[role1]..")");
+	    end
             --if (talent_name2 ~= _G["NONE"] and talent_text2 ~= _G["NONE"]) then
             --    GameTooltip:AddDoubleLine(L["Sec Talent: "], talent_name2);
             --end
@@ -403,17 +413,17 @@ function mod:GetOptions()
 		db.showTarget = v
 	    end
 	},
-	--showtalent = {
-	--    type = "toggle",
-	--    order = 3,
-	--    name = L["Toggle show talent"],
-	--    width = "full",
-	--    desc = L["Enable/Disable display the target's talent"],
-	--    get = function() return db.showTalent end,
-	--    set = function(_, v)
-	--	db.showTalent = v
-	--    end
-	--},
+	showtalent = {
+	    type = "toggle",
+	    order = 3,
+	    name = L["Toggle show talent"],
+	    width = "full",
+	    desc = L["Enable/Disable display the target's talent"],
+	    get = function() return db.showTalent end,
+	    set = function(_, v)
+		db.showTalent = v
+	    end
+	},
 	showItemLevel = {
 	    type = "toggle",
 	    order = 4,
