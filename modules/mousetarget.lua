@@ -370,7 +370,7 @@ do
         self:UnregisterEvent("INSPECT_READY");
         local unit = GetUnitByGUID(guid);
         local iLvl = GetUnitItemLevel(unit);
-	local _, _, classid = UnitClass(unit)
+	--local _, _, classid = UnitClass(unit)
 
         if UnitExists(unit) and Icetip_InspectTalent[guid] and db.showTalent then
 	    local spec = GetInspectSpecialization(unit);
