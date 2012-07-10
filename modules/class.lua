@@ -11,6 +11,7 @@ local defaults = {
     profile = {
 	displayMode = "border", --options: border / icon
 	iconPosition = "LEFT", -- options: where the icon display?   LEFT / RIGHT
+	iconSize = 32
     }
 }
 local db;
@@ -21,7 +22,9 @@ function mod:OnInitialize()
 end
 
 function mod:OnEnable()
-
+    if db.displayMode == "icon" then
+	--create icon
+    end
 end
 
 function mod:OnDisable()
@@ -32,11 +35,24 @@ end
 function mod:PreTooltipSetUnit(tooltip, ...)
     local unit = tooltip:GetUnit();
     if unit then
-
+	if db.displayMode == "icon" then
+	    --set position
+	end
     end
 end
 
 --hook event, OnTooltipHide()
 function mod:OnTooltipHide()
+    if self.icon then
+	self.icon:Hide();
+    end
+end
 
+--add options to Icetip's options panel
+function mod:GetOptions()
+    local options = {
+
+    }
+
+    return options;
 end
