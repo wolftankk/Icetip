@@ -24,6 +24,13 @@ end
 function mod:OnEnable()
     if db.displayMode == "icon" then
 	--create icon
+	if not self.icon then
+	    self.icon = CreateFrame("Frame", nil, GameTooltip);
+	    self.icon:SetSize(db.iconSize, db.iconSize);
+	    self.icon:SetPoint("TOPRIGHT", GameTooltip, "TOPLEFT", -5, 0);
+	    self.icon.icon = self.icon:CreateTexture();
+	    self.icon.icon:SetAllPoints();
+	end
     end
 end
 
@@ -37,6 +44,8 @@ function mod:PreTooltipSetUnit(tooltip, ...)
     if unit then
 	if db.displayMode == "icon" then
 	    --set position
+	    --self.icon.icon:SetTexture();
+	    self.icon:Show();
 	end
     end
 end
@@ -51,7 +60,15 @@ end
 --add options to Icetip's options panel
 function mod:GetOptions()
     local options = {
+	displayMode = {
 
+	},
+	iconPosition = {
+
+	},
+	iconSize = {
+
+	}
     }
 
     return options;
