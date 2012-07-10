@@ -25,8 +25,8 @@ local defaults = {
 	showFaction = true,
 	showServer = true,
 	showItemLevel = true,
-	colorBorderByClass = true,
-	colorNameByClass = false,
+	--colorBorderByClass = true,
+	--colorNameByClass = false,
 	SGuildColor = {
 	    r = 0.9,
 	    g = 0.45,
@@ -295,11 +295,10 @@ function mod:SetTooltipInfo(unit)
         end
     end
 
-    local color = RAID_CLASS_COLORS[select(2, UnitClass(unit))];
-    if db.colorBorderByClass and isPlayer then
-        GameTooltip:SetBackdropBorderColor(color.r, color.g, color.b)
-    end
-
+    --local color = RAID_CLASS_COLORS[select(2, UnitClass(unit))];
+    --if db.colorBorderByClass and isPlayer then
+    --    GameTooltip:SetBackdropBorderColor(color.r, color.g, color.b)
+    --end
 
     GameTooltip:Show();
 end
@@ -391,17 +390,17 @@ end
 
 function mod:GetOptions()
     local options = {
-	colorclass = {
-	    type = "toggle",
-	    order = 1,
-	    name = L["Color border by class"],
-	    desc = L["Enable/Disable colored the tooltip border by the target's class"],
-	    width = "full",
-	    get = function() return db.colorBorderByClass end,
-	    set = function(_, v)
-		db.colorBorderByClass = v
-	    end
-	},
+	--colorclass = {
+	--    type = "toggle",
+	--    order = 1,
+	--    name = L["Color border by class"],
+	--    desc = L["Enable/Disable colored the tooltip border by the target's class"],
+	--    width = "full",
+	--    get = function() return db.colorBorderByClass end,
+	--    set = function(_, v)
+	--	db.colorBorderByClass = v
+	--    end
+	--},
 	tot = {
 	    type = "toggle",
 	    order = 2,

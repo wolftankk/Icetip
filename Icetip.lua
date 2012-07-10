@@ -101,6 +101,7 @@ end
 function modPrototype:GetName()
     return self.name
 end
+
 function modPrototype:RegisterDB(profile)
     local db
     if not Icetip.acedb:GetNamespace(self.name, true) then
@@ -218,6 +219,7 @@ function Icetip:OnInitialize()
 	    mod:OnInitialize();
 	end
     end
+
     Icetip:RegisterOptions();
 end
 
