@@ -11,7 +11,8 @@ local files = {
     "modules/powerbar.lua",
     "modules/raidTarget.lua",
     "modules/style.lua",
-	"modules/aura.lua"
+    "modules/aura.lua",
+    "modules/class.lua"
 }
 
 local locale = {}

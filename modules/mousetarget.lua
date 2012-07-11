@@ -25,8 +25,6 @@ local defaults = {
 	showFaction = true,
 	showServer = true,
 	showItemLevel = true,
-	--colorBorderByClass = true,
-	--colorNameByClass = false,
 	SGuildColor = {
 	    r = 0.9,
 	    g = 0.45,
@@ -294,11 +292,6 @@ function mod:SetTooltipInfo(unit)
             NotifyInspect(unit)
         end
     end
-
-    --local color = RAID_CLASS_COLORS[select(2, UnitClass(unit))];
-    --if db.colorBorderByClass and isPlayer then
-    --    GameTooltip:SetBackdropBorderColor(color.r, color.g, color.b)
-    --end
 
     GameTooltip:Show();
 end

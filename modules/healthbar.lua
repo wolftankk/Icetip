@@ -10,7 +10,7 @@ local db
 local Powerbar = Icetip:GetModule("Powerbar", true);
 local powerbar
 
-local default = {
+local defaults = {
     profile = {
 	texture = "Smooth",
 	size = 5,
@@ -25,7 +25,7 @@ local default = {
 }
 
 function mod:OnInitialize()
-    self.db = mod:RegisterDB(default)
+    self.db = mod:RegisterDB(defaults)
     db = self.db.profile
 end
 
