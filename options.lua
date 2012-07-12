@@ -54,51 +54,52 @@ local function CreateOption()
 				icon:Refresh("Icetip", db.minimap)
 			    end
 			},
-			--tipshow = {
-			--    type = "group",
-			--    inline = true,
-			--    name = L["Show tooltips"],
-			--    order = order(),
-			--    args = {
-			--    },
-			--},
 		    },
 		},
+		scene = {
+		    type = "group",
+		    name = L["Scene"],
+		    order = order(),
+		    args = {
+		    },
+		}
 	    },
 	}
 
-	--for _, u in pairs({"units", "objects", "unitFrames", "otherFrames"}) do
-	--    options.args["general"].args.tipshow.args[u] = {
-	--	type = "group",
-	--	order = order(),
-	--	name = L[u],
-	--	desc = L[u.."_desc"],
-	--	args = {
-	--	    show = {
-	--		type = "select",
-	--		order = order(),
-	--		name = L["Show"],
-	--		desc = L["Show the tooltip if..."],
-	--		values = tipShown,
-	--		get = function() return db.tipmodifier[u].show end,
-	--		set = function(_, v)
-	--		    db["tipmodifier"][u].show = v
-	--		end,
-	--	    },
-	--	    --modifiers = {
-	--	    --    type = "multiselect",
-	--	    --    order = order(),
-	--	    --    name = L["Only show with modifiekey"],
-	--	    --    desc = L["Show the tooltip if the specified modifier is being held down"],
-	--	    --    values = modifierKeys,
-	--	    --    get = function(_, v) return db.tipmodifier.units.modifiers[v] end,
-	--	    --    set = function(_, k, v)
-	--	    --        db.tipmodifier.units.modifiers[k] = v
-	--	    --    end
-	--	    --}
-	--	}
-	--    }
-	--end
+	for i, u in pairs({"units", "objects", "unitFrames", "otherFrames"}) do
+	    options.args["scene"].args["header"..i] = {
+		type = "header",
+		order = order(),
+		name = L[u.."_header"],
+	    }
+	    options.args["scene"].args["description"..i] = {
+		type = "description",
+		order = order(),
+		name = L[u.."_desc"],
+	    }
+	    options.args["scene"].args["show"..i] = {
+	    	type = "select",
+	    	order = order(),
+	    	name = L["Show"],
+	    	desc = L["Show the tooltip if..."],
+	    	values = tipShown,
+	    	get = function() return db.tipmodifier[u].show end,
+	    	set = function(_, v)
+	    	    db["tipmodifier"][u].show = v
+	    	end,
+	    }
+	    options.args["scene"].args["modifier"..i] = {
+	        type = "multiselect",
+	        order = order(),
+	        name = L["Only show with modifiekey"],
+	        desc = L["Show the tooltip if the specified modifier is being held down"],
+	        values = modifierKeys,
+	        get = function(_, v) return db.tipmodifier[u].modifiers[v] end,
+	        set = function(_, k, v)
+	            db.tipmodifier[u].modifiers[k] = v
+	        end
+	    }
+	end
 
 	for name, mod in Icetip:GetModules() do
 	    options.args["module_"..name] = {
@@ -146,7 +147,7 @@ end
 function Icetip:RegisterOptions()
     LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("Icetip", CreateOption);
     SlashCmdList["ICETIP"] = function()
-	LibStub("AceConfigDialog-3.0"):SetDefaultSize("Icetip", 650, 580)
+	LibStub("AceConfigDialog-3.0"):SetDefaultSize("Icetip", 800, 600)
 	LibStub("AceConfigDialog-3.0"):Open("Icetip")
     end
     SLASH_ICETIP1 = "/icetip";

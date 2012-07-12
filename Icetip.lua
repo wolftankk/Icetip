@@ -337,33 +337,30 @@ end
 --See http://wow.curseforge.com/addons/icetip/tickets/4-show-hide-logic-update-mouse-position/
 -------------------------------
 function Icetip:MODIFIER_STATE_CHANGED(event, modifier, down)
-    --local m = self.db.tipmodifier.modifier;
-    --if modifier:match(m) == nil then
-    --    return
-    --end
-    --
+    if not GameTooltip._config then return end
+
     --local frame = GetMouseFocus();
     --if frame == WorldFrame or frame == UIParent then
-        --local mouseover_unit = self:GetMouseoverUnit();
-        --if not UnitExists(mouseover_unit) then
-        --    GameTooltip:Hide()
-        --end
-        --GameTooltip:Hide();
-        --GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
-        --GameTooltip:SetUnit(mouseover_unit);
-        --GameTooltip:Show();
+    --  local mouseover_unit = self:GetMouseoverUnit();
+    --  if not UnitExists(mouseover_unit) then
+    --      GameTooltip:Hide()
+    --  end
+    --  GameTooltip:Hide();
+    --  GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
+    --  GameTooltip:SetUnit(mouseover_unit);
+    --  GameTooltip:Show();
     --else
-        --local onLeave, onEnter = frame:GetScript("OnLeave"), frame:GetScript("OnEnter");
-        --if onLeave then
-        --    self.modifierFrame = frame;
-        --    onLeave(frame);
-        --    self.modifierFrame = nil;
-        --end
-        --if onEnter then
-        --    self.modifierFrame = frame;
-        --    onEnter(frame);
-        --    self.modifierFrame = nil;
-        --end
+    --  local onLeave, onEnter = frame:GetScript("OnLeave"), frame:GetScript("OnEnter");
+    --  if onLeave then
+    --      self.modifierFrame = frame;
+    --      onLeave(frame);
+    --      self.modifierFrame = nil;
+    --  end
+    --  if onEnter then
+    --      self.modifierFrame = frame;
+    --      onEnter(frame);
+    --      self.modifierFrame = nil;
+    --  end
     --end
 end
 
@@ -382,9 +379,9 @@ function Icetip:Tooltip_Show(tooltip, ...)
 end
 
 local modifierFuncs = {
-    ALT = "IsAltKeyDown",
-    SHIFT = "IsShiftKeyDown",
-    CTRL = "IsControlKeyDown"
+    ALT = function() return IsAltKeyDown() end,
+    SHIFT = function() return IsShiftKeyDown() end,
+    CTRL = function() return IsControlKeyDown() end
 }
 function Icetip:Tooltip_OnShow(tooltip, ...)
     tooltip._offset = nil
@@ -403,50 +400,50 @@ function Icetip:Tooltip_OnShow(tooltip, ...)
             end
         end
 
-        --local config;
-        --if tooltip:IsOwned(UIParent) then
-        --    if tooltip:GetUnit() then
-        --	config = self.db.tipmodifier.units;
-        --    else
-        --	config = self.db.tipmodifier.objects
-        --    end
-        --else
-        --    if tooltip:GetUnit() then
-        --	config = self.db.tipmodifier.unitFrames;
-        --    else
-        --	config = self.db.tipmodifier.otherFrames;
-        --    end
-	--end
-	--tooltip._config = config;
+        local config;
+        if tooltip:IsOwned(UIParent) then
+            if tooltip:GetUnit() then
+        	config = self.db.tipmodifier.units;
+            else
+        	config = self.db.tipmodifier.objects
+            end
+        else
+            if tooltip:GetUnit() then
+        	config = self.db.tipmodifier.unitFrames;
+            else
+        	config = self.db.tipmodifier.otherFrames;
+            end
+	end
+	tooltip._config = config;
 
-        --local modifiers = config.modifiers;
+        local modifiers = config.modifiers;
 	--local needHidden = false;
 	--for modifier, mvalue in pairs(modifiers) do
-	--    if mvalue then
-	--	needHidden = not modifierFuncs["modifier"]
-	--    end
+	--    --if mvalue then
+	--    --    --needHidden = not modifierFuncs[modifier]()
+	--    --end
 	--end
 
-	--
-	--local show = config.show;
-        --if show == "notcombat" then
-        --    if InCombatLockdown() then
-        --	tooltip.justHide = true;
-        --	tooltip:Hide()
-        --	tooltip.justHide = nil;
-        --	return;
-        --    end
-        --elseif show == "never" then
-        --    tooltip.justHide = true;
-        --    tooltip:Hide();
-        --    tooltip.justHide = nil
-	----elseif show == "modifier" then
-	----    if needHidden then
-	----	tooltip.justHide = true;
-	----	tooltip:Hide();
-	----	tooltip.justHide = nil;
-	----    end
-        --end
+	--if needHidden then
+	--    tooltip.justHide = true
+	--    tooltip:Hide();
+	--    tooltip.justHide = nil
+	--    return;
+	--end
+
+	local show = config.show;
+        if show == "notcombat" then
+            if InCombatLockdown() then
+        	tooltip.justHide = true;
+        	tooltip:Hide()
+        	tooltip.justHide = nil;
+        	return;
+            end
+        elseif show == "never" then
+            tooltip.justHide = true;
+            tooltip:Hide();
+            tooltip.justHide = nil
+        end
     end
 
     self.hooks[tooltip].OnShow(tooltip, ...)

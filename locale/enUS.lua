@@ -110,10 +110,7 @@ L["Sets what size the tooltip's backgroud texture tile"] = true
 L["Sets what texture tile the tooltip's background is."] = true
 L["Show minimap icon"] = true
 L["Show the status text on the power bar."] = true
-L["Show the tooltip for non-unit framers if..."] = true
-L["Show the tooltip for unit frames if..."] = true
-L["Show the tooltip for world objects if..."] = true
-L["Show the tooltip for world units if..."] = true
+
 L["Show the tooltip if the specified modifier is being held down"] = true
 L["Show tooltips"] = true
 L["Size"] = true
@@ -160,10 +157,22 @@ L["What kind of fade to use for unit frames (myself, target, party member, etc.)
 L["What kind of fade to use for world objects (mailbox, corpse, etc.)"] = true
 L["What kind of fade to use for world units (other players, NPC in the world, etc.)"] = true
 L["When you watch a item, colored tooltip by item's quality color"] = true
-L["World objects"] = true
 L["World units"] = true
+L["World objects"] = true
 L["border"] = true
 L["icon"] = true
 L["|cffFFAAFF(Rare Boss)|r"] = true
 L["|cffff0000>YOU<|r"] = true
 L["|cffffd200Version: "] = true
+L["Scene"] = true
+
+L["units_header"] = "World units"
+L["units_desc"] = "Show the tooltip for world units if ... (other players, NPCs in the world, etc.)"
+L["objects_header"] = "World objects"
+L["objects_desc"] = "Show the tooltip for world objects if... (mailbox, corpse, etc.)"
+L["unitFrames_header"] = "Unit frames"
+L["unitFrames_desc"] = "Show the tooltip for unit frames if... (myself, target, party member, etc.)"
+L["otherFrames_header"] = "Non-unit frames"
+L["otherFrames_desc"] = "Show the tooltip for non-unit framers if... (spells, items, etc.)"
+L["Show"] = true
+L["Show the tooltip if..."] = true
