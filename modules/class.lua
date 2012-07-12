@@ -30,7 +30,9 @@ function mod:OnEnable()
 end
 
 function mod:OnDisable()
-
+    if self.icon then
+	self.icon:Hide();
+    end
 end
 
 function mod:createIcon()
@@ -42,9 +44,9 @@ function mod:createIcon()
 	self.icon.icon:SetTexture([[Interface\Glues\CharacterCreate\UI-CharacterCreate-Classes]]);
 	self.icon:ClearAllPoints();
 	if db.iconPosition == "LEFT" then
-	    self.icon:SetPoint("TOPRIGHT", tooltip, "TOPLEFT", -5, 0);
+	    self.icon:SetPoint("TOPRIGHT", GameTooltip, "TOPLEFT", -5, 0);
 	elseif db.iconPosition == "RIGHT" then
-	    self.icon:SetPoint("TOPLEFT", tooltip, "TOPRIGHT", 5, 0);
+	    self.icon:SetPoint("TOPLEFT", GameTooltip, "TOPRIGHT", 5, 0);
 	end
     end
 end
