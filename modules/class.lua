@@ -40,6 +40,7 @@ function mod:createIcon()
 	self.icon.icon = self.icon:CreateTexture();
 	self.icon.icon:SetAllPoints();
 	self.icon.icon:SetTexture([[Interface\Glues\CharacterCreate\UI-CharacterCreate-Classes]]);
+	self.icon:ClearAllPoints();
 	if db.iconPosition == "LEFT" then
 	    self.icon:SetPoint("TOPRIGHT", tooltip, "TOPLEFT", -5, 0);
 	elseif db.iconPosition == "RIGHT" then

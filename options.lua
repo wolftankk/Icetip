@@ -11,7 +11,7 @@ local function order()
 end
 
 local modifierKeys = {
-    ["NONE"] = NONE,
+    --["NONE"] = NONE,
     ["ALT"] = ALT_KEY,
     ["SHIFT"] = SHIFT_KEY,
     ["CTRL"] = CTRL_KEY
@@ -54,73 +54,51 @@ local function CreateOption()
 				icon:Refresh("Icetip", db.minimap)
 			    end
 			},
-			tipshow = {
-			    type = "group",
-			    inline = true,
-			    name = L["Show tooltips"],
-			    order = order(),
-			    args = {
-				unit = {
-				    type = "select",
-				    order = order(),
-				    name = L["World units"],
-				    desc = L["Show the tooltip for world units if..."],
-				    values = tipShown,
-				    get = function() return db.tipmodifier.units end,
-				    set = function(_, v)
-					db["tipmodifier"].units = v
-				    end,
-				},
-				objframe = {
-				    type = "select",
-				    order = order(),
-				    name = L["World objects"],
-				    desc = L["Show the tooltip for world objects if..."],
-				    values = tipShown,
-				    get = function() return db.tipmodifier.objects end,
-				    set = function(_, v)
-					db["tipmodifier"].objects = v
-				    end,
-				},
-				unitframe = {
-				    type = "select",
-				    order = order(),
-				    name = L["Unit frames"],
-				    desc = L["Show the tooltip for unit frames if..."],
-				    values = tipShown,
-				    get = function() return db["tipmodifier"].unitFrames end,
-				    set = function(_, v)
-					db["tipmodifier"].unitFrames = v
-				    end,
-				},
-				otherframe = {
-				    type = "select",
-				    order = order(),
-				    name = L["Non-unit frames"],
-				    desc = L["Show the tooltip for non-unit framers if..."],
-				    values = tipShown,
-				    get = function() return db["tipmodifier"].otherFrames end,
-				    set = function(_, v)
-					db["tipmodifier"].otherFrames = v
-				    end,
-				},
-				modifiekey = {
-				    type = "select",
-				    order = order(),
-				    name = L["Only show with modifiekey"],
-				    desc = L["Show the tooltip if the specified modifier is being held down"],
-				    values = modifierKeys,
-				    get = function() return db["tipmodifier"].modifier end,
-				    set = function(_, v)
-					db["tipmodifier"].modifier = v;
-				    end
-				}
-			    },
-			},
+			--tipshow = {
+			--    type = "group",
+			--    inline = true,
+			--    name = L["Show tooltips"],
+			--    order = order(),
+			--    args = {
+			--    },
+			--},
 		    },
 		},
 	    },
 	}
+
+	--for _, u in pairs({"units", "objects", "unitFrames", "otherFrames"}) do
+	--    options.args["general"].args.tipshow.args[u] = {
+	--	type = "group",
+	--	order = order(),
+	--	name = L[u],
+	--	desc = L[u.."_desc"],
+	--	args = {
+	--	    show = {
+	--		type = "select",
+	--		order = order(),
+	--		name = L["Show"],
+	--		desc = L["Show the tooltip if..."],
+	--		values = tipShown,
+	--		get = function() return db.tipmodifier[u].show end,
+	--		set = function(_, v)
+	--		    db["tipmodifier"][u].show = v
+	--		end,
+	--	    },
+	--	    --modifiers = {
+	--	    --    type = "multiselect",
+	--	    --    order = order(),
+	--	    --    name = L["Only show with modifiekey"],
+	--	    --    desc = L["Show the tooltip if the specified modifier is being held down"],
+	--	    --    values = modifierKeys,
+	--	    --    get = function(_, v) return db.tipmodifier.units.modifiers[v] end,
+	--	    --    set = function(_, k, v)
+	--	    --        db.tipmodifier.units.modifiers[k] = v
+	--	    --    end
+	--	    --}
+	--	}
+	--    }
+	--end
 
 	for name, mod in Icetip:GetModules() do
 	    options.args["module_"..name] = {

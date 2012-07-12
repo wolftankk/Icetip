@@ -8,9 +8,11 @@ Icetip = LibStub("AceAddon-3.0"):NewAddon(Icetip, addonName, "AceEvent-3.0", "Ac
 Icetip.vesion = GetAddOnMetadata(addonName, "Version") 
 local modules = {};
 Icetip.modules = modules;
+
 local SM = LibStub("LibSharedMedia-3.0");
 local LDB = LibStub("LibDataBroker-1.1", true);
 local icon = LibStub("LibDBIcon-1.0", true);
+
 local tooltips = {
     GameTooltip,
     ItemRefTooltip,
@@ -37,11 +39,14 @@ local default = {
 	    }
 	},
 	tipmodifier = {
-	    units = "always",
-	    objects = "always",
-	    unitFrames = "always",
-	    otherFrames = "always",
-	    modifier = "NONE",
+	    ['**'] = {
+		show = "always", --options  always, notcombat, never
+		modifiers = {
+		    ALT = false,
+		    SHIFT = false,
+		    CTRL = false
+		}
+	    },
 	}
     }
 }
@@ -190,9 +195,6 @@ function Icetip:OnInitialize()
     SM:Register("statusbar", "Smooth", [[Interface\AddOns\Icetip\media\Smooth.tga]]);
 
     local db = LibStub("AceDB-3.0"):New("IcetipDB", default, "Default");
-    --db.RegisterCallback(self, "OnProfileChanged", "ProfileChanged");
-    --db.RegisterCallback(self, "OnProfileCopied", "ProfileChanged");
-    --db.RegisterCallback(self, "OnProfileReset", "ProfileChanged");
 
     self.acedb = db;
     self.db = db.profile;
@@ -232,27 +234,39 @@ function Icetip:OnEnable()
 	end
     end
 
+    --HOOK tooltip
     for _, tooltip in pairs(tooltips) do
+	--OnShow 
         self:HookScript(tooltip, "OnShow", "Tooltip_OnShow");
+	--OnHide
         self:HookScript(tooltip, "OnHide", "Tooltip_OnHide");
-
+	--OnUpdate
         self:HookScript(tooltip, "OnUpdate", "Tooltip_OnUpdate");
 
+	--fire when tooltip has cleared
         self:HookScript(tooltip, "OnTooltipCleared", "Tooltip_Cleared");
+	--fire when tooltip has SetUnit
         self:HookScript(tooltip, "OnTooltipSetUnit", "Tooltip_SetUnit");
+	--SetItem
         self:HookScript(tooltip, "OnTooltipSetItem", "Tooltip_SetItem");
+	--Set Spell
         self:HookScript(tooltip, "OnTooltipSetSpell", "Tooltip_SetSpell");
+	--SetQuest
         self:HookScript(tooltip, "OnTooltipSetQuest", "Tooltip_SetQuest");
+	--SetAchievement
         self:HookScript(tooltip, "OnTooltipSetAchievement", "Tooltip_SetAchievement");
+
+	--tooltip position hook
         self:HookScript(tooltip, "OnTooltipSetDefaultAnchor", "Tooltip_SetDefaultAnchor");
 
 	self:RawHook(tooltip, "Show", "Tooltip_Show", true);
     end
-
+    
+    --handler Statusbar, always hidden
     GameTooltipStatusBar:Hide();
     GameTooltipStatusBar:ClearAllPoints();
 
-    local previousDead = false
+    local previousDead = false;
     self:ScheduleRepeatingTimer(function() 
         local mouse_unit = Icetip:GetMouseoverUnit()
         if UnitExists(mouse_unit) then
@@ -272,6 +286,7 @@ function Icetip:OnEnable()
         end
     end, 0.05)
 
+    --handler modifier
     self:RegisterEvent("MODIFIER_STATE_CHANGED");
 end
 
@@ -297,35 +312,66 @@ function Icetip:GetMouseoverUnit()
     end
 end
 
-function Icetip:MODIFIER_STATE_CHANGED(event, modifier, down)
-    local m = self.db.tipmodifier.modifier;
-    if modifier:match(m) == nil then
-	return
+function Icetip:GetUnitByGUID(unitGUID)
+    local unitID
+    for i = 1, 4, 1 do
+	if UnitGUID("party"..i) == unitGUID then unitID = "party"..i end
     end
-    local frame = GetMouseFocus();
-    if frame == WorldFrame or frame == UIParent then
-	local mouseover_unit = self:GetMouseoverUnit();
-	if not UnitExists(mouseover_unit) then
-	    GameTooltip:Hide()
-	end
-	GameTooltip:Hide();
-	GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
-	GameTooltip:SetUnit(mouseover_unit);
-	GameTooltip:Show();
-    else
-	local onLeave, onEnter = frame:GetScript("OnLeave"), frame:GetScript("OnEnter");
-	if onLeave then
-	    self.modifierFrame = frame;
-	    onLeave(frame);
-	    self.modifierFrame = nil;
-	end
-	if onEnter then
-	    self.modifierFrame = frame;
-	    onEnter(frame);
-	    self.modifierFrame = nil;
-	end
+    for i = 1, 40, 1 do
+	if UnitGUID("raid"..i) == unitGUID then unitID = "raid"..i end
     end
+    if UnitGUID("player") == unitGUID then
+	unitID = "player"
+    elseif UnitGUID("mouseover") == unitGUID then
+	unitID = "mouseover"
+    elseif UnitGUID("target") == unitGUID then
+	unitID = "target"
+    elseif UnitGUID("focus") == unitGUID then
+	unitID = "focus"
+    end
+    return unitID
 end
+
+-------------------------------
+--imporvide modifier
+--See http://wow.curseforge.com/addons/icetip/tickets/4-show-hide-logic-update-mouse-position/
+-------------------------------
+function Icetip:MODIFIER_STATE_CHANGED(event, modifier, down)
+    --local m = self.db.tipmodifier.modifier;
+    --if modifier:match(m) == nil then
+    --    return
+    --end
+    --
+    --local frame = GetMouseFocus();
+    --if frame == WorldFrame or frame == UIParent then
+        --local mouseover_unit = self:GetMouseoverUnit();
+        --if not UnitExists(mouseover_unit) then
+        --    GameTooltip:Hide()
+        --end
+        --GameTooltip:Hide();
+        --GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
+        --GameTooltip:SetUnit(mouseover_unit);
+        --GameTooltip:Show();
+    --else
+        --local onLeave, onEnter = frame:GetScript("OnLeave"), frame:GetScript("OnEnter");
+        --if onLeave then
+        --    self.modifierFrame = frame;
+        --    onLeave(frame);
+        --    self.modifierFrame = nil;
+        --end
+        --if onEnter then
+        --    self.modifierFrame = frame;
+        --    onEnter(frame);
+        --    self.modifierFrame = nil;
+        --end
+    --end
+end
+
+-------------------------------------------------------------------------------------------------
+-- Tooltip handler
+-------------------------------------------------------------------------------------------------
+local forgetNextOnTooltipMethod = false
+local doneOnTooltipMethod = false;
 
 function Icetip:Tooltip_Show(tooltip, ...)
     --self:CallMethodAllModules("PreTooltipShow", tooltip, ...)
@@ -335,13 +381,18 @@ function Icetip:Tooltip_Show(tooltip, ...)
     self:CallMethodAllModules("PostTooltipShow", tooltip, ...)
 end
 
-local forgetNextOnTooltipMethod = false
+local modifierFuncs = {
+    ALT = "IsAltKeyDown",
+    SHIFT = "IsShiftKeyDown",
+    CTRL = "IsControlKeyDown"
+}
 function Icetip:Tooltip_OnShow(tooltip, ...)
     tooltip._offset = nil
     self:CallMethodAllModules("PreOnTooltipShow", tooltip, ...);
 
+    --Only handler GameTooltip OnShow
     if tooltip == GameTooltip then
-        if not doneOnTooltipMethod then
+        if doneOnTooltipMethod then
             if tooltip:GetUnit() then
         	self:OnTooltipMethod("SetUnit", tooltip, ...);
         	forgetNextOnTooltipMethod = true
@@ -352,52 +403,50 @@ function Icetip:Tooltip_OnShow(tooltip, ...)
             end
         end
 
-        local show;
-        if tooltip:IsOwned(UIParent) then
-            if tooltip:GetUnit() then
-        	show = self.db.tipmodifier.units;
-            else
-        	show = self.db.tipmodifier.objects
-            end
-        else
-            if tooltip:GetUnit() then
-        	show = self.db.tipmodifier.unitFrames;
-            else
-        	show = self.db.tipmodifier.otherFrames;
-            end
-        end
+        --local config;
+        --if tooltip:IsOwned(UIParent) then
+        --    if tooltip:GetUnit() then
+        --	config = self.db.tipmodifier.units;
+        --    else
+        --	config = self.db.tipmodifier.objects
+        --    end
+        --else
+        --    if tooltip:GetUnit() then
+        --	config = self.db.tipmodifier.unitFrames;
+        --    else
+        --	config = self.db.tipmodifier.otherFrames;
+        --    end
+	--end
+	--tooltip._config = config;
 
-        local modifier = self.db.tipmodifier.modifier;
+        --local modifiers = config.modifiers;
+	--local needHidden = false;
+	--for modifier, mvalue in pairs(modifiers) do
+	--    if mvalue then
+	--	needHidden = not modifierFuncs["modifier"]
+	--    end
+	--end
 
-        if modifier == "ALT" then
-            if not IsAltKeyDown() then
-        	tooltip:Hide()
-        	return;
-            end
-        elseif modifier == "SHIFT" then
-            if not IsShiftKeyDown() then
-        	tooltip:Hide()
-        	return;
-            end
-        elseif modifier == "CTRL" then
-            if not IsControlKeyDown() then
-        	tooltip:Hide()
-        	return;
-            end
-        end
-
-        if show == "notcombat" then
-            if InCombatLockdown() then
-        	tooltip.justHide = true;
-        	tooltip:Hide()
-        	tooltip.justHide = nil;
-        	return;
-            end
-        elseif show == "never" then
-            tooltip.justHide = true;
-            tooltip:Hide();
-            tooltip.justHide = nil
-        end
+	--
+	--local show = config.show;
+        --if show == "notcombat" then
+        --    if InCombatLockdown() then
+        --	tooltip.justHide = true;
+        --	tooltip:Hide()
+        --	tooltip.justHide = nil;
+        --	return;
+        --    end
+        --elseif show == "never" then
+        --    tooltip.justHide = true;
+        --    tooltip:Hide();
+        --    tooltip.justHide = nil
+	----elseif show == "modifier" then
+	----    if needHidden then
+	----	tooltip.justHide = true;
+	----	tooltip:Hide();
+	----	tooltip.justHide = nil;
+	----    end
+        --end
     end
 
     self.hooks[tooltip].OnShow(tooltip, ...)
@@ -405,6 +454,7 @@ function Icetip:Tooltip_OnShow(tooltip, ...)
 end
 
 function Icetip:Tooltip_OnHide(tooltip, ...)
+    --reset
     doneOnTooltipMethod = false;
     forgetNextOnTooltipMethod = false
     tooltip._offset = nil
@@ -417,11 +467,10 @@ function Icetip:Tooltip_OnHide(tooltip, ...)
     end
 end
 
-local doneOnTooltipMethod;
 function Icetip:Tooltip_SetUnit(tooltip, ...)
     GameTooltipStatusBar:Hide();
     GameTooltipStatusBar:ClearAllPoints();
-    local doneOnTooltipMethod = true
+    doneOnTooltipMethod = true
     if forgetNextOnTooltipMethod then
 	forgetNextOnTooltipMethod = false
     else
