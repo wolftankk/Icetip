@@ -334,33 +334,13 @@ do
         end
     end
 
-    local function GetUnitByGUID(unitGUID)
-        local unitID
-        for i = 1, 4, 1 do
-            if UnitGUID("party"..i) == unitGUID then unitID = "party"..i end
-        end
-        for i = 1, 40, 1 do
-            if UnitGUID("raid"..i) == unitGUID then unitID = "raid"..i end
-        end
-        if UnitGUID("player") == unitGUID then
-            unitID = "player"
-        elseif UnitGUID("mouseover") == unitGUID then
-            unitID = "mouseover"
-        elseif UnitGUID("target") == unitGUID then
-            unitID = "target"
-        elseif UnitGUID("focus") == unitGUID then
-            unitID = "focus"
-        end
-        return unitID
-    end
-
     local function getTalent(guid)
 	
     end
 
     function mod:INSPECT_READY(event, guid)
         self:UnregisterEvent("INSPECT_READY");
-        local unit = GetUnitByGUID(guid);
+        local unit = Icetip:GetUnitByGUID(guid);
         local iLvl = GetUnitItemLevel(unit);
 	--local _, _, classid = UnitClass(unit)
 

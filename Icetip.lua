@@ -336,32 +336,54 @@ end
 --imporvide modifier
 --See http://wow.curseforge.com/addons/icetip/tickets/4-show-hide-logic-update-mouse-position/
 -------------------------------
+-- need rewrite!
+-- update key status
 function Icetip:MODIFIER_STATE_CHANGED(event, modifier, down)
-    if not GameTooltip._config then return end
-
-    --local frame = GetMouseFocus();
-    --if frame == WorldFrame or frame == UIParent then
-    --  local mouseover_unit = self:GetMouseoverUnit();
-    --  if not UnitExists(mouseover_unit) then
-    --      GameTooltip:Hide()
-    --  end
-    --  GameTooltip:Hide();
-    --  GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
-    --  GameTooltip:SetUnit(mouseover_unit);
-    --  GameTooltip:Show();
-    --else
-    --  local onLeave, onEnter = frame:GetScript("OnLeave"), frame:GetScript("OnEnter");
-    --  if onLeave then
-    --      self.modifierFrame = frame;
-    --      onLeave(frame);
-    --      self.modifierFrame = nil;
-    --  end
-    --  if onEnter then
-    --      self.modifierFrame = frame;
-    --      onEnter(frame);
-    --      self.modifierFrame = nil;
-    --  end
+    --if not GameTooltip._config then return end
+    --local config = GameTooltip._config;
+    --local modifiers = config.modifiers;
+    --local checkFunc = {}
+    --for modifier, mvalue in pairs(modifiers) do
+    --    if mvalue then
+    --        tinsert(checkFunc, modifier);
+    --    end
     --end
+
+    ----TODO: NEED OPTIMIZING!!
+    --local canShow = true;
+    --if #checkFunc then
+    --    for _, modifier in pairs(checkFunc) do
+    --        canShow = canShow and modifierFuncs[modifier]()
+    --    end
+    --    
+    --    if not canShow then
+    --        return nil
+    --    end
+    --end
+
+    local frame = GetMouseFocus();
+    if frame == WorldFrame or frame == UIParent then
+      local mouseover_unit = self:GetMouseoverUnit();
+      if not UnitExists(mouseover_unit) then
+          GameTooltip:Hide()
+      end
+      GameTooltip:Hide();
+      GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
+      GameTooltip:SetUnit(mouseover_unit);
+      GameTooltip:Show();
+    else
+      local onLeave, onEnter = frame:GetScript("OnLeave"), frame:GetScript("OnEnter");
+      if onLeave then
+          self.modifierFrame = frame;
+          onLeave(frame);
+          self.modifierFrame = nil;
+      end
+      if onEnter then
+          self.modifierFrame = frame;
+          onEnter(frame);
+          self.modifierFrame = nil;
+      end
+    end
 end
 
 -------------------------------------------------------------------------------------------------
@@ -417,19 +439,27 @@ function Icetip:Tooltip_OnShow(tooltip, ...)
 	tooltip._config = config;
 
         local modifiers = config.modifiers;
-	--local needHidden = false;
-	--for modifier, mvalue in pairs(modifiers) do
-	--    --if mvalue then
-	--    --    --needHidden = not modifierFuncs[modifier]()
-	--    --end
-	--end
+	local checkFunc = {}
+	for modifier, mvalue in pairs(modifiers) do
+	    if mvalue then
+		tinsert(checkFunc, modifier);
+	    end
+	end
 
-	--if needHidden then
-	--    tooltip.justHide = true
-	--    tooltip:Hide();
-	--    tooltip.justHide = nil
-	--    return;
-	--end
+	--TODO: NEED OPTIMIZING!!
+	local canShow = true;
+	if #checkFunc then
+	    for _, modifier in pairs(checkFunc) do
+		canShow = canShow and modifierFuncs[modifier]()
+	    end
+	    
+	    if not canShow then
+	        tooltip.justHide = true
+	        tooltip:Hide();
+	        tooltip.justHide = nil
+	        return
+	    end
+	end
 
 	local show = config.show;
         if show == "notcombat" then
@@ -455,6 +485,7 @@ function Icetip:Tooltip_OnHide(tooltip, ...)
     doneOnTooltipMethod = false;
     forgetNextOnTooltipMethod = false
     tooltip._offset = nil
+    tooltip._config = nil
 
     self:CallMethodAllModules("OnTooltipHide");
     if self.hooks[tooltip] and self.hooks[tooltip].OnHide then
