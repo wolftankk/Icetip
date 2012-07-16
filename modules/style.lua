@@ -31,6 +31,7 @@ local defaults = {
 	tooltipStyle = {
 	    bgTexture = "Blizzard Tooltip",
 	    borderTexture = "Blank",
+	    font = "Friz Quadrata TT",
 	    tile = false,
 	    tileSize = 8,
 	    EdgeSize = 2,
@@ -69,6 +70,7 @@ function mod:PreOnTooltipShow(tooltip, ...)
     else
         hooked[tooltip] = true
         self:UpdateBackdrop(tooltip, ...)
+	self:SetTooltipFont(nil)
     end
     tooltip:SetBackdropBorderColor(db["border_color"].r, db["border_color"].g, db["border_color"].b, db["border_color"].a);
 end
@@ -203,6 +205,34 @@ function mod:SetTooltipScale(tooltip, value)
     tooltip:SetScale(value)
 end
 
+function mod:SetTooltipFont(value, tooltip)
+    if value then
+	db.tooltipStyle.font = value
+    else
+	value = db.tooltipStyle.font
+    end
+
+    local font = SM:Fetch('font', value);
+    
+    if not tooltip then
+	local text = _G["GameTooltipTextLeft1"];
+	if text:GetFont() == font then
+	    return
+	end
+	for i = 1, 50 do
+	    local left = _G["GameTooltipTextLeft"..i];
+	    local right = _G["GameTooltipTextRight"..i];
+	    local _, size, style = left:GetFont();
+	    left:SetFont(font, size, style);
+
+	    local _, size, style = right:GetFont();
+	    right:SetFont(font, size, style);
+	end
+    else
+	--set other
+    end
+end
+
 
 function mod:GetOptions()
     local options = {
@@ -212,6 +242,17 @@ function mod:GetOptions()
 	    name = L["Style"],
 	    inline = true,
 	    args = {
+		tooltipfont = {
+		    type = "select",
+		    dialogControl = "LSM30_Font",
+		    order = 1,
+		    name = L["Font"],
+		    values = AceGUIWidgetLSMlists.font,
+		    get = function() return db.tooltipStyle.font end,
+		    set = function(_, v)
+			self:SetTooltipFont(v);
+		    end
+		},
 		bgtexture = {
 		    type = "select",
 		    dialogControl = "LSM30_Background",
