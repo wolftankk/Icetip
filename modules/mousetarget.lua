@@ -334,10 +334,15 @@ do
         end
     end
 
+    local function getTalent(guid)
+	
+    end
+
     function mod:INSPECT_READY(event, guid)
         self:UnregisterEvent("INSPECT_READY");
         local unit = Icetip:GetUnitByGUID(guid);
         local iLvl = GetUnitItemLevel(unit);
+	--local _, _, classid = UnitClass(unit)
 
         if UnitExists(unit) and Icetip_InspectTalent[guid] and db.showTalent then
 	    local spec = GetInspectSpecialization(unit);
@@ -350,6 +355,7 @@ do
             --    GameTooltip:AddDoubleLine(L["Sec Talent: "], talent_name2);
             --end
             GameTooltip:Show();
+            ----clear tbl
             --wipe(Icetip_InspectTalent);
         end
     end
@@ -357,6 +363,17 @@ end
 
 function mod:GetOptions()
     local options = {
+	--colorclass = {
+	--    type = "toggle",
+	--    order = 1,
+	--    name = L["Color border by class"],
+	--    desc = L["Enable/Disable colored the tooltip border by the target's class"],
+	--    width = "full",
+	--    get = function() return db.colorBorderByClass end,
+	--    set = function(_, v)
+	--	db.colorBorderByClass = v
+	--    end
+	--},
 	tot = {
 	    type = "toggle",
 	    order = 2,
