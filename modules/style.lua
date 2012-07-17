@@ -4,7 +4,6 @@ local SM = LibStub("LibSharedMedia-3.0");
 local mod = Icetip:NewModule("style", L["Style"]);
 mod.order = 2
 local backdrop = {insets = {}};
-local hooked = {}
 local db
 
 local defaults = {
@@ -44,11 +43,51 @@ local defaults = {
 function mod:OnInitialize()
     self.db = mod:RegisterDB(defaults)
     db = self.db.profile
+
+    self:InitializeTooltips();
 end
 
 local origin_GetBackdropColor = GameTooltip.GetBackdropColor
 local origin_GetBackdropBorderColor = GameTooltip.GetBackdropBorderColor
 local origin_backdrop = GameTooltip:GetBackdrop();
+
+local hookOnShow;
+do
+    local hooked = {}
+    function hookOnShow(tooltip)
+	if hooked[tooltip] then
+	    return
+	end
+
+	hooked[tooltip] = true;
+	local onShow = tooltip:GetScript("OnShow");
+	tooltip:SetScript("OnShow", function(frame, ...)
+	    if onShow then
+		onShow(frame, ...);
+	    end
+	    --update scale
+	    mod:SetTooltipScale(nil, frame);
+	    --update font
+	    mod:SetTooltipFont(nil, frame);
+	end)
+
+	local Show = tooltip.Show;
+	function tooltip.Show(frame, ...)
+	    if Show then
+		Show(frame, ...)
+	    end
+	    --update scale
+	    mod:SetTooltipScale(nil, frame);
+	    --update font
+	    mod:SetTooltipFont(nil, frame);
+	end
+
+	if tooltip:IsShown() then
+	    tooltip:GetScript("OnShow")(tooltip)
+	end
+    end
+end
+
 function mod:OnEnable()
     GameTooltip.GetBackdropColor = function()
 	return unpack(db.bgColor["other"])
@@ -56,22 +95,36 @@ function mod:OnEnable()
     GameTooltip.GetBackdropBorderColor = function()
 	return db.border_color["r"], db.border_color["g"], db.border_color["b"], db.border_color["a"]
     end
+
+    mod:SetTooltipScale(nil);
+    mod:SetTooltipFont(nil)
+    mod:UpdateBackdrop(nil);
 end
 
 function mod:OnDisable()
     GameTooltip.GetBackdropColor = origin_GetBackdropColor
     GameTooltip.GetBackdropBorderColor = origin_GetBackdropBorderColor
     GameTooltip:SetBackdrop(origin_backdrop)
-    hooked[GameTooltip] = false
+end
+
+function mod:InitializeTooltips()
+    local function run()
+	local f
+	while true do
+	    f = EnumerateFrames(f);
+	    if not f then break end;
+
+	    if f:GetObjectType() == "GameTooltip" and f ~= GameTooltip then
+		hookOnShow(f);
+	    end
+	end
+    end
+    run();
 end
 
 function mod:PreOnTooltipShow(tooltip, ...)
-    if hooked[tooltip] then
-    else
-        hooked[tooltip] = true
-        self:UpdateBackdrop(tooltip, ...)
-	self:SetTooltipFont(nil)
-    end
+    hookOnShow(tooltip)
+    self:UpdateBackdrop(tooltip, ...)
     tooltip:SetBackdropBorderColor(db["border_color"].r, db["border_color"].g, db["border_color"].b, db["border_color"].a);
 end
 
@@ -103,7 +156,7 @@ function mod:OnTooltipShow(tooltip)
     if db["tooltipStyle"].customColor then
         self:SetBackgroundColor(nil, nil, nil, nil, nil, tooltip)
     end
-    self:SetTooltipScale(nil, db.scale)
+    self:SetTooltipScale(nil)
 end
 
 local currentSameFaction = false
@@ -197,7 +250,13 @@ function mod:SetBackgroundColor(given_kind, r, g,b,a, tooltip)
     tooltip:SetBackdropColor(r, g, b, a)
 end
 
-function mod:SetTooltipScale(tooltip, value)
+function mod:SetTooltipScale(value, tooltip)
+    if value then
+	db.scale = value
+    else
+	value = db.scale
+    end
+
     if not tooltip then
         tooltip = GameTooltip
     end
@@ -230,7 +289,13 @@ function mod:SetTooltipFont(value, tooltip)
 	    right:SetFont(font, size, style);
 	end
     else
-	--set other
+	for i = 1, select('#', tooltip:GetRegions()) do
+	    local v = select(i, tooltip:GetRegions());
+	    if (v:GetObjectType() == "FontString") then
+		local _, size, style = v:GetFont();
+		v:SetFont(font, size, style);
+	    end
+	end
     end
 end
 
@@ -353,7 +418,7 @@ function mod:GetOptions()
 		    get = function() return db.scale end,
 		    set = function(_, v) 
 			db.scale = v 
-			self:SetTooltipScale(nil, v)
+			self:SetTooltipScale(v)
 		    end,
 		},
 	    }
