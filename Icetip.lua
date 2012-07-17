@@ -193,6 +193,7 @@ function Icetip:OnInitialize()
     SM:Register("border", "Blank", [[Interface\AddOns\Icetip\media\blank.tga]]);
     SM:Register("background", "Blank", [[Interface\AddOns\Icetip\media\blank.tga]]);
     SM:Register("statusbar", "Smooth", [[Interface\AddOns\Icetip\media\Smooth.tga]]);
+	SML:Register("font", "Myriad Condensed Web", [[Interface\AddOns\Icetip\media\Myriad Condensed Web.ttf]])
 
     local db = LibStub("AceDB-3.0"):New("IcetipDB", default, "Default");
 

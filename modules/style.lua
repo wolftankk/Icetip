@@ -222,6 +222,7 @@ function mod:SetTooltipFont(value, tooltip)
 	for i = 1, 50 do
 	    local left = _G["GameTooltipTextLeft"..i];
 	    local right = _G["GameTooltipTextRight"..i];
+	    if not left then return end
 	    local _, size, style = left:GetFont();
 	    left:SetFont(font, size, style);
 
