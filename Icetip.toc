@@ -1,4 +1,4 @@
-## Interface: 50001
+## Interface: 40300
 ## Title: Icetip
 ## Title-zhCN: Icetip
 ## Title-zhTW: Icetip
@@ -11,6 +11,8 @@
 ## X-URL: http://cwowaddon.com
 ## SavedVariables: IcetipDB
 ## X-Category: Tooltip
+## X-Max-Interface: 50001
+## X-Min-Interface: 40300
 
 #libs#
 embeds.xml
