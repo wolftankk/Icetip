@@ -1,12 +1,12 @@
 -------------------------------------------------------------------
 -- adapting from SUF
 -------------------------------------------------------------------
-local addonName, Icetip = ...;
-local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-Icetip.L = L
-local Tags = {afkStatus = {}, offlineStatus = {}, customEvents = {}};
-local tagPool, functionPool, temp, regFontStrings, frequentUpdates, frequencyCache = {}, {}, {}, {}, {}, {};
-Icetip.Tags = Tags;
+--local addonName, Icetip = ...;
+--local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
+--Icetip.L = L
+--local Tags = {afkStatus = {}, offlineStatus = {}, customEvents = {}};
+--local tagPool, functionPool, temp, regFontStrings, frequentUpdates, frequencyCache = {}, {}, {}, {}, {}, {};
+--Icetip.Tags = Tags;
 
 --[[
 -- GameTooltip的tag 是不需要事件的 只有一些少数的需要, 大多数都是每次mouseover上去 就需要重新执行一次
@@ -237,807 +237,807 @@ end
 
 
 
-local function abbreviateName(text)
-    return strsub(text, 1, 1) .. "."
-end
-
-Tags.abbrevCache = setmetatable({}, {
-    __index = function()
-        val = string.gsub(val, "([^%s]+) ", abbreviateName)
-        rawset(tbl, val, val)
-        return val
-    end
-})
-
-Tags.defaultTags = {
-    ["hp:color"] = [[function(unit, unitOwner)
-        return Icetip:Hex(Icetip:GetGradientColor(unit))
-    end]],
-    ["guild"] = [[function(unit, unitOwner)
-        return GetGuildInfo(unitOwner)
-    end]],
-    ["abbrev:name"] = [[function(unit, unitOwner)
-        local name = UnitName(unitOwner) or UNKNOWN
-        return string.len(name) > 10 and Icetip.Tags.abbrevCache[name] or name
-    end]],
-    ["unit:situation"] = [[function(unit, unitOwner)
-        local state = UnitThreatSituation(unit)
-        if( state == 3 ) then
-            return Icetip.L["Aggro"]
-        elseif( state == 2 ) then
-            return Icetip.L["High"]
-        elseif( state == 1 ) then
-            return Icetip.L["Medium"]
-        end
-    end]],
-    ["situation"] = [[function(unit, unitOwner)
-        local state = UnitThreatSituation("player", "target")
-        if( state == 3 ) then
-            return Icetip.L["Aggro"]
-        elseif( state == 2 ) then
-            return Icetip.L["High"]
-        elseif( state == 1 ) then
-            return Icetip.L["Medium"]
-        end
-    end]],
-    ["unit:color:sit"] = [[function(unit, unitOwner)
-        local state = UnitThreatSituation(unit)
-        
-        return state and state > 0 and Icetip:Hex(GetThreatStatusColor(state))
-    end]],
-    ["unit:color:aggro"] = [[function(unit, unitOwner)
-        local state = UnitThreatSituation(unit)
-        
-        return state and state >= 3 and Icetip:Hex(GetThreatStatusColor(state))
-    end]],
-    ["color:sit"] = [[function(unit, unitOwner)
-        local state = UnitThreatSituation("player", "target")
-        
-        return state and state > 0 and Icetip:Hex(GetThreatStatusColor(state))
-    end]],
-    ["color:aggro"] = [[function(unit, unitOwner)
-        local state = UnitThreatSituation("player", "target")
-        
-        return state and state >= 3 and Icetip:Hex(GetThreatStatusColor(state))
-    end]],
-    ["scaled:threat"] = [[function(unit, unitOwner)
-        local scaled = select(3, UnitDetailedThreatSituation("player", "target"))
-        return scaled and string.format("%d%%", scaled)
-    end]],
-    ["general:sit"] = [[function(unit, unitOwner)
-        local state = UnitThreatSituation("player")
-        if( state == 3 ) then
-            return Icetip.L["Aggro"]
-        elseif( state == 2 ) then
-            return Icetip.L["High"]
-        elseif( state == 1 ) then
-            return Icetip.L["Medium"]
-        end
-    end]],
-    ["status:time"] = [[function(unit, unitOwner)
-        local offlineStatus = Icetip.Tags.offlineStatus
-        if( not UnitIsConnected(unitOwner) ) then
-            offlineStatus[unitOwner] = offlineStatus[unitOwner] or GetTime()
-            return string.format(Icetip.L["Off:%s"], Icetip:FormatShortTime(GetTime() - offlineStatus[unitOwner]))
-        end
-        
-        offlineStatus[unitOwner] = nil
-    end]],
-    ["afk:time"] = [[function(unit, unitOwner)
-        if( not UnitIsConnected(unitOwner) ) then return end
-        
-        local afkStatus = Icetip.Tags.afkStatus
-        local status = UnitIsAFK(unitOwner) and Icetip.L["AFK:%s"] or UnitIsDND(unitOwner) and Icetip.L["DND:%s"]
-        if( status ) then
-            afkStatus[unitOwner] = afkStatus[unitOwner] or GetTime()
-            return string.format(status, Icetip:FormatShortTime(GetTime() - afkStatus[unitOwner]))
-        end
-        
-        afkStatus[unitOwner] = nil
-    end]],
-    ["pvp:time"] = [[function(unit, unitOwner)
-        if( GetPVPTimer() >= 300000 ) then
-            return nil
-        end
-        
-        return string.format(Icetip.L["PVP:%s"], Icetip:FormatShortTime(GetPVPTimer() / 1000))
-    end]],
-    ["afk"] = [[function(unit, unitOwner, fontString)
-        return UnitIsAFK(unitOwner) and Icetip.L["AFK"] or UnitIsDND(unitOwner) and Icetip.L["DND"]
-    end]],
-    ["close"] = [[function(unit, unitOwner) return "|r" end]],
-    ["smartrace"] = [[function(unit, unitOwner)
-        return UnitIsPlayer(unit) and Icetip.tagFunc.race(unit) or Icetip.tagFunc.creature(unit)
-    end]],
-    ["reactcolor"] = [[function(unit, unitOwner)
-        local color;
-	local UnitReactionColor = {
-	    {r = 1.0, g = 0.0, b = 0.0},
-	    {r = 1.0, g = 0.0, b = 0.0},
-	    {r = 1.0, g = 0.5, b = 0.0},
-	    {r = 1.0, g = 1.0, b = 0.0},
-	    {r = 0.0, g = 1.0, b = 0.0},
-	    {r = 0.0, g = 1.0, b = 0.0},
-	    {r = 0.0, g = 1.0, b = 0.0},
-	    {r = 0.0, g = 1.0, b = 0.0},
-	}
-
-        if( not UnitIsFriend(unit, "player") and UnitPlayerControlled(unit) ) then
-            if( UnitCanAttack("player", unit) ) then
-                color = Icetip.db.profile.healthColors.hostile
-            else
-                color = Icetip.db.profile.healthColors.enemyUnattack
-            end
-        elseif( UnitReaction(unit, "player") ) then
-            local reaction = UnitReaction(unit, "player")
-            if( reaction > 4 ) then
-                color = UnitReactionColor[reaction];
-            elseif( reaction == 4 ) then
-                color = UnitReactionColor[reaction];
-            elseif( reaction < 4 ) then
-                color = UnitReactionColor[1]; --read
-            end
-        end
-        
-        return color and Icetip:Hex(color)
-    end]],
-    ["class"] = [[function(unit, unitOwner)
-        return UnitIsPlayer(unit) and UnitClass(unit)
-    end]],
-    ["classcolor"] = [[function(unit, unitOwner) return Icetip:GetClassColor(unit) end]],
-    ["creature"] = [[function(unit, unitOwner) return UnitCreatureFamily(unit) or UnitCreatureType(unit) end]],
-    ["curhp"] = [[function(unit, unitOwner)
-        if( UnitIsDead(unit) ) then
-            return Icetip.L["Dead"]
-        elseif( UnitIsGhost(unit) ) then
-            return Icetip.L["Ghost"]
-        elseif( not UnitIsConnected(unit) ) then
-            return Icetip.L["Offline"]
-        end
-
-        return Icetip:FormatLargeNumber(UnitHealth(unit))
-    end]],
-    ["colorname"] = [[function(unit, unitOwner)
-        local color = Icetip:GetClassColor(unitOwner)
-        local name = UnitName(unitOwner) or UNKNOWN
-        if( not color ) then
-            return name
-        end
-        if string.find(unit,"party%d?target") then
-            if string.len(name) >=8 then
-                name = string.sub(name,1,8)
-                name = name.."..."
-            end
-        end
-        return string.format("%s%s|r", color, name)
-    end]],
-    ["curpp"] = [[function(unit, unitOwner) 
-        if( UnitPowerMax(unit) <= 0 ) then
-            return nil
-        elseif( UnitIsDeadOrGhost(unit) ) then
-            return 0
-        end
-        
-        return Icetip:FormatLargeNumber(UnitPower(unit))
-    end]],
-    ["curmaxhp"] = [[function(unit, unitOwner)
-        if( UnitIsDead(unit) ) then
-            return Icetip.L["Dead"]
-        elseif( UnitIsGhost(unit) ) then
-            return Icetip.L["Ghost"]
-        elseif( not UnitIsConnected(unit) ) then
-            return Icetip.L["Offline"]
-        end
-        
-        return string.format("%s/%s", Icetip:FormatLargeNumber(UnitHealth(unit)), Icetip:FormatLargeNumber(UnitHealthMax(unit)))
-    end]],
-    ["smart:curmaxhp"] = [[function(unit, unitOwner)
-        if( UnitIsDead(unit) ) then
-            return Icetip.L["Dead"]
-        elseif( UnitIsGhost(unit) ) then
-            return Icetip.L["Ghost"]
-        elseif( not UnitIsConnected(unit) ) then
-            return Icetip.L["Offline"]
-        end
-        
-        return string.format("%s/%s", Icetip:SmartFormatNumber(UnitHealth(unit)), Icetip:SmartFormatNumber(UnitHealthMax(unit)))
-    end]],
-    ["absolutehp"] = [[function(unit, unitOwner)
-        if( UnitIsDead(unit) ) then
-            return Icetip.L["Dead"]
-        elseif( UnitIsGhost(unit) ) then
-            return Icetip.L["Ghost"]
-        elseif( not UnitIsConnected(unit) ) then
-            return Icetip.L["Offline"]
-        end
-        
-        return string.format("%s/%s", UnitHealth(unit), UnitHealthMax(unit))
-    end]],
-    ["abscurhp"] = [[function(unit, unitOwner)
-        if( UnitIsDead(unit) ) then
-            return Icetip.L["Dead"]
-        elseif( UnitIsGhost(unit) ) then
-            return Icetip.L["Ghost"]
-        elseif( not UnitIsConnected(unit) ) then
-            return Icetip.L["Offline"]
-        end
-        
-        return UnitHealth(unit)
-    end]],
-    ["absmaxhp"] = [[function(unit, unitOwner) return UnitHealthMax(unit) end]],
-    ["abscurpp"] = [[function(unit, unitOwner)
-        if( UnitPowerMax(unit) <= 0 ) then
-            return nil
-        elseif( UnitIsDeadOrGhost(unit) ) then
-            return 0
-        end    
-    
-        return UnitPower(unit)
-    end]],
-    ["absmaxpp"] = [[function(unit, unitOwner)
-        local power = UnitPowerMax(unit)
-        return power > 0 and power or nil
-    end]],
-    ["absolutepp"] = [[function(unit, unitOwner)
-        local maxPower = UnitPowerMax(unit)
-        local power = UnitPower(unit)
-        if( UnitIsDeadOrGhost(unit) ) then
-            return string.format("0/%s", maxPower)
-        elseif( maxPower <= 0 ) then
-            return nil
-        end
-        
-        return string.format("%s/%s", power, maxPower)
-    end]],
-    ["curmaxpp"] = [[function(unit, unitOwner)
-        local maxPower = UnitPowerMax(unit)
-        local power = UnitPower(unit)
-        if( UnitIsDeadOrGhost(unit) ) then
-            return string.format("0/%s", Icetip:FormatLargeNumber(maxPower))
-        elseif( maxPower <= 0 ) then
-            return nil
-        end
-        
-        return string.format("%s/%s", Icetip:FormatLargeNumber(power), Icetip:FormatLargeNumber(maxPower))
-    end]],
-    ["smart:curmaxpp"] = [[function(unit, unitOwner)
-        local maxPower = UnitPowerMax(unit)
-        local power = UnitPower(unit)
-        if( UnitIsDeadOrGhost(unit) ) then
-            return string.format("0/%s", maxPower)
-        elseif( maxPower <= 0 ) then
-            return nil
-        end
-        
-        return string.format("%s/%s", Icetip:SmartFormatNumber(power), Icetip:SmartFormatNumber(maxPower))
-    end]],
-    ["levelcolor"] = [[function(unit, unitOwner)
-        local level = UnitLevel(unit)
-        if( level < 0 and UnitClassification(unit) == "worldboss" ) then
-            return nil
-        end
-        
-        if( UnitCanAttack("player", unit) ) then
-            local color = Icetip:Hex(GetQuestDifficultyColor(level > 0 and level or 99))
-            if( not color ) then
-                return level > 0 and level or "??"
-            end
-            
-            return color .. (level > 0 and level or "??") .. "|r"
-        else
-            return level > 0 and level or "??"
-        end
-    end]],
-    ["faction"] = [[function(unit, unitOwner) return UnitFactionGroup(unitOwner) end]],
-    ["level"] = [[function(unit, unitOwner)
-        local level = UnitLevel(unit)
-        return level > 0 and level or UnitClassification(unit) ~= "worldboss" and "??" or nil
-    end]],
-    ["maxhp"] = [[function(unit, unitOwner) return Icetip:FormatLargeNumber(UnitHealthMax(unit)) end]],
-    ["maxpp"] = [[function(unit, unitOwner)
-        local power = UnitPowerMax(unit)
-        if( power <= 0 ) then
-            return nil
-        elseif( UnitIsDeadOrGhost(unit) ) then
-            return 0
-        end
-        
-        return Icetip:FormatLargeNumber(power)
-    end]],
-    ["missinghp"] = [[function(unit, unitOwner)
-        if( UnitIsDead(unit) ) then
-            return Icetip.L["Dead"]
-        elseif( UnitIsGhost(unit) ) then
-            return Icetip.L["Ghost"]
-        elseif( not UnitIsConnected(unit) ) then
-            return Icetip.L["Offline"]
-        end
-
-        local missing = UnitHealthMax(unit) - UnitHealth(unit)
-        if( missing <= 0 ) then return nil end
-        return "-" .. Icetip:FormatLargeNumber(missing) 
-    end]],
-    ["missingpp"] = [[function(unit, unitOwner)
-        local power = UnitPowerMax(unit)
-        if( power <= 0 ) then
-            return nil
-        end
-
-        local missing = power - UnitPower(unit)
-        if( missing <= 0 ) then return nil end
-        return "-" .. Icetip:FormatLargeNumber(missing)
-    end]],
-    ["def:name"] = [[function(unit, unitOwner)
-        local deficit = Icetip.tagFunc.missinghp(unit, unitOwner)
-        if( deficit ) then return deficit end
-        
-        return Icetip.tagFunc.name(unit, unitOwner)
-    end]],
-    ["name"] = [[function(unit, unitOwner) return UnitName(unitOwner) or UNKNOWN end]],
-    ["server"] = [[function(unit, unitOwner)
-        local server = select(2, UnitName(unitOwner))
-        return server ~= "" and server or nil
-    end]],
-    ["perhp"] = [[function(unit, unitOwner)
-        local max = UnitHealthMax(unit)
-        if( max <= 0 or UnitIsDead(unit) or UnitIsGhost(unit) or not UnitIsConnected(unit) ) then
-            return "0%"
-        end
-        
-        return math.floor(UnitHealth(unit) / max * 100 + 0.5) .. "%"
-    end]],
-    ["perpp"] = [[function(unit, unitOwner)
-        local maxPower = UnitPowerMax(unit)
-        if( maxPower <= 0 ) then
-            return nil
-        elseif( UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) ) then
-            return "0%"
-        end
-        
-        return string.format("%d%%", math.floor(UnitPower(unit) / maxPower * 100 + 0.5))
-    end]],
-    ["plus"] = [[function(unit, unitOwner) local classif = UnitClassification(unit) return (classif == "elite" or classif == "rareelite") and "+" end]],
-    ["race"] = [[function(unit, unitOwner) return UnitRace(unit) end]],
-    ["rare"] = [[function(unit, unitOwner) local classif = UnitClassification(unit) return (classif == "rare" or classif == "rareelite") and Icetip.L["Rare"] end]],
-    ["sex"] = [[function(unit, unitOwner) local sex = UnitSex(unit) return sex == 2 and Icetip.L["Male"] or sex == 3 and Icetip.L["Female"] end]],
-    ["smartclass"] = [[function(unit, unitOwner) return UnitIsPlayer(unit) and Icetip.tagFunc.class(unit) or Icetip.tagFunc.creature(unit) end]],
-    ["status"] = [[function(unit, unitOwner)
-        if( UnitIsDead(unit) ) then
-            return Icetip.L["Dead"]
-        elseif( UnitIsGhost(unit) ) then
-            return Icetip.L["Ghost"]
-        elseif( not UnitIsConnected(unit) ) then
-            return Icetip.L["Offline"]
-        end
-    end]],
-    ["cpoints"] = [[function(unit, unitOwner)
-        local points = GetComboPoints(Icetip.playerUnit)
-        if( points == 0 ) then
-            points = GetComboPoints(Icetip.playerUnit, Icetip.playerUnit)
-        end
-        
-        return points > 0 and points
-    end]],
-    ["smartlevel"] = [[function(unit, unitOwner)
-        local classif = UnitClassification(unit)
-        if( classif == "worldboss" ) then
-            return Icetip.L["Boss"]
-        else
-            local plus = Icetip.tagFunc.plus(unit)
-            local level = Icetip.tagFunc.level(unit)
-            if( plus ) then
-                return level .. plus
-            else
-                return level
-            end
-        end
-    end]],
-    ["dechp"] = [[function(unit, unitOwner) return string.format("%.1f%%", (UnitHealth(unit) / UnitHealthMax(unit)) * 100) end]],
-    ["classification"] = [[function(unit, unitOwner)
-        local classif = UnitClassification(unit)
-        if( classif == "rare" ) then
-            return Icetip.L["Rare"]
-        elseif( classif == "rareelite" ) then
-            return Icetip.L["Rare Elite"]
-        elseif( classif == "elite" ) then
-            return Icetip.L["Elite"]
-        elseif( classif == "worldboss" ) then
-            return Icetip.L["Boss"]
-        end
-        
-        return nil
-    end]],
-    ["shortclassification"] = [[function(unit, unitOwner)
-        local classif = UnitClassification(unit)
-        return classif == "rare" and "R" or classif == "rareelite" and "R+" or classif == "elite" and "+" or classif == "worldboss" and "B"
-    end]],
-    ["group"] = [[function(unit, unitOwner)
-        if( GetNumRaidMembers() == 0 ) then return nil end
-        local name, server = UnitName(unitOwner)
-        if( server and server ~= "" ) then
-            name = string.format("%s-%s", name, server)
-        end
-        
-        for i=1, GetNumRaidMembers() do
-            local raidName, _, group = GetRaidRosterInfo(i)
-            if( raidName == name ) then
-                return group
-            end
-        end
-        
-        return nil
-    end]],
-    ["druid:curpp"] = [[function(unit, unitOwner)
-        if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
-        local powerType = UnitPowerType(unit)
-        if( powerType ~= 1 and powerType ~= 3 ) then return nil end
-        return Icetip:FormatLargeNumber(UnitPower(unit, 0))
-    end]],
-    ["druid:abscurpp"] = [[function(unit, unitOwner)
-        if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
-        local powerType = UnitPowerType(unit)
-        if( powerType ~= 1 and powerType ~= 3 ) then return nil end
-        return UnitPower(unit, 0)
-    end]],
-    ["druid:curmaxpp"] = [[function(unit, unitOwner)
-        if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
-        local powerType = UnitPowerType(unit)
-        if( powerType ~= 1 and powerType ~= 3 ) then return nil end
-        
-        local maxPower = UnitPowerMax(unit, 0)
-        local power = UnitPower(unit, 0)
-        if( UnitIsDeadOrGhost(unit) ) then
-            return string.format("0/%s", Icetip:FormatLargeNumber(maxPower))
-        elseif( maxPower == 0 and power == 0 ) then
-            return nil
-        end
-        
-        return string.format("%s/%s", Icetip:FormatLargeNumber(power), Icetip:FormatLargeNumber(maxPower))
-    end]],
-    ["druid:absolutepp"] = [[function(unit, unitOwner)
-        if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
-        local powerType = UnitPowerType(unit)
-        if( powerType ~= 1 and powerType ~= 3 ) then return nil end
-        return UnitPower(unit, 0)
-    end]],
-    ["abs:incheal"] = [[function(unit, unitOwner, fontString)
-        return fontString.incoming and string.format("%d", fontString.incoming)
-    end]],
-    ["incheal"] = [[function(unit, unitOwner, fontString)
-        return fontString.incoming and Icetip:FormatLargeNumber(fontString.incoming) or nil
-    end]],
-    ["incheal:name"] = [[function(unit, unitOwner, fontString)
-        return fontString.incoming and string.format("+%d", fontString.incoming) or Icetip.tagFunc.name(unit, unitOwner)
-    end]],
-}
-
-Tags.defaultEvents = {
-    ["hp:color"]            = "UNIT_HEALTH UNIT_MAXHEALTH",
-    ["guild"]                = "UNIT_NAME_UPDATE",
-    ["abs:incheal"]            = "UNIT_HEAL_PREDICTION",
-    ["incheal:name"]        = "UNIT_HEAL_PREDICTION",
-    ["incheal"]                = "UNIT_HEAL_PREDICTION",
-    ["afk"]                    = "PLAYER_FLAGS_CHANGED",
-    ["afk:time"]            = "PLAYER_FLAGS_CHANGED UNIT_CONNECTION",
-    ["status:time"]            = "UNIT_POWER UNIT_CONNECTION",
-    ["pvp:time"]            = "PLAYER_FLAGS_CHANGED",
-    ["curhp"]               = "UNIT_HEALTH UNIT_CONNECTION",
-    ["abscurhp"]            = "UNIT_HEALTH UNIT_CONNECTION",
-    ["curmaxhp"]            = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_CONNECTION",
-    ["absolutehp"]            = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_CONNECTION",
-    ["smart:curmaxhp"]        = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_CONNECTION",
-    ["curpp"]               = "UNIT_POWER UNIT_DISPLAYPOWER",
-    ["abscurpp"]            = "UNIT_POWER UNIT_DISPLAYPOWER UNIT_MAXPOWER",
-    ["curmaxpp"]            = "UNIT_POWER UNIT_DISPLAYPOWER UNIT_MAXPOWER",
-    ["absolutepp"]            = "UNIT_POWER UNIT_DISPLAYPOWER UNIT_MAXPOWER",
-    ["smart:curmaxpp"]        = "UNIT_POWER UNIT_DISPLAYPOWER UNIT_MAXPOWER",
-    ["druid:curpp"]          = "UNIT_POWER UNIT_DISPLAYPOWER",
-    ["druid:abscurpp"]      = "UNIT_POWER UNIT_DISPLAYPOWER",
-    ["druid:curmaxpp"]        = "UNIT_POWER UNIT_MAXPOWER UNIT_DISPLAYPOWER",
-    ["druid:absolutepp"]    = "UNIT_POWER UNIT_MAXPOWER UNIT_DISPLAYPOWER",
-    ["level"]               = "UNIT_LEVEL PLAYER_LEVEL_UP",
-    ["levelcolor"]            = "UNIT_LEVEL PLAYER_LEVEL_UP",
-    ["maxhp"]               = "UNIT_MAXHEALTH",
-    ["def:name"]            = "UNIT_NAME_UPDATE UNIT_MAXHEALTH UNIT_HEALTH",
-    ["absmaxhp"]            = "UNIT_MAXHEALTH",
-    ["maxpp"]               = "UNIT_MAXPOWER",
-    ["absmaxpp"]            = "UNIT_MAXPOWER",
-    ["missinghp"]           = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_CONNECTION",
-    ["missingpp"]           = "UNIT_POWER UNIT_MAXPOWER",
-    ["name"]                = "UNIT_NAME_UPDATE",
-    ["abbrev:name"]            = "UNIT_NAME_UPDATE",
-    ["server"]                = "UNIT_NAME_UPDATE",
-    ["colorname"]            = "UNIT_NAME_UPDATE",
-    ["perhp"]               = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_CONNECTION",
-    ["perpp"]               = "UNIT_POWER UNIT_MAXPOWER UNIT_CONNECTION",
-    ["status"]              = "UNIT_HEALTH PLAYER_UPDATE_RESTING UNIT_CONNECTION",
-    ["smartlevel"]          = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED",
-    ["cpoints"]             = "UNIT_COMBO_POINTS PLAYER_TARGET_CHANGED",
-    ["rare"]                = "UNIT_CLASSIFICATION_CHANGED",
-    ["classification"]      = "UNIT_CLASSIFICATION_CHANGED",
-    ["shortclassification"] = "UNIT_CLASSIFICATION_CHANGED",
-    ["dechp"]                = "UNIT_HEALTH UNIT_MAXHEALTH",
-    ["group"]                = "RAID_ROSTER_UPDATE",
-    ["unit:color:aggro"]    = "UNIT_THREAT_SITUATION_UPDATE",
-    ["color:aggro"]            = "UNIT_THREAT_SITUATION_UPDATE",
-    ["situation"]            = "UNIT_THREAT_SITUATION_UPDATE",
-    ["color:sit"]            = "UNIT_THREAT_SITUATION_UPDATE",
-    ["scaled:threat"]        = "UNIT_THREAT_SITUATION_UPDATE",
-    ["general:sit"]            = "UNIT_THREAT_SITUATION_UPDATE",
-    ["unit:scaled:threat"]    = "UNIT_THREAT_SITUATION_UPDATE",
-    ["unit:color:sit"]        = "UNIT_THREAT_SITUATION_UPDATE",
-    ["unit:situation"]        = "UNIT_THREAT_SITUATION_UPDATE",
-}
-
-Tags.defaultFrequents = {
-    ["afk"] = 1,
-    ["afk:time"] = 1,
-    ["status:time"] = 1,
-    ["pvp:time"] = 1,
-    ["scaled:threat"] = 1,
-    ["unit:scaled:threat"] = 1,
-    ["curmaxpp"] = .1,
-}
-
-Tags.defaultCategories = {
-    ["hp:color"]            = "health",
-    ["abs:incheal"]            = "health",
-    ["incheal"]                = "health",
-    ["incheal:name"]        = "health",
-    ["smart:curmaxhp"]        = "health",
-    ["smart:curmaxpp"]        = "health",
-    ["afk"]                    = "status",
-    ["afk:time"]            = "status",
-    ["status:time"]            = "status",
-    ["pvp:time"]            = "status",
-    ["cpoints"]                = "misc",
-    ["smartlevel"]            = "classification",
-    ["classification"]        = "classification",
-    ["shortclassification"]    = "classification",
-    ["rare"]                = "classification",
-    ["plus"]                = "classification",
-    ["sex"]                    = "misc",
-    ["smartclass"]            = "classification",
-    ["smartrace"]            = "classification",
-    ["status"]                = "status",
-    ["race"]                = "classification",
-    ["level"]                = "classification",
-    ["maxhp"]                = "health",
-    ["maxpp"]                = "power",
-    ["missinghp"]            = "health",
-    ["missingpp"]            = "power",
-    ["name"]                = "misc",
-    ["abbrev:name"]            = "misc",
-    ["server"]                = "misc",
-    ["perhp"]                = "health",
-    ["perpp"]                = "power",
-    ["class"]                = "classification",
-    ["classcolor"]            = "classification",
-    ["creature"]            = "classification",
-    ["curhp"]                = "health",
-    ["curpp"]                = "power",
-    ["curmaxhp"]            = "health",
-    ["curmaxpp"]            = "power",
-    ["levelcolor"]            = "classification",
-    ["def:name"]            = "health",
-    ["faction"]                = "classification",
-    ["colorname"]            = "misc",
-    ["guild"]                = "misc",
-    ["absolutepp"]            = "power",
-    ["absolutehp"]            = "health",
-    ["absmaxhp"]            = "health",
-    ["abscurhp"]            = "health",
-    ["absmaxpp"]            = "power",
-    ["abscurpp"]            = "power",
-    ["reactcolor"]            = "classification",
-    ["dechp"]                = "health",
-    ["group"]                = "misc",
-    ["close"]                = "misc",
-    ["druid:curpp"]         = "power",
-    ["druid:abscurpp"]      = "power",
-    ["druid:curmaxpp"]        = "power",
-    ["druid:absolutepp"]    = "power",
-    ["situation"]            = "playerthreat",
-    ["color:sit"]            = "playerthreat",
-    ["scaled:threat"]        = "playerthreat",
-    ["general:sit"]            = "playerthreat",
-    ["color:aggro"]            = "playerthreat",
-    ["unit:scaled:threat"]    = "threat",
-    ["unit:color:sit"]        = "threat",
-    ["unit:situation"]        = "threat",
-    ["unit:color:aggro"]    = "threat",
-}
-
-Tags.defaultHelps = {
-}
-
-Tags.defaultNames = {
-    ["incheal:name"]        = L["Incoming heal/Name"],
-    ["unit:scaled:threat"]    = L["Unit scaled threat"],
-    ["unit:color:sit"]        = L["Unit colored situation"],
-    ["unit:situation"]        = L["Unit situation name"],
-    ["hp:color"]            = L["Health color"],
-    ["guild"]                = L["Guild name"],
-    ["abs:incheal"]            = L["Incoming heal (Absolute)"],
-    ["incheal"]                = L["Incoming heal (Short)"],
-    ["abbrev:name"]            = L["Name (Abbreviated)"],
-    ["smart:curmaxhp"]        = L["Cur/Max HP (Smart)"],
-    ["smart:curmaxpp"]        = L["Cur/Max PP (Smart)"],
-    ["pvp:time"]            = L["PVP timer"],
-    ["afk:time"]            = L["AFK timer"],
-    ["status:time"]            = L["Offline timer"],
-    ["afk"]                    = L["AFK status"],
-    ["cpoints"]                = L["Combo points"],
-    ["smartlevel"]            = L["Smart level"],
-    ["classification"]        = L["Classificaiton"],
-    ["shortclassification"]    = L["Short classification"],
-    ["rare"]                = L["Rare indicator"],
-    ["plus"]                = L["Short elite indicator"],
-    ["sex"]                    = L["Sex"],
-    ["smartclass"]            = L["Class (Smart)"],
-    ["smartrace"]            = L["Race (Smart)"],
-    ["status"]                = L["Status"],
-    ["race"]                = L["Race"],
-    ["level"]                = L["Level"],
-    ["maxhp"]                = L["Max HP (Short)"],
-    ["maxpp"]                = L["Max power (Short)"],
-    ["missinghp"]            = L["Missing HP (Short)"],
-    ["missingpp"]            = L["Missing power (Short)"],
-    ["name"]                = L["Unit name"],
-    ["server"]                = L["Unit server"],
-    ["perhp"]                = L["Percent HP"],
-    ["perpp"]                = L["Percent power"],
-    ["class"]                = L["Class"],
-    ["classcolor"]            = L["Class color tag"],
-    ["creature"]            = L["Creature type"],
-    ["curhp"]                = L["Current HP (Short)"],
-    ["curpp"]                = L["Current Power (Short)"],
-    ["curmaxhp"]            = L["Cur/Max HP (Short)"],
-    ["curmaxpp"]            = L["Cur/Max Power (Short)"],
-    ["levelcolor"]            = L["Level (Colored)"],
-    ["def:name"]            = L["Deficit/Unit Name"],
-    ["faction"]                = L["Unit faction"],
-    ["colorname"]            = L["Unit name (Class colored)"],
-    ["absolutepp"]            = L["Cur/Max power (Absolute)"],
-    ["absolutehp"]            = L["Cur/Max HP (Absolute)"],
-    ["absmaxhp"]            = L["Max HP (Absolute)"],
-    ["abscurhp"]            = L["Current HP (Absolute)"],
-    ["absmaxpp"]            = L["Max power (Absolute)"],
-    ["abscurpp"]            = L["Current power (Absolute)"],
-    ["reactcolor"]            = L["Reaction color tag"],
-    ["dechp"]                = L["Decimal percent HP"],
-    ["group"]                = L["Group number"],
-    ["close"]                = L["Close color"],
-    ["druid:curpp"]         = L["Current power (Druid)"],
-    ["druid:abscurpp"]      = L["Current power (Druid/Absolute)"],
-    ["druid:curmaxpp"]        = L["Cur/Max power (Druid)"],
-    ["druid:absolutepp"]    = L["Current health (Druid/Absolute)"],
-    ["situation"]            = L["Threat situation"],
-    ["color:sit"]            = L["Color code for situation"],
-    ["scaled:threat"]        = L["Scaled threat percent"],
-    ["general:sit"]            = L["General threat situation"],
-    ["color:aggro"]            = L["Color code on aggro"],
-    ["unit:color:aggro"]    = L["Unit color code on aggro"],
-}
-
-Tags.eventType = {
-    ["UNIT_POWER"] = "power",
-    ["UNIT_MAXPOWER"] = "power",
-    ["UNIT_HEALTH"] = "health",
-    ["UNIT_MAXHEALTH"] = "health",
-    ["RAID_ROSTER_UPDATE"] = "unitless",
-    ["RAID_TARGET_UPDATE"] = "unitless",
-    ["PLAYER_TARGET_CHANGED"] = "unitless",
-    ["PARTY_MEMBERS_CHANGED"] = "unitless",
-    ["PARTY_LEADER_CHANGED"] = "unitless",
-    ["PLAYER_ENTERING_WORLD"] = "unitless",
-    ["PLAYER_XP_UPDATE"] = "unitless",
-    ["PLAYER_TOTEM_UPDATE"] = "unitless",
-    ["PLAYER_LEVEL_UP"] = "unitless",
-    ["UPDATE_EXHAUSTION"] = "unitless",
-    ["PLAYER_UPDATE_RESTING"] = "unitless",
-    ["UNIT_COMBO_POINTS"] = "unitless",
-}
-
-Tags.unitBlacklist = {
-    ["threat"]    = "%w+target",
-}
-
-Tags.unitRestrictioIcetip = {
-    ["pvp:time"] = "player",    
-}
-
-local function loadAPIEvents()
-    if( Tags.APIEvents ) then return end
-    Tags.APIEvents = {
-        ["InCombatLockdown"]        = "PLAYER_REGEN_ENABLED PLAYER_REGEN_DISABLED",
-        ["UnitLevel"]                = "UNIT_LEVEL",
-        ["UnitName"]                = "UNIT_NAME_UPDATE",
-        ["UnitClassification"]        = "UNIT_CLASSIFICATION_CHANGED",
-        ["UnitFactionGroup"]        = "UNIT_FACTION PLAYER_FLAGS_CHANGED",
-        ["UnitHealth%("]            = "UNIT_HEALTH",
-        ["UnitHealthMax"]            = "UNIT_MAXHEALTH",
-        ["UnitPower%("]                = "UNIT_POWER",
-        ["UnitPowerMax"]            = "UNIT_MAXPOWER",
-        ["UnitPowerType"]            = "UNIT_DISPLAYPOWER",
-        ["UnitIsDead"]                = "UNIT_HEALTH",
-        ["UnitIsGhost"]                = "UNIT_HEALTH",
-        ["UnitIsConnected"]            = "UNIT_HEALTH UNIT_CONNECTION",
-        ["UnitIsAFK"]                = "PLAYER_FLAGS_CHANGED",
-        ["UnitIsDND"]                = "PLAYER_FLAGS_CHANGED",
-        ["UnitIsPVP"]                = "PLAYER_FLAGS_CHANGED UNIT_FACTION",
-        ["UnitIsPartyLeader"]        = "PARTY_LEADER_CHANGED PARTY_MEMBERS_CHANGED",
-        ["UnitIsPVPFreeForAll"]        = "PLAYER_FLAGS_CHANGED UNIT_FACTION",
-        ["UnitCastingInfo"]            = "UNIT_SPELLCAST_START UNIT_SPELLCAST_STOP UNIT_SPELLCAST_FAILED UNIT_SPELLCAST_INTERRUPTED UNIT_SPELLCAST_DELAYED",
-        ["UnitChannelInfo"]            = "UNIT_SPELLCAST_CHANNEL_START UNIT_SPELLCAST_CHANNEL_STOP UNIT_SPELLCAST_CHANNEL_INTERRUPTED UNIT_SPELLCAST_CHANNEL_UPDATE",
-        ["UnitAura"]                = "UNIT_AURA",
-        ["UnitBuff"]                = "UNIT_AURA",
-        ["UnitDebuff"]                = "UNIT_AURA",
-        ["UnitXPMax"]                = "UNIT_PET_EXPERIENCE PLAYER_XP_UPDATE PLAYER_LEVEL_UP",
-        ["UnitXP%("]                = "UNIT_PET_EXPERIENCE PLAYER_XP_UPDATE PLAYER_LEVEL_UP",
-        ["GetTotemInfo"]            = "PLAYER_TOTEM_UPDATE",
-        ["GetXPExhaustion"]            = "UPDATE_EXHAUSTION",
-        ["GetWatchedFactionInfo"]    = "UPDATE_FACTION",
-        ["GetRuneCooldown"]            = "RUNE_POWER_UPDATE",
-        ["GetRuneType"]                = "RUNE_TYPE_UPDATE",
-        ["GetRaidTargetIndex"]        = "RAID_TARGET_UPDATE",
-        ["GetComboPoints"]            = "UNIT_COMBO_POINTS",
-        ["GetNumPartyMembers"]        = "PARTY_MEMBERS_CHANGED",
-        ["GetNumRaidMembers"]        = "RAID_ROSTER_UPDATE",
-        ["GetRaidRosterInfo"]        = "RAID_ROSTER_UPDATE",
-        ["GetReadyCheckStatus"]        = "READY_CHECK READY_CHECK_CONFIRM READY_CHECK_FINISHED",
-        ["GetLootMethod"]            = "PARTY_LOOT_METHOD_CHANGED",
-        ["GetThreatStatusColor"]    = "UNIT_THREAT_SITUATION_UPDATE",
-        ["UnitThreatSituation"]        = "UNIT_THREAT_SITUATION_UPDATE",
-        ["UnitDetailedThreatSituation"] = "UNIT_THREAT_SITUATION_UPDATE",
-    }
-end
-
-local alreadyScanned = {}
-function Tags:IdentifyEvents(code, parentTag)
-    if( parentTag and alreadyScanned[parentTag] ) then
-        return ""
-    elseif( parentTag ) then
-        alreadyScanned[parentTag] = true
-    else
-        for k in pairs(alreadyScanned) do alreadyScanned[k] = nil end
-        loadAPIEvents()
-    end
-            
-    local eventList = ""
-    for func, events in pairs(self.APIEvents) do
-        if( string.match(code, func) ) then
-            eventList = eventList .. events .. " " 
-        end
-    end
-    
-    local currentStyle = Icetip.db.profile.currentStyle;
-    local currentStyleDB = Icetip:GetCurrentStyleDB(currentStyle);
-
-    for tag in string.gmatch(code, "tagFunc\.(%w+)%(") do
-        local code
-        if (Icetip.Tags.defaultTags[tag]) then
-            code =Icetip.Tags.defaultTags[tag]
-        elseif (currentStyleDB and currentStyleDB.tags[tag] and currentStyleDB.tags[tag].func) then
-            code = Icetip.Tags.defaultTags[tag];
-        elseif (Icetip.db.profile.tags[tag] and Icetip.db.profile.tags[tag].func) then
-            code = Icetip.db.profile.tags[tag].func
-        end
-        eventList = eventList .. " " .. self:IdentifyEvents(code, tag)
-    end
-    
-    -- Remove any duplicate events
-    if( not parentTag ) then
-        local tagEvents = {}
-        for event in string.gmatch(string.trim(eventList), "%S+") do
-            tagEvents[event] = true
-        end
-        
-        eventList = ""
-        for event in pairs(tagEvents) do
-            eventList = eventList .. event .. " "
-        end
-    end
-        
-    return string.trim(eventList or "")
-end
+--local function abbreviateName(text)
+--    return strsub(text, 1, 1) .. "."
+--end
+--
+--Tags.abbrevCache = setmetatable({}, {
+--    __index = function()
+--        val = string.gsub(val, "([^%s]+) ", abbreviateName)
+--        rawset(tbl, val, val)
+--        return val
+--    end
+--})
+--
+--Tags.defaultTags = {
+--    ["hp:color"] = [[function(unit, unitOwner)
+--        return Icetip:Hex(Icetip:GetGradientColor(unit))
+--    end]],
+--    ["guild"] = [[function(unit, unitOwner)
+--        return GetGuildInfo(unitOwner)
+--    end]],
+--    ["abbrev:name"] = [[function(unit, unitOwner)
+--        local name = UnitName(unitOwner) or UNKNOWN
+--        return string.len(name) > 10 and Icetip.Tags.abbrevCache[name] or name
+--    end]],
+--    ["unit:situation"] = [[function(unit, unitOwner)
+--        local state = UnitThreatSituation(unit)
+--        if( state == 3 ) then
+--            return Icetip.L["Aggro"]
+--        elseif( state == 2 ) then
+--            return Icetip.L["High"]
+--        elseif( state == 1 ) then
+--            return Icetip.L["Medium"]
+--        end
+--    end]],
+--    ["situation"] = [[function(unit, unitOwner)
+--        local state = UnitThreatSituation("player", "target")
+--        if( state == 3 ) then
+--            return Icetip.L["Aggro"]
+--        elseif( state == 2 ) then
+--            return Icetip.L["High"]
+--        elseif( state == 1 ) then
+--            return Icetip.L["Medium"]
+--        end
+--    end]],
+--    ["unit:color:sit"] = [[function(unit, unitOwner)
+--        local state = UnitThreatSituation(unit)
+--        
+--        return state and state > 0 and Icetip:Hex(GetThreatStatusColor(state))
+--    end]],
+--    ["unit:color:aggro"] = [[function(unit, unitOwner)
+--        local state = UnitThreatSituation(unit)
+--        
+--        return state and state >= 3 and Icetip:Hex(GetThreatStatusColor(state))
+--    end]],
+--    ["color:sit"] = [[function(unit, unitOwner)
+--        local state = UnitThreatSituation("player", "target")
+--        
+--        return state and state > 0 and Icetip:Hex(GetThreatStatusColor(state))
+--    end]],
+--    ["color:aggro"] = [[function(unit, unitOwner)
+--        local state = UnitThreatSituation("player", "target")
+--        
+--        return state and state >= 3 and Icetip:Hex(GetThreatStatusColor(state))
+--    end]],
+--    ["scaled:threat"] = [[function(unit, unitOwner)
+--        local scaled = select(3, UnitDetailedThreatSituation("player", "target"))
+--        return scaled and string.format("%d%%", scaled)
+--    end]],
+--    ["general:sit"] = [[function(unit, unitOwner)
+--        local state = UnitThreatSituation("player")
+--        if( state == 3 ) then
+--            return Icetip.L["Aggro"]
+--        elseif( state == 2 ) then
+--            return Icetip.L["High"]
+--        elseif( state == 1 ) then
+--            return Icetip.L["Medium"]
+--        end
+--    end]],
+--    ["status:time"] = [[function(unit, unitOwner)
+--        local offlineStatus = Icetip.Tags.offlineStatus
+--        if( not UnitIsConnected(unitOwner) ) then
+--            offlineStatus[unitOwner] = offlineStatus[unitOwner] or GetTime()
+--            return string.format(Icetip.L["Off:%s"], Icetip:FormatShortTime(GetTime() - offlineStatus[unitOwner]))
+--        end
+--        
+--        offlineStatus[unitOwner] = nil
+--    end]],
+--    ["afk:time"] = [[function(unit, unitOwner)
+--        if( not UnitIsConnected(unitOwner) ) then return end
+--        
+--        local afkStatus = Icetip.Tags.afkStatus
+--        local status = UnitIsAFK(unitOwner) and Icetip.L["AFK:%s"] or UnitIsDND(unitOwner) and Icetip.L["DND:%s"]
+--        if( status ) then
+--            afkStatus[unitOwner] = afkStatus[unitOwner] or GetTime()
+--            return string.format(status, Icetip:FormatShortTime(GetTime() - afkStatus[unitOwner]))
+--        end
+--        
+--        afkStatus[unitOwner] = nil
+--    end]],
+--    ["pvp:time"] = [[function(unit, unitOwner)
+--        if( GetPVPTimer() >= 300000 ) then
+--            return nil
+--        end
+--        
+--        return string.format(Icetip.L["PVP:%s"], Icetip:FormatShortTime(GetPVPTimer() / 1000))
+--    end]],
+--    ["afk"] = [[function(unit, unitOwner, fontString)
+--        return UnitIsAFK(unitOwner) and Icetip.L["AFK"] or UnitIsDND(unitOwner) and Icetip.L["DND"]
+--    end]],
+--    ["close"] = [[function(unit, unitOwner) return "|r" end]],
+--    ["smartrace"] = [[function(unit, unitOwner)
+--        return UnitIsPlayer(unit) and Icetip.tagFunc.race(unit) or Icetip.tagFunc.creature(unit)
+--    end]],
+--    ["reactcolor"] = [[function(unit, unitOwner)
+--        local color;
+--	local UnitReactionColor = {
+--	    {r = 1.0, g = 0.0, b = 0.0},
+--	    {r = 1.0, g = 0.0, b = 0.0},
+--	    {r = 1.0, g = 0.5, b = 0.0},
+--	    {r = 1.0, g = 1.0, b = 0.0},
+--	    {r = 0.0, g = 1.0, b = 0.0},
+--	    {r = 0.0, g = 1.0, b = 0.0},
+--	    {r = 0.0, g = 1.0, b = 0.0},
+--	    {r = 0.0, g = 1.0, b = 0.0},
+--	}
+--
+--        if( not UnitIsFriend(unit, "player") and UnitPlayerControlled(unit) ) then
+--            if( UnitCanAttack("player", unit) ) then
+--                color = Icetip.db.profile.healthColors.hostile
+--            else
+--                color = Icetip.db.profile.healthColors.enemyUnattack
+--            end
+--        elseif( UnitReaction(unit, "player") ) then
+--            local reaction = UnitReaction(unit, "player")
+--            if( reaction > 4 ) then
+--                color = UnitReactionColor[reaction];
+--            elseif( reaction == 4 ) then
+--                color = UnitReactionColor[reaction];
+--            elseif( reaction < 4 ) then
+--                color = UnitReactionColor[1]; --read
+--            end
+--        end
+--        
+--        return color and Icetip:Hex(color)
+--    end]],
+--    ["class"] = [[function(unit, unitOwner)
+--        return UnitIsPlayer(unit) and UnitClass(unit)
+--    end]],
+--    ["classcolor"] = [[function(unit, unitOwner) return Icetip:GetClassColor(unit) end]],
+--    ["creature"] = [[function(unit, unitOwner) return UnitCreatureFamily(unit) or UnitCreatureType(unit) end]],
+--    ["curhp"] = [[function(unit, unitOwner)
+--        if( UnitIsDead(unit) ) then
+--            return Icetip.L["Dead"]
+--        elseif( UnitIsGhost(unit) ) then
+--            return Icetip.L["Ghost"]
+--        elseif( not UnitIsConnected(unit) ) then
+--            return Icetip.L["Offline"]
+--        end
+--
+--        return Icetip:FormatLargeNumber(UnitHealth(unit))
+--    end]],
+--    ["colorname"] = [[function(unit, unitOwner)
+--        local color = Icetip:GetClassColor(unitOwner)
+--        local name = UnitName(unitOwner) or UNKNOWN
+--        if( not color ) then
+--            return name
+--        end
+--        if string.find(unit,"party%d?target") then
+--            if string.len(name) >=8 then
+--                name = string.sub(name,1,8)
+--                name = name.."..."
+--            end
+--        end
+--        return string.format("%s%s|r", color, name)
+--    end]],
+--    ["curpp"] = [[function(unit, unitOwner) 
+--        if( UnitPowerMax(unit) <= 0 ) then
+--            return nil
+--        elseif( UnitIsDeadOrGhost(unit) ) then
+--            return 0
+--        end
+--        
+--        return Icetip:FormatLargeNumber(UnitPower(unit))
+--    end]],
+--    ["curmaxhp"] = [[function(unit, unitOwner)
+--        if( UnitIsDead(unit) ) then
+--            return Icetip.L["Dead"]
+--        elseif( UnitIsGhost(unit) ) then
+--            return Icetip.L["Ghost"]
+--        elseif( not UnitIsConnected(unit) ) then
+--            return Icetip.L["Offline"]
+--        end
+--        
+--        return string.format("%s/%s", Icetip:FormatLargeNumber(UnitHealth(unit)), Icetip:FormatLargeNumber(UnitHealthMax(unit)))
+--    end]],
+--    ["smart:curmaxhp"] = [[function(unit, unitOwner)
+--        if( UnitIsDead(unit) ) then
+--            return Icetip.L["Dead"]
+--        elseif( UnitIsGhost(unit) ) then
+--            return Icetip.L["Ghost"]
+--        elseif( not UnitIsConnected(unit) ) then
+--            return Icetip.L["Offline"]
+--        end
+--        
+--        return string.format("%s/%s", Icetip:SmartFormatNumber(UnitHealth(unit)), Icetip:SmartFormatNumber(UnitHealthMax(unit)))
+--    end]],
+--    ["absolutehp"] = [[function(unit, unitOwner)
+--        if( UnitIsDead(unit) ) then
+--            return Icetip.L["Dead"]
+--        elseif( UnitIsGhost(unit) ) then
+--            return Icetip.L["Ghost"]
+--        elseif( not UnitIsConnected(unit) ) then
+--            return Icetip.L["Offline"]
+--        end
+--        
+--        return string.format("%s/%s", UnitHealth(unit), UnitHealthMax(unit))
+--    end]],
+--    ["abscurhp"] = [[function(unit, unitOwner)
+--        if( UnitIsDead(unit) ) then
+--            return Icetip.L["Dead"]
+--        elseif( UnitIsGhost(unit) ) then
+--            return Icetip.L["Ghost"]
+--        elseif( not UnitIsConnected(unit) ) then
+--            return Icetip.L["Offline"]
+--        end
+--        
+--        return UnitHealth(unit)
+--    end]],
+--    ["absmaxhp"] = [[function(unit, unitOwner) return UnitHealthMax(unit) end]],
+--    ["abscurpp"] = [[function(unit, unitOwner)
+--        if( UnitPowerMax(unit) <= 0 ) then
+--            return nil
+--        elseif( UnitIsDeadOrGhost(unit) ) then
+--            return 0
+--        end    
+--    
+--        return UnitPower(unit)
+--    end]],
+--    ["absmaxpp"] = [[function(unit, unitOwner)
+--        local power = UnitPowerMax(unit)
+--        return power > 0 and power or nil
+--    end]],
+--    ["absolutepp"] = [[function(unit, unitOwner)
+--        local maxPower = UnitPowerMax(unit)
+--        local power = UnitPower(unit)
+--        if( UnitIsDeadOrGhost(unit) ) then
+--            return string.format("0/%s", maxPower)
+--        elseif( maxPower <= 0 ) then
+--            return nil
+--        end
+--        
+--        return string.format("%s/%s", power, maxPower)
+--    end]],
+--    ["curmaxpp"] = [[function(unit, unitOwner)
+--        local maxPower = UnitPowerMax(unit)
+--        local power = UnitPower(unit)
+--        if( UnitIsDeadOrGhost(unit) ) then
+--            return string.format("0/%s", Icetip:FormatLargeNumber(maxPower))
+--        elseif( maxPower <= 0 ) then
+--            return nil
+--        end
+--        
+--        return string.format("%s/%s", Icetip:FormatLargeNumber(power), Icetip:FormatLargeNumber(maxPower))
+--    end]],
+--    ["smart:curmaxpp"] = [[function(unit, unitOwner)
+--        local maxPower = UnitPowerMax(unit)
+--        local power = UnitPower(unit)
+--        if( UnitIsDeadOrGhost(unit) ) then
+--            return string.format("0/%s", maxPower)
+--        elseif( maxPower <= 0 ) then
+--            return nil
+--        end
+--        
+--        return string.format("%s/%s", Icetip:SmartFormatNumber(power), Icetip:SmartFormatNumber(maxPower))
+--    end]],
+--    ["levelcolor"] = [[function(unit, unitOwner)
+--        local level = UnitLevel(unit)
+--        if( level < 0 and UnitClassification(unit) == "worldboss" ) then
+--            return nil
+--        end
+--        
+--        if( UnitCanAttack("player", unit) ) then
+--            local color = Icetip:Hex(GetQuestDifficultyColor(level > 0 and level or 99))
+--            if( not color ) then
+--                return level > 0 and level or "??"
+--            end
+--            
+--            return color .. (level > 0 and level or "??") .. "|r"
+--        else
+--            return level > 0 and level or "??"
+--        end
+--    end]],
+--    ["faction"] = [[function(unit, unitOwner) return UnitFactionGroup(unitOwner) end]],
+--    ["level"] = [[function(unit, unitOwner)
+--        local level = UnitLevel(unit)
+--        return level > 0 and level or UnitClassification(unit) ~= "worldboss" and "??" or nil
+--    end]],
+--    ["maxhp"] = [[function(unit, unitOwner) return Icetip:FormatLargeNumber(UnitHealthMax(unit)) end]],
+--    ["maxpp"] = [[function(unit, unitOwner)
+--        local power = UnitPowerMax(unit)
+--        if( power <= 0 ) then
+--            return nil
+--        elseif( UnitIsDeadOrGhost(unit) ) then
+--            return 0
+--        end
+--        
+--        return Icetip:FormatLargeNumber(power)
+--    end]],
+--    ["missinghp"] = [[function(unit, unitOwner)
+--        if( UnitIsDead(unit) ) then
+--            return Icetip.L["Dead"]
+--        elseif( UnitIsGhost(unit) ) then
+--            return Icetip.L["Ghost"]
+--        elseif( not UnitIsConnected(unit) ) then
+--            return Icetip.L["Offline"]
+--        end
+--
+--        local missing = UnitHealthMax(unit) - UnitHealth(unit)
+--        if( missing <= 0 ) then return nil end
+--        return "-" .. Icetip:FormatLargeNumber(missing) 
+--    end]],
+--    ["missingpp"] = [[function(unit, unitOwner)
+--        local power = UnitPowerMax(unit)
+--        if( power <= 0 ) then
+--            return nil
+--        end
+--
+--        local missing = power - UnitPower(unit)
+--        if( missing <= 0 ) then return nil end
+--        return "-" .. Icetip:FormatLargeNumber(missing)
+--    end]],
+--    ["def:name"] = [[function(unit, unitOwner)
+--        local deficit = Icetip.tagFunc.missinghp(unit, unitOwner)
+--        if( deficit ) then return deficit end
+--        
+--        return Icetip.tagFunc.name(unit, unitOwner)
+--    end]],
+--    ["name"] = [[function(unit, unitOwner) return UnitName(unitOwner) or UNKNOWN end]],
+--    ["server"] = [[function(unit, unitOwner)
+--        local server = select(2, UnitName(unitOwner))
+--        return server ~= "" and server or nil
+--    end]],
+--    ["perhp"] = [[function(unit, unitOwner)
+--        local max = UnitHealthMax(unit)
+--        if( max <= 0 or UnitIsDead(unit) or UnitIsGhost(unit) or not UnitIsConnected(unit) ) then
+--            return "0%"
+--        end
+--        
+--        return math.floor(UnitHealth(unit) / max * 100 + 0.5) .. "%"
+--    end]],
+--    ["perpp"] = [[function(unit, unitOwner)
+--        local maxPower = UnitPowerMax(unit)
+--        if( maxPower <= 0 ) then
+--            return nil
+--        elseif( UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) ) then
+--            return "0%"
+--        end
+--        
+--        return string.format("%d%%", math.floor(UnitPower(unit) / maxPower * 100 + 0.5))
+--    end]],
+--    ["plus"] = [[function(unit, unitOwner) local classif = UnitClassification(unit) return (classif == "elite" or classif == "rareelite") and "+" end]],
+--    ["race"] = [[function(unit, unitOwner) return UnitRace(unit) end]],
+--    ["rare"] = [[function(unit, unitOwner) local classif = UnitClassification(unit) return (classif == "rare" or classif == "rareelite") and Icetip.L["Rare"] end]],
+--    ["sex"] = [[function(unit, unitOwner) local sex = UnitSex(unit) return sex == 2 and Icetip.L["Male"] or sex == 3 and Icetip.L["Female"] end]],
+--    ["smartclass"] = [[function(unit, unitOwner) return UnitIsPlayer(unit) and Icetip.tagFunc.class(unit) or Icetip.tagFunc.creature(unit) end]],
+--    ["status"] = [[function(unit, unitOwner)
+--        if( UnitIsDead(unit) ) then
+--            return Icetip.L["Dead"]
+--        elseif( UnitIsGhost(unit) ) then
+--            return Icetip.L["Ghost"]
+--        elseif( not UnitIsConnected(unit) ) then
+--            return Icetip.L["Offline"]
+--        end
+--    end]],
+--    ["cpoints"] = [[function(unit, unitOwner)
+--        local points = GetComboPoints(Icetip.playerUnit)
+--        if( points == 0 ) then
+--            points = GetComboPoints(Icetip.playerUnit, Icetip.playerUnit)
+--        end
+--        
+--        return points > 0 and points
+--    end]],
+--    ["smartlevel"] = [[function(unit, unitOwner)
+--        local classif = UnitClassification(unit)
+--        if( classif == "worldboss" ) then
+--            return Icetip.L["Boss"]
+--        else
+--            local plus = Icetip.tagFunc.plus(unit)
+--            local level = Icetip.tagFunc.level(unit)
+--            if( plus ) then
+--                return level .. plus
+--            else
+--                return level
+--            end
+--        end
+--    end]],
+--    ["dechp"] = [[function(unit, unitOwner) return string.format("%.1f%%", (UnitHealth(unit) / UnitHealthMax(unit)) * 100) end]],
+--    ["classification"] = [[function(unit, unitOwner)
+--        local classif = UnitClassification(unit)
+--        if( classif == "rare" ) then
+--            return Icetip.L["Rare"]
+--        elseif( classif == "rareelite" ) then
+--            return Icetip.L["Rare Elite"]
+--        elseif( classif == "elite" ) then
+--            return Icetip.L["Elite"]
+--        elseif( classif == "worldboss" ) then
+--            return Icetip.L["Boss"]
+--        end
+--        
+--        return nil
+--    end]],
+--    ["shortclassification"] = [[function(unit, unitOwner)
+--        local classif = UnitClassification(unit)
+--        return classif == "rare" and "R" or classif == "rareelite" and "R+" or classif == "elite" and "+" or classif == "worldboss" and "B"
+--    end]],
+--    ["group"] = [[function(unit, unitOwner)
+--        if( GetNumRaidMembers() == 0 ) then return nil end
+--        local name, server = UnitName(unitOwner)
+--        if( server and server ~= "" ) then
+--            name = string.format("%s-%s", name, server)
+--        end
+--        
+--        for i=1, GetNumRaidMembers() do
+--            local raidName, _, group = GetRaidRosterInfo(i)
+--            if( raidName == name ) then
+--                return group
+--            end
+--        end
+--        
+--        return nil
+--    end]],
+--    ["druid:curpp"] = [[function(unit, unitOwner)
+--        if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
+--        local powerType = UnitPowerType(unit)
+--        if( powerType ~= 1 and powerType ~= 3 ) then return nil end
+--        return Icetip:FormatLargeNumber(UnitPower(unit, 0))
+--    end]],
+--    ["druid:abscurpp"] = [[function(unit, unitOwner)
+--        if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
+--        local powerType = UnitPowerType(unit)
+--        if( powerType ~= 1 and powerType ~= 3 ) then return nil end
+--        return UnitPower(unit, 0)
+--    end]],
+--    ["druid:curmaxpp"] = [[function(unit, unitOwner)
+--        if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
+--        local powerType = UnitPowerType(unit)
+--        if( powerType ~= 1 and powerType ~= 3 ) then return nil end
+--        
+--        local maxPower = UnitPowerMax(unit, 0)
+--        local power = UnitPower(unit, 0)
+--        if( UnitIsDeadOrGhost(unit) ) then
+--            return string.format("0/%s", Icetip:FormatLargeNumber(maxPower))
+--        elseif( maxPower == 0 and power == 0 ) then
+--            return nil
+--        end
+--        
+--        return string.format("%s/%s", Icetip:FormatLargeNumber(power), Icetip:FormatLargeNumber(maxPower))
+--    end]],
+--    ["druid:absolutepp"] = [[function(unit, unitOwner)
+--        if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
+--        local powerType = UnitPowerType(unit)
+--        if( powerType ~= 1 and powerType ~= 3 ) then return nil end
+--        return UnitPower(unit, 0)
+--    end]],
+--    ["abs:incheal"] = [[function(unit, unitOwner, fontString)
+--        return fontString.incoming and string.format("%d", fontString.incoming)
+--    end]],
+--    ["incheal"] = [[function(unit, unitOwner, fontString)
+--        return fontString.incoming and Icetip:FormatLargeNumber(fontString.incoming) or nil
+--    end]],
+--    ["incheal:name"] = [[function(unit, unitOwner, fontString)
+--        return fontString.incoming and string.format("+%d", fontString.incoming) or Icetip.tagFunc.name(unit, unitOwner)
+--    end]],
+--}
+--
+--Tags.defaultEvents = {
+--    ["hp:color"]            = "UNIT_HEALTH UNIT_MAXHEALTH",
+--    ["guild"]                = "UNIT_NAME_UPDATE",
+--    ["abs:incheal"]            = "UNIT_HEAL_PREDICTION",
+--    ["incheal:name"]        = "UNIT_HEAL_PREDICTION",
+--    ["incheal"]                = "UNIT_HEAL_PREDICTION",
+--    ["afk"]                    = "PLAYER_FLAGS_CHANGED",
+--    ["afk:time"]            = "PLAYER_FLAGS_CHANGED UNIT_CONNECTION",
+--    ["status:time"]            = "UNIT_POWER UNIT_CONNECTION",
+--    ["pvp:time"]            = "PLAYER_FLAGS_CHANGED",
+--    ["curhp"]               = "UNIT_HEALTH UNIT_CONNECTION",
+--    ["abscurhp"]            = "UNIT_HEALTH UNIT_CONNECTION",
+--    ["curmaxhp"]            = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_CONNECTION",
+--    ["absolutehp"]            = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_CONNECTION",
+--    ["smart:curmaxhp"]        = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_CONNECTION",
+--    ["curpp"]               = "UNIT_POWER UNIT_DISPLAYPOWER",
+--    ["abscurpp"]            = "UNIT_POWER UNIT_DISPLAYPOWER UNIT_MAXPOWER",
+--    ["curmaxpp"]            = "UNIT_POWER UNIT_DISPLAYPOWER UNIT_MAXPOWER",
+--    ["absolutepp"]            = "UNIT_POWER UNIT_DISPLAYPOWER UNIT_MAXPOWER",
+--    ["smart:curmaxpp"]        = "UNIT_POWER UNIT_DISPLAYPOWER UNIT_MAXPOWER",
+--    ["druid:curpp"]          = "UNIT_POWER UNIT_DISPLAYPOWER",
+--    ["druid:abscurpp"]      = "UNIT_POWER UNIT_DISPLAYPOWER",
+--    ["druid:curmaxpp"]        = "UNIT_POWER UNIT_MAXPOWER UNIT_DISPLAYPOWER",
+--    ["druid:absolutepp"]    = "UNIT_POWER UNIT_MAXPOWER UNIT_DISPLAYPOWER",
+--    ["level"]               = "UNIT_LEVEL PLAYER_LEVEL_UP",
+--    ["levelcolor"]            = "UNIT_LEVEL PLAYER_LEVEL_UP",
+--    ["maxhp"]               = "UNIT_MAXHEALTH",
+--    ["def:name"]            = "UNIT_NAME_UPDATE UNIT_MAXHEALTH UNIT_HEALTH",
+--    ["absmaxhp"]            = "UNIT_MAXHEALTH",
+--    ["maxpp"]               = "UNIT_MAXPOWER",
+--    ["absmaxpp"]            = "UNIT_MAXPOWER",
+--    ["missinghp"]           = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_CONNECTION",
+--    ["missingpp"]           = "UNIT_POWER UNIT_MAXPOWER",
+--    ["name"]                = "UNIT_NAME_UPDATE",
+--    ["abbrev:name"]            = "UNIT_NAME_UPDATE",
+--    ["server"]                = "UNIT_NAME_UPDATE",
+--    ["colorname"]            = "UNIT_NAME_UPDATE",
+--    ["perhp"]               = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_CONNECTION",
+--    ["perpp"]               = "UNIT_POWER UNIT_MAXPOWER UNIT_CONNECTION",
+--    ["status"]              = "UNIT_HEALTH PLAYER_UPDATE_RESTING UNIT_CONNECTION",
+--    ["smartlevel"]          = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED",
+--    ["cpoints"]             = "UNIT_COMBO_POINTS PLAYER_TARGET_CHANGED",
+--    ["rare"]                = "UNIT_CLASSIFICATION_CHANGED",
+--    ["classification"]      = "UNIT_CLASSIFICATION_CHANGED",
+--    ["shortclassification"] = "UNIT_CLASSIFICATION_CHANGED",
+--    ["dechp"]                = "UNIT_HEALTH UNIT_MAXHEALTH",
+--    ["group"]                = "RAID_ROSTER_UPDATE",
+--    ["unit:color:aggro"]    = "UNIT_THREAT_SITUATION_UPDATE",
+--    ["color:aggro"]            = "UNIT_THREAT_SITUATION_UPDATE",
+--    ["situation"]            = "UNIT_THREAT_SITUATION_UPDATE",
+--    ["color:sit"]            = "UNIT_THREAT_SITUATION_UPDATE",
+--    ["scaled:threat"]        = "UNIT_THREAT_SITUATION_UPDATE",
+--    ["general:sit"]            = "UNIT_THREAT_SITUATION_UPDATE",
+--    ["unit:scaled:threat"]    = "UNIT_THREAT_SITUATION_UPDATE",
+--    ["unit:color:sit"]        = "UNIT_THREAT_SITUATION_UPDATE",
+--    ["unit:situation"]        = "UNIT_THREAT_SITUATION_UPDATE",
+--}
+--
+--Tags.defaultFrequents = {
+--    ["afk"] = 1,
+--    ["afk:time"] = 1,
+--    ["status:time"] = 1,
+--    ["pvp:time"] = 1,
+--    ["scaled:threat"] = 1,
+--    ["unit:scaled:threat"] = 1,
+--    ["curmaxpp"] = .1,
+--}
+--
+--Tags.defaultCategories = {
+--    ["hp:color"]            = "health",
+--    ["abs:incheal"]            = "health",
+--    ["incheal"]                = "health",
+--    ["incheal:name"]        = "health",
+--    ["smart:curmaxhp"]        = "health",
+--    ["smart:curmaxpp"]        = "health",
+--    ["afk"]                    = "status",
+--    ["afk:time"]            = "status",
+--    ["status:time"]            = "status",
+--    ["pvp:time"]            = "status",
+--    ["cpoints"]                = "misc",
+--    ["smartlevel"]            = "classification",
+--    ["classification"]        = "classification",
+--    ["shortclassification"]    = "classification",
+--    ["rare"]                = "classification",
+--    ["plus"]                = "classification",
+--    ["sex"]                    = "misc",
+--    ["smartclass"]            = "classification",
+--    ["smartrace"]            = "classification",
+--    ["status"]                = "status",
+--    ["race"]                = "classification",
+--    ["level"]                = "classification",
+--    ["maxhp"]                = "health",
+--    ["maxpp"]                = "power",
+--    ["missinghp"]            = "health",
+--    ["missingpp"]            = "power",
+--    ["name"]                = "misc",
+--    ["abbrev:name"]            = "misc",
+--    ["server"]                = "misc",
+--    ["perhp"]                = "health",
+--    ["perpp"]                = "power",
+--    ["class"]                = "classification",
+--    ["classcolor"]            = "classification",
+--    ["creature"]            = "classification",
+--    ["curhp"]                = "health",
+--    ["curpp"]                = "power",
+--    ["curmaxhp"]            = "health",
+--    ["curmaxpp"]            = "power",
+--    ["levelcolor"]            = "classification",
+--    ["def:name"]            = "health",
+--    ["faction"]                = "classification",
+--    ["colorname"]            = "misc",
+--    ["guild"]                = "misc",
+--    ["absolutepp"]            = "power",
+--    ["absolutehp"]            = "health",
+--    ["absmaxhp"]            = "health",
+--    ["abscurhp"]            = "health",
+--    ["absmaxpp"]            = "power",
+--    ["abscurpp"]            = "power",
+--    ["reactcolor"]            = "classification",
+--    ["dechp"]                = "health",
+--    ["group"]                = "misc",
+--    ["close"]                = "misc",
+--    ["druid:curpp"]         = "power",
+--    ["druid:abscurpp"]      = "power",
+--    ["druid:curmaxpp"]        = "power",
+--    ["druid:absolutepp"]    = "power",
+--    ["situation"]            = "playerthreat",
+--    ["color:sit"]            = "playerthreat",
+--    ["scaled:threat"]        = "playerthreat",
+--    ["general:sit"]            = "playerthreat",
+--    ["color:aggro"]            = "playerthreat",
+--    ["unit:scaled:threat"]    = "threat",
+--    ["unit:color:sit"]        = "threat",
+--    ["unit:situation"]        = "threat",
+--    ["unit:color:aggro"]    = "threat",
+--}
+--
+--Tags.defaultHelps = {
+--}
+--
+--Tags.defaultNames = {
+--    ["incheal:name"]        = L["Incoming heal/Name"],
+--    ["unit:scaled:threat"]    = L["Unit scaled threat"],
+--    ["unit:color:sit"]        = L["Unit colored situation"],
+--    ["unit:situation"]        = L["Unit situation name"],
+--    ["hp:color"]            = L["Health color"],
+--    ["guild"]                = L["Guild name"],
+--    ["abs:incheal"]            = L["Incoming heal (Absolute)"],
+--    ["incheal"]                = L["Incoming heal (Short)"],
+--    ["abbrev:name"]            = L["Name (Abbreviated)"],
+--    ["smart:curmaxhp"]        = L["Cur/Max HP (Smart)"],
+--    ["smart:curmaxpp"]        = L["Cur/Max PP (Smart)"],
+--    ["pvp:time"]            = L["PVP timer"],
+--    ["afk:time"]            = L["AFK timer"],
+--    ["status:time"]            = L["Offline timer"],
+--    ["afk"]                    = L["AFK status"],
+--    ["cpoints"]                = L["Combo points"],
+--    ["smartlevel"]            = L["Smart level"],
+--    ["classification"]        = L["Classificaiton"],
+--    ["shortclassification"]    = L["Short classification"],
+--    ["rare"]                = L["Rare indicator"],
+--    ["plus"]                = L["Short elite indicator"],
+--    ["sex"]                    = L["Sex"],
+--    ["smartclass"]            = L["Class (Smart)"],
+--    ["smartrace"]            = L["Race (Smart)"],
+--    ["status"]                = L["Status"],
+--    ["race"]                = L["Race"],
+--    ["level"]                = L["Level"],
+--    ["maxhp"]                = L["Max HP (Short)"],
+--    ["maxpp"]                = L["Max power (Short)"],
+--    ["missinghp"]            = L["Missing HP (Short)"],
+--    ["missingpp"]            = L["Missing power (Short)"],
+--    ["name"]                = L["Unit name"],
+--    ["server"]                = L["Unit server"],
+--    ["perhp"]                = L["Percent HP"],
+--    ["perpp"]                = L["Percent power"],
+--    ["class"]                = L["Class"],
+--    ["classcolor"]            = L["Class color tag"],
+--    ["creature"]            = L["Creature type"],
+--    ["curhp"]                = L["Current HP (Short)"],
+--    ["curpp"]                = L["Current Power (Short)"],
+--    ["curmaxhp"]            = L["Cur/Max HP (Short)"],
+--    ["curmaxpp"]            = L["Cur/Max Power (Short)"],
+--    ["levelcolor"]            = L["Level (Colored)"],
+--    ["def:name"]            = L["Deficit/Unit Name"],
+--    ["faction"]                = L["Unit faction"],
+--    ["colorname"]            = L["Unit name (Class colored)"],
+--    ["absolutepp"]            = L["Cur/Max power (Absolute)"],
+--    ["absolutehp"]            = L["Cur/Max HP (Absolute)"],
+--    ["absmaxhp"]            = L["Max HP (Absolute)"],
+--    ["abscurhp"]            = L["Current HP (Absolute)"],
+--    ["absmaxpp"]            = L["Max power (Absolute)"],
+--    ["abscurpp"]            = L["Current power (Absolute)"],
+--    ["reactcolor"]            = L["Reaction color tag"],
+--    ["dechp"]                = L["Decimal percent HP"],
+--    ["group"]                = L["Group number"],
+--    ["close"]                = L["Close color"],
+--    ["druid:curpp"]         = L["Current power (Druid)"],
+--    ["druid:abscurpp"]      = L["Current power (Druid/Absolute)"],
+--    ["druid:curmaxpp"]        = L["Cur/Max power (Druid)"],
+--    ["druid:absolutepp"]    = L["Current health (Druid/Absolute)"],
+--    ["situation"]            = L["Threat situation"],
+--    ["color:sit"]            = L["Color code for situation"],
+--    ["scaled:threat"]        = L["Scaled threat percent"],
+--    ["general:sit"]            = L["General threat situation"],
+--    ["color:aggro"]            = L["Color code on aggro"],
+--    ["unit:color:aggro"]    = L["Unit color code on aggro"],
+--}
+--
+--Tags.eventType = {
+--    ["UNIT_POWER"] = "power",
+--    ["UNIT_MAXPOWER"] = "power",
+--    ["UNIT_HEALTH"] = "health",
+--    ["UNIT_MAXHEALTH"] = "health",
+--    ["RAID_ROSTER_UPDATE"] = "unitless",
+--    ["RAID_TARGET_UPDATE"] = "unitless",
+--    ["PLAYER_TARGET_CHANGED"] = "unitless",
+--    ["PARTY_MEMBERS_CHANGED"] = "unitless",
+--    ["PARTY_LEADER_CHANGED"] = "unitless",
+--    ["PLAYER_ENTERING_WORLD"] = "unitless",
+--    ["PLAYER_XP_UPDATE"] = "unitless",
+--    ["PLAYER_TOTEM_UPDATE"] = "unitless",
+--    ["PLAYER_LEVEL_UP"] = "unitless",
+--    ["UPDATE_EXHAUSTION"] = "unitless",
+--    ["PLAYER_UPDATE_RESTING"] = "unitless",
+--    ["UNIT_COMBO_POINTS"] = "unitless",
+--}
+--
+--Tags.unitBlacklist = {
+--    ["threat"]    = "%w+target",
+--}
+--
+--Tags.unitRestrictioIcetip = {
+--    ["pvp:time"] = "player",    
+--}
+--
+--local function loadAPIEvents()
+--    if( Tags.APIEvents ) then return end
+--    Tags.APIEvents = {
+--        ["InCombatLockdown"]        = "PLAYER_REGEN_ENABLED PLAYER_REGEN_DISABLED",
+--        ["UnitLevel"]                = "UNIT_LEVEL",
+--        ["UnitName"]                = "UNIT_NAME_UPDATE",
+--        ["UnitClassification"]        = "UNIT_CLASSIFICATION_CHANGED",
+--        ["UnitFactionGroup"]        = "UNIT_FACTION PLAYER_FLAGS_CHANGED",
+--        ["UnitHealth%("]            = "UNIT_HEALTH",
+--        ["UnitHealthMax"]            = "UNIT_MAXHEALTH",
+--        ["UnitPower%("]                = "UNIT_POWER",
+--        ["UnitPowerMax"]            = "UNIT_MAXPOWER",
+--        ["UnitPowerType"]            = "UNIT_DISPLAYPOWER",
+--        ["UnitIsDead"]                = "UNIT_HEALTH",
+--        ["UnitIsGhost"]                = "UNIT_HEALTH",
+--        ["UnitIsConnected"]            = "UNIT_HEALTH UNIT_CONNECTION",
+--        ["UnitIsAFK"]                = "PLAYER_FLAGS_CHANGED",
+--        ["UnitIsDND"]                = "PLAYER_FLAGS_CHANGED",
+--        ["UnitIsPVP"]                = "PLAYER_FLAGS_CHANGED UNIT_FACTION",
+--        ["UnitIsPartyLeader"]        = "PARTY_LEADER_CHANGED PARTY_MEMBERS_CHANGED",
+--        ["UnitIsPVPFreeForAll"]        = "PLAYER_FLAGS_CHANGED UNIT_FACTION",
+--        ["UnitCastingInfo"]            = "UNIT_SPELLCAST_START UNIT_SPELLCAST_STOP UNIT_SPELLCAST_FAILED UNIT_SPELLCAST_INTERRUPTED UNIT_SPELLCAST_DELAYED",
+--        ["UnitChannelInfo"]            = "UNIT_SPELLCAST_CHANNEL_START UNIT_SPELLCAST_CHANNEL_STOP UNIT_SPELLCAST_CHANNEL_INTERRUPTED UNIT_SPELLCAST_CHANNEL_UPDATE",
+--        ["UnitAura"]                = "UNIT_AURA",
+--        ["UnitBuff"]                = "UNIT_AURA",
+--        ["UnitDebuff"]                = "UNIT_AURA",
+--        ["UnitXPMax"]                = "UNIT_PET_EXPERIENCE PLAYER_XP_UPDATE PLAYER_LEVEL_UP",
+--        ["UnitXP%("]                = "UNIT_PET_EXPERIENCE PLAYER_XP_UPDATE PLAYER_LEVEL_UP",
+--        ["GetTotemInfo"]            = "PLAYER_TOTEM_UPDATE",
+--        ["GetXPExhaustion"]            = "UPDATE_EXHAUSTION",
+--        ["GetWatchedFactionInfo"]    = "UPDATE_FACTION",
+--        ["GetRuneCooldown"]            = "RUNE_POWER_UPDATE",
+--        ["GetRuneType"]                = "RUNE_TYPE_UPDATE",
+--        ["GetRaidTargetIndex"]        = "RAID_TARGET_UPDATE",
+--        ["GetComboPoints"]            = "UNIT_COMBO_POINTS",
+--        ["GetNumPartyMembers"]        = "PARTY_MEMBERS_CHANGED",
+--        ["GetNumRaidMembers"]        = "RAID_ROSTER_UPDATE",
+--        ["GetRaidRosterInfo"]        = "RAID_ROSTER_UPDATE",
+--        ["GetReadyCheckStatus"]        = "READY_CHECK READY_CHECK_CONFIRM READY_CHECK_FINISHED",
+--        ["GetLootMethod"]            = "PARTY_LOOT_METHOD_CHANGED",
+--        ["GetThreatStatusColor"]    = "UNIT_THREAT_SITUATION_UPDATE",
+--        ["UnitThreatSituation"]        = "UNIT_THREAT_SITUATION_UPDATE",
+--        ["UnitDetailedThreatSituation"] = "UNIT_THREAT_SITUATION_UPDATE",
+--    }
+--end
+--
+--local alreadyScanned = {}
+--function Tags:IdentifyEvents(code, parentTag)
+--    if( parentTag and alreadyScanned[parentTag] ) then
+--        return ""
+--    elseif( parentTag ) then
+--        alreadyScanned[parentTag] = true
+--    else
+--        for k in pairs(alreadyScanned) do alreadyScanned[k] = nil end
+--        loadAPIEvents()
+--    end
+--            
+--    local eventList = ""
+--    for func, events in pairs(self.APIEvents) do
+--        if( string.match(code, func) ) then
+--            eventList = eventList .. events .. " " 
+--        end
+--    end
+--    
+--    local currentStyle = Icetip.db.profile.currentStyle;
+--    local currentStyleDB = Icetip:GetCurrentStyleDB(currentStyle);
+--
+--    for tag in string.gmatch(code, "tagFunc\.(%w+)%(") do
+--        local code
+--        if (Icetip.Tags.defaultTags[tag]) then
+--            code =Icetip.Tags.defaultTags[tag]
+--        elseif (currentStyleDB and currentStyleDB.tags[tag] and currentStyleDB.tags[tag].func) then
+--            code = Icetip.Tags.defaultTags[tag];
+--        elseif (Icetip.db.profile.tags[tag] and Icetip.db.profile.tags[tag].func) then
+--            code = Icetip.db.profile.tags[tag].func
+--        end
+--        eventList = eventList .. " " .. self:IdentifyEvents(code, tag)
+--    end
+--    
+--    -- Remove any duplicate events
+--    if( not parentTag ) then
+--        local tagEvents = {}
+--        for event in string.gmatch(string.trim(eventList), "%S+") do
+--            tagEvents[event] = true
+--        end
+--        
+--        eventList = ""
+--        for event in pairs(tagEvents) do
+--            eventList = eventList .. event .. " "
+--        end
+--    end
+--        
+--    return string.trim(eventList or "")
+--end

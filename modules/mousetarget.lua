@@ -3,10 +3,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local mod = Icetip:NewModule("mousetarget", L["TooltipInfo"]);
 mod.order = 1
 local Icetip_InspectTalent = setmetatable({}, {__mode="kv"});
-local CLASS_COLORS = {}
-for class, color in pairs(RAID_CLASS_COLORS) do
-    CLASS_COLORS[class] = ("%2x%2x%2x"):format(color.r*255, color.g*255, color.b*255)
-end
+
 local UnitReactionColor = {
     {r = 1.0, g = 0.0, b = 0.0},
     {r = 1.0, g = 0.0, b = 0.0},
@@ -78,7 +75,7 @@ local function GetDiffLevelColor(level)
     end
 
     if color then
-        hexcolor = format("%2x%2x%2x", color[1]*255, color[2]*255, color[3]*255)
+        hexcolor = Icetip:Hex(color);
     end
     return hexcolor
 end
@@ -88,13 +85,13 @@ local function GetTarget(unit)
     if UnitIsUnit(unit, "player") then
         return L["|cffff0000>YOU<|r"];
     elseif UnitIsPlayer(unit) then
-        return "|cff"..CLASS_COLORS[select(2, UnitClass(unit))]..UnitName(unit).."|r"
+        return Icetip:GetClassColor(unit)..UnitName(unit).."|r"
     else
         unitreaction = UnitReactionColor[UnitReaction(unit, "player")];
         if not unitreaction then
             return
         end
-        return format("|cff%2x%2x%2x%s|r", unitreaction.r*255, unitreaction.g*255, unitreaction.b*255, UnitName(unit))
+        return format("%s%s|r", Icetip:Hex(unitreaction), UnitName(unit))
     end
 end
 
@@ -188,7 +185,7 @@ function mod:SetTooltipInfo(unit)
             end
         elseif (unitLevel > 0) then
             if UnitCanAttack("player", unit) or UnitCanAttack(unit, "player") then
-                tmpString = LEVEL..(format(" |cff%s%d|r", GetDiffLevelColor(unitLevel), unitLevel));
+                tmpString = LEVEL..(format(" %s%d|r", GetDiffLevelColor(unitLevel), unitLevel));
             else
                 tmpString = LEVEL..(format(" |cff3377CC%d|r", unitLevel));
             end
@@ -209,14 +206,14 @@ function mod:SetTooltipInfo(unit)
             tmpString = format("%s |cff%s%s|r", tmpString, factionColor, unitRace);
 
             local class, enClass = UnitClass(unit)
-            tmpString = format("%s |cff%s%s|r", tmpString, CLASS_COLORS[enClass], class);
+            tmpString = format("%s %s%s|r", tmpString, Icetip:GetClassColor(enClass), class);
         elseif UnitPlayerControlled(unit) then
             tmpString = format("%s %s", tmpString, (UnitCreatureFamily(unit) or creatureType or ""));
         elseif creatureType then
             if db.showFaction and reaction and reaction>4 then--faction 
                 reactionColor = UnitReactionColor[reaction];
                 local factionLabel = _G["FACTION_STANDING_LABEL"..reaction]
-                factionLabel = format("|cff%2x%2x%2x(%s)|r", reactionColor.r*255, reactionColor.g*255, reactionColor.b*255, factionLabel)
+                factionLabel = format("%s(%s)|r", Icetip:Hex(reactionColor) , factionLabel)
                 tmpString = format("%s |cffFFFFFF%s|r %s" , tmpString, creatureType, factionLabel)
             elseif creatureType == L["Not Specified"] then
                 tmpString = format("%s %s", tmpString, UNKNOWN);
@@ -256,13 +253,16 @@ function mod:SetTooltipInfo(unit)
     if isPlayer then
         if unitGuild and playerGuild then
             if unitGuild == playerGuild then
-                gTipString = format("|cff%2x%2x%2x< %s > - %s|r", db.SGuildColor.r*255, db.SGuildColor.g*255, db.SGuildColor.b*255, unitGuild, unitGuildRank)
+                gTipString = format("%s< %s > - %s|r", Icetip:Hex(db.SGuildColor), unitGuild, unitGuildRank)
             else
-                gTipString = format("|cff%2x%2x%2x< %s > - %s|r", db.DGuildColor.r*255, db.DGuildColor.g*255, db.DGuildColor.b*255, unitGuild, unitGuildRank)
+                gTipString = format("%s< %s > - %s|r", Icetip:Hex(db.DGuildColor), unitGuild, unitGuildRank)
             end
         elseif unitGuild then
-            gTipString = format("|cff%2x%2x%2x< %s > - %s|r", db.DGuildColor.r*255, db.DGuildColor.g*255, db.DGuildColor.b*255, unitGuild, unitGuildRank)
-        end
+            gTipString = format("%s< %s > - %s|r", Icetip:Hex(db.DGuildColor), unitGuild, unitGuildRank)
+	end
+
+	--After 4.0,  GameTooltip displayed ServerName
+	--TODO: need FIXME
         local _, unitServer = UnitName(unit)
         if (db.showServer) and (unitServer or gTipString) then
             if (unitServer and gTipString) then
