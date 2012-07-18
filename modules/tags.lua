@@ -3,77 +3,87 @@
 -------------------------------------------------------------------
 local addonName, Icetip = ...;
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
+Icetip.L = L
 local Tags = {afkStatus = {}, offlineStatus = {}, customEvents = {}};
 local tagPool, functionPool, temp, regFontStrings, frequentUpdates, frequencyCache = {}, {}, {}, {}, {}, {};
 Icetip.Tags = Tags;
 
---utils func
+--[[
+-- GameTooltip的tag 是不需要事件的 只有一些少数的需要, 大多数都是每次mouseover上去 就需要重新执行一次
+--
+--]]
 
+
+--function Tags:RegisterEvents(parent, fontString, tags)
+--    for tag in string.gmatch(tags, "%[(.-)%]") do
+--        local tagKey = select(2, string.match(tag, "(%b())([%w%p]+)(%b())"))
+--        if( not tagKey ) then tagKey = select(2, string.match(tag, "(%b())([%w%p]+)")) end
+--        if( not tagKey ) then tagKey = string.match(tag, "([%w%p]+)(%b())") end
+--        
+--        tag = tagKey or tag
+--        local currentStyle = Icetip.db.profile.currentMode;
+--        local currentStyleDB = Icetip:GetCurrentStyleDB(currentStyle);
+--        
+--        local tagEvents;
+--        if (Tags.defaultEvents[tag]) then
+--            tagEvents = Tags.defaultEvents[tag];
+--        elseif (currentStyleDB and currentStyleDB.tags[tag] and currentStyleDB.tags[tag].events) then
+--            tagEvents = currentStyleDB.tags[tag].events;
+--        elseif (Icetip.db.profile.tags[tag] and Icetip.db.profile.tags[tag].events) then
+--            tagEvents = Icetip.db.profile.tags[tag].events;
+--        end
+--
+--        if( tagEvents ) then
+--            for event in string.gmatch(tagEvents, "%S+") do
+--                if( self.customEvents[event] ) then
+--                    self.customEvents[event]:EnableTag(parent, fontString)
+--                    fontString[event] = true
+--                elseif( Tags.eventType[event] ~= "unitless" or Icetip.Module.unitEvents[event] ) then
+--                    parent:RegisterUnitEvent(event, fontString, "UpdateTags")
+--                else
+--                    parent:RegisterNormalEvent(event, fontString, "UpdateTags")
+--                end
+--                
+--                fontString.fastPower = fontString.fastPower or Tags.eventType[event] == "power"
+--                fontString.fastHealth = fontString.fastHealth or Tags.eventType[event] == "health"
+--            end
+--        end
+--    end
+--end
+--
+--function Tags:Reload()
+--    wipe(tagPool);
+--    wipe(functionPool);
+--    wipe(Icetip.tagFunc);
+--
+--    for fontString, tags in pairs(regFontStrings) do
+--        self:Register(fontString.parent, fontString, tags)
+--        fontString.parent:RegisterUpdateFunc(fontString, "UpdateTags")
+--        fontString:UpdateTags()
+--    end
+--end
+--
+---- Frequent updates
+--local freqFrame = CreateFrame("Frame")
+--freqFrame:SetScript("OnUpdate", function(self, elapsed)
+--    for fontString, timeLeft in pairs(frequentUpdates) do
+--        if( fontString.parent:IsVisible() ) then
+--            frequentUpdates[fontString] = timeLeft - elapsed
+--            if( frequentUpdates[fontString] <= 0 ) then
+--                frequentUpdates[fontString] = fontString.frequentStart
+--                fontString:UpdateTags()
+--            end
+--        end
+--    end
+--end)
+--freqFrame:Hide();
+
+--[[
+-- Register
+-- parent:  GameTooltip
+-- fontString: GameTooltipTextLeft1
+--]]
 --[=[
-function Tags:RegisterEvents(parent, fontString, tags)
-    for tag in string.gmatch(tags, "%[(.-)%]") do
-        local tagKey = select(2, string.match(tag, "(%b())([%w%p]+)(%b())"))
-        if( not tagKey ) then tagKey = select(2, string.match(tag, "(%b())([%w%p]+)")) end
-        if( not tagKey ) then tagKey = string.match(tag, "([%w%p]+)(%b())") end
-        
-        tag = tagKey or tag
-        local currentStyle = Icetip.db.profile.currentMode;
-        local currentStyleDB = Icetip:GetCurrentStyleDB(currentStyle);
-        
-        local tagEvents;
-        if (Tags.defaultEvents[tag]) then
-            tagEvents = Tags.defaultEvents[tag];
-        elseif (currentStyleDB and currentStyleDB.tags[tag] and currentStyleDB.tags[tag].events) then
-            tagEvents = currentStyleDB.tags[tag].events;
-        elseif (Icetip.db.profile.tags[tag] and Icetip.db.profile.tags[tag].events) then
-            tagEvents = Icetip.db.profile.tags[tag].events;
-        end
-
-        if( tagEvents ) then
-            for event in string.gmatch(tagEvents, "%S+") do
-                if( self.customEvents[event] ) then
-                    self.customEvents[event]:EnableTag(parent, fontString)
-                    fontString[event] = true
-                elseif( Tags.eventType[event] ~= "unitless" or Icetip.Module.unitEvents[event] ) then
-                    parent:RegisterUnitEvent(event, fontString, "UpdateTags")
-                else
-                    parent:RegisterNormalEvent(event, fontString, "UpdateTags")
-                end
-                
-                fontString.fastPower = fontString.fastPower or Tags.eventType[event] == "power"
-                fontString.fastHealth = fontString.fastHealth or Tags.eventType[event] == "health"
-            end
-        end
-    end
-end
-
-function Tags:Reload()
-    wipe(tagPool);
-    wipe(functionPool);
-    wipe(Icetip.tagFunc);
-
-    for fontString, tags in pairs(regFontStrings) do
-        self:Register(fontString.parent, fontString, tags)
-        fontString.parent:RegisterUpdateFunc(fontString, "UpdateTags")
-        fontString:UpdateTags()
-    end
-end
-
--- Frequent updates
-local freqFrame = CreateFrame("Frame")
-freqFrame:SetScript("OnUpdate", function(self, elapsed)
-    for fontString, timeLeft in pairs(frequentUpdates) do
-        if( fontString.parent:IsVisible() ) then
-            frequentUpdates[fontString] = timeLeft - elapsed
-            if( frequentUpdates[fontString] <= 0 ) then
-                frequentUpdates[fontString] = fontString.frequentStart
-                fontString:UpdateTags()
-            end
-        end
-    end
-end)
-freqFrame:Hide();
-
 function Tags:Register(parent, fontString, tags, resetCache)
     if( fontString.UpdateTags ) then
         self:Unregister(fontString)
@@ -221,7 +231,11 @@ function Tags:Unregister(fontString)
     fontString.UpdateTags = nil
     fontString:SetText("")
 end
+
 ]=]
+
+
+
 
 local function abbreviateName(text)
     return strsub(text, 1, 1) .. "."
@@ -235,60 +249,9 @@ Tags.abbrevCache = setmetatable({}, {
     end
 })
 
-local Druid = {}
-Druid.CatForm, Druid.Shapeshift = GetSpellInfo(768)
-Druid.MoonkinForm = GetSpellInfo(24858)
-Druid.TravelForm = GetSpellInfo(783)
-Druid.BearForm = GetSpellInfo(5487)
-Druid.TreeForm = GetSpellInfo(33891)
-Druid.AquaticForm = GetSpellInfo(1066)
-Druid.SwiftFlightForm = GetSpellInfo(40120)
-Druid.FlightForm = GetSpellInfo(33943)
-Icetip.Druid = Druid
-
 Tags.defaultTags = {
     ["hp:color"] = [[function(unit, unitOwner)
         return Icetip:Hex(Icetip:GetGradientColor(unit))
-    end]],
-    ["short:druidform"] = [[function(unit, unitOwner)
-        if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
-        
-        local Druid = Icetip.Druid
-        if( UnitAura(unit, Druid.CatForm, Druid.Shapeshift) ) then
-            return "C"
-        elseif( UnitAura(unit, Druid.TreeForm, Druid.Shapeshift) ) then
-            return "T"
-        elseif( UnitAura(unit, Druid.MoonkinForm, Druid.Shapeshift) ) then
-            return "M"
-        elseif( UnitAura(unit, Druid.BearForm, Druid.Shapeshift) ) then
-            return "B"
-        elseif( UnitAura(unit, Druid.SwiftFlightForm, Druid.Shapeshift) or UnitAura(unit, Druid.FlightForm, Druid.Shapeshift) ) then
-            return "F"
-        elseif( UnitAura(unit, Druid.TravelForm, Druid.Shapeshift) ) then
-            return "T"
-        elseif( UnitAura(unit, Druid.AquaticForm, Druid.Shapeshift) ) then
-            return "A"
-        end
-    end]],
-    ["druidform"] = [[function(unit, unitOwner)
-        if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
-        
-        local Druid = Icetip.Druid
-        if( UnitAura(unit, Druid.CatForm, Druid.Shapeshift) ) then
-            return Icetip.L["Cat"]
-        elseif( UnitAura(unit, Druid.TreeForm, Druid.Shapeshift) ) then
-            return Icetip.L["Tree"]
-        elseif( UnitAura(unit, Druid.MoonkinForm, Druid.Shapeshift) ) then
-            return Icetip.L["Moonkin"]
-        elseif( UnitAura(unit, Druid.BearForm, Druid.Shapeshift) ) then
-            return Icetip.L["Bear"]
-        elseif( UnitAura(unit, Druid.SwiftFlightForm, Druid.Shapeshift) or UnitAura(unit, Druid.FlightForm, Druid.Shapeshift) ) then
-            return Icetip.L["Flight"]
-        elseif( UnitAura(unit, Druid.TravelForm, Druid.Shapeshift) ) then
-            return Icetip.L["Travel"]
-        elseif( UnitAura(unit, Druid.AquaticForm, Druid.Shapeshift) ) then
-            return Icetip.L["Aquatic"]
-        end
     end]],
     ["guild"] = [[function(unit, unitOwner)
         return GetGuildInfo(unitOwner)
@@ -337,10 +300,6 @@ Tags.defaultTags = {
         
         return state and state >= 3 and Icetip:Hex(GetThreatStatusColor(state))
     end]],
-    --["unit:scaled:threat"] = [[function(unit, unitOwner, fontString)
-    --    local scaled = select(3, UnitDetailedThreatSituation(unit))
-    --    return scaled and string.format("%d%%", scaled)
-    --end]],
     ["scaled:threat"] = [[function(unit, unitOwner)
         local scaled = select(3, UnitDetailedThreatSituation("player", "target"))
         return scaled and string.format("%d%%", scaled)
@@ -354,11 +313,6 @@ Tags.defaultTags = {
         elseif( state == 1 ) then
             return Icetip.L["Medium"]
         end
-    end]],
-    ["color:geIcetipit"] = [[function(unit, unitOwner)
-        local state = UnitThreatSituation("player")
-        
-        return state and state > 0 and Icetip:Hex(GetThreatStatusColor(state))
     end]],
     ["status:time"] = [[function(unit, unitOwner)
         local offlineStatus = Icetip.Tags.offlineStatus
@@ -396,7 +350,18 @@ Tags.defaultTags = {
         return UnitIsPlayer(unit) and Icetip.tagFunc.race(unit) or Icetip.tagFunc.creature(unit)
     end]],
     ["reactcolor"] = [[function(unit, unitOwner)
-        local color
+        local color;
+	local UnitReactionColor = {
+	    {r = 1.0, g = 0.0, b = 0.0},
+	    {r = 1.0, g = 0.0, b = 0.0},
+	    {r = 1.0, g = 0.5, b = 0.0},
+	    {r = 1.0, g = 1.0, b = 0.0},
+	    {r = 0.0, g = 1.0, b = 0.0},
+	    {r = 0.0, g = 1.0, b = 0.0},
+	    {r = 0.0, g = 1.0, b = 0.0},
+	    {r = 0.0, g = 1.0, b = 0.0},
+	}
+
         if( not UnitIsFriend(unit, "player") and UnitPlayerControlled(unit) ) then
             if( UnitCanAttack("player", unit) ) then
                 color = Icetip.db.profile.healthColors.hostile
@@ -406,11 +371,11 @@ Tags.defaultTags = {
         elseif( UnitReaction(unit, "player") ) then
             local reaction = UnitReaction(unit, "player")
             if( reaction > 4 ) then
-                color = Icetip.db.profile.healthColors.friendly
+                color = UnitReactionColor[reaction];
             elseif( reaction == 4 ) then
-                color = Icetip.db.profile.healthColors.neutral
+                color = UnitReactionColor[reaction];
             elseif( reaction < 4 ) then
-                color = Icetip.db.profile.healthColors.hostile
+                color = UnitReactionColor[1]; --read
             end
         end
         
@@ -748,8 +713,6 @@ Tags.defaultTags = {
 
 Tags.defaultEvents = {
     ["hp:color"]            = "UNIT_HEALTH UNIT_MAXHEALTH",
-    ["short:druidform"]        = "UNIT_AURA",
-    ["druidform"]            = "UNIT_AURA",
     ["guild"]                = "UNIT_NAME_UPDATE",
     ["abs:incheal"]            = "UNIT_HEAL_PREDICTION",
     ["incheal:name"]        = "UNIT_HEAL_PREDICTION",
@@ -801,7 +764,6 @@ Tags.defaultEvents = {
     ["color:sit"]            = "UNIT_THREAT_SITUATION_UPDATE",
     ["scaled:threat"]        = "UNIT_THREAT_SITUATION_UPDATE",
     ["general:sit"]            = "UNIT_THREAT_SITUATION_UPDATE",
-    ["color:geIcetipit"]        = "UNIT_THREAT_SITUATION_UPDATE",
     ["unit:scaled:threat"]    = "UNIT_THREAT_SITUATION_UPDATE",
     ["unit:color:sit"]        = "UNIT_THREAT_SITUATION_UPDATE",
     ["unit:situation"]        = "UNIT_THREAT_SITUATION_UPDATE",
@@ -852,8 +814,6 @@ Tags.defaultCategories = {
     ["class"]                = "classification",
     ["classcolor"]            = "classification",
     ["creature"]            = "classification",
-    ["short:druidform"]        = "classification",
-    ["druidform"]            = "classification",
     ["curhp"]                = "health",
     ["curpp"]                = "power",
     ["curmaxhp"]            = "health",
@@ -881,7 +841,6 @@ Tags.defaultCategories = {
     ["color:sit"]            = "playerthreat",
     ["scaled:threat"]        = "playerthreat",
     ["general:sit"]            = "playerthreat",
-    ["color:geIcetipit"]        = "playerthreat",
     ["color:aggro"]            = "playerthreat",
     ["unit:scaled:threat"]    = "threat",
     ["unit:color:sit"]        = "threat",
@@ -899,8 +858,6 @@ Tags.defaultNames = {
     ["unit:situation"]        = L["Unit situation name"],
     ["hp:color"]            = L["Health color"],
     ["guild"]                = L["Guild name"],
-    ["druidform"]            = L["Druid form"],
-    ["short:druidform"]        = L["Druid form (Short)"],
     ["abs:incheal"]            = L["Incoming heal (Absolute)"],
     ["incheal"]                = L["Incoming heal (Short)"],
     ["abbrev:name"]            = L["Name (Abbreviated)"],
@@ -959,7 +916,6 @@ Tags.defaultNames = {
     ["color:sit"]            = L["Color code for situation"],
     ["scaled:threat"]        = L["Scaled threat percent"],
     ["general:sit"]            = L["General threat situation"],
-    ["color:geIcetipit"]        = L["Color code for general situation"],
     ["color:aggro"]            = L["Color code on aggro"],
     ["unit:color:aggro"]    = L["Unit color code on aggro"],
 }
@@ -1037,14 +993,10 @@ local function loadAPIEvents()
     }
 end
 
--- Scan the actual tag code to find the events it uses
---[=[
 local alreadyScanned = {}
 function Tags:IdentifyEvents(code, parentTag)
-    -- Already scanned this tag, prevents infinite recursion
     if( parentTag and alreadyScanned[parentTag] ) then
         return ""
-    -- Flagged that we already took care of this
     elseif( parentTag ) then
         alreadyScanned[parentTag] = true
     else
@@ -1052,7 +1004,6 @@ function Tags:IdentifyEvents(code, parentTag)
         loadAPIEvents()
     end
             
-    -- Scan our function list to see what APIs are used
     local eventList = ""
     for func, events in pairs(self.APIEvents) do
         if( string.match(code, func) ) then
@@ -1063,7 +1014,6 @@ function Tags:IdentifyEvents(code, parentTag)
     local currentStyle = Icetip.db.profile.currentStyle;
     local currentStyleDB = Icetip:GetCurrentStyleDB(currentStyle);
 
-    -- Scan if they use any tags, if so we need to check them as well to see what content is used
     for tag in string.gmatch(code, "tagFunc\.(%w+)%(") do
         local code
         if (Icetip.Tags.defaultTags[tag]) then
@@ -1089,7 +1039,5 @@ function Tags:IdentifyEvents(code, parentTag)
         end
     end
         
-    -- And give them our nicely outputted data
     return string.trim(eventList or "")
 end
-]=]

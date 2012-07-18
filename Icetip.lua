@@ -589,7 +589,7 @@ function Icetip:GetClassColor(unit)
 
     local class = select(2, UnitClass(unit));
 
-    return class and Icetip:Hex(Icetip.db.profile.classColors[class]);
+    return class and Icetip:Hex(RAID_CLASS_COLORS[class]);
 end
 
 function Icetip:FormatShortTime(seconds)
