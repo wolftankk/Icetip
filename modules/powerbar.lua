@@ -242,9 +242,9 @@ function update(frame, elapsed, force)
         elseif db.style == "pernumber" and maxpower > 0 then
             pbtextformat = format("%d / %d (%d%%)", power, maxpower, value * 100);
 	elseif db.style == "short" then
-	    pbtextformat = format("%s / %s", Icetip:ShortValue(power), Icetip:ShortValue(maxpower));
+	    pbtextformat = format("%s / %s", Icetip:FormatLargeNumber(power), Icetip:FormatLargeNumber(maxpower));
 	elseif db.style == "pershort" then
-	    pbtextformat = format("%s / %s (%d%%)", Icetip:ShortValue(power), Icetip:ShortValue(maxpower), value * 100);
+	    pbtextformat = format("%s / %s (%d%%)", Icetip:FormatLargeNumber(power), Icetip:FormatLargeNumber(maxpower), value * 100);
         end
         pbtext:SetText(pbtextformat)
         pbtext:Show();

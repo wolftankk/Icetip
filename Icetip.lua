@@ -19,7 +19,7 @@ local tooltips = {
     ShoppingTooltip1,
     ShoppingTooltip2,
     ShoppingTooltip3,
-    WorldMapTooltip,
+    WorldMapTooltip
 }
 
 local default = {
@@ -193,7 +193,7 @@ function Icetip:OnInitialize()
     SM:Register("border", "Blank", [[Interface\AddOns\Icetip\media\blank.tga]]);
     SM:Register("background", "Blank", [[Interface\AddOns\Icetip\media\blank.tga]]);
     SM:Register("statusbar", "Smooth", [[Interface\AddOns\Icetip\media\Smooth.tga]]);
-	SM:Register("font", "Myriad Condensed Web", [[Interface\AddOns\Icetip\media\Myriad Condensed Web.ttf]])
+    SM:Register("font", "Myriad Condensed Web", [[Interface\AddOns\Icetip\media\Myriad Condensed Web.ttf]])
 
     local db = LibStub("AceDB-3.0"):New("IcetipDB", default, "Default");
 
@@ -289,19 +289,6 @@ function Icetip:OnEnable()
 
     --handler modifier
     self:RegisterEvent("MODIFIER_STATE_CHANGED");
-end
-
-function Icetip:ShortValue(value)
-    if value ~= nil then
-	if( value < 9999 ) then
-	    return value 
-	elseif( value < 999999 ) then
-	    return string.format("%.1fk", value / 1000)
-	elseif( value < 99999999 ) then
-	    return string.format("%.2fm", value / 1000000)
-	end
-	return string.format("%dm", value / 1000000)
-    end
 end
 
 function Icetip:GetMouseoverUnit()
@@ -557,3 +544,79 @@ function Icetip:Tooltip_OnUpdate(tooltip, elapsed)
 	end
     end
 end
+
+---------------------------------------------
+-- Common function
+---------------------------------------------
+function Icetip:Hex(r, g, b)
+    if (type(r) == "table") then
+        if (r.r) then
+            r,g,b = r.r, r.g, r.b
+        else
+            r, g, b = unpack(r);
+        end
+    end
+    
+    return string.format("|cff%02x%02x%02x", r * 255, g * 255, b * 255);
+end
+
+function Icetip:FormatLargeNumber(number)
+    if( number < 9999 ) then
+        return number
+    elseif( number < 999999 ) then
+        return string.format("%.1fk", number / 1000)
+    elseif( number < 99999999 ) then
+        return string.format("%.2fm", number / 1000000)
+    end
+    
+    return string.format("%dm", number / 1000000)
+end
+
+function Icetip:SmartFormatNumber(number)
+    if( number < 999999 ) then
+        return number
+    elseif( number < 99999999 ) then
+        return string.format("%.2fm", number / 1000000)
+    end
+    
+    return string.format("%dm", number / 1000000)
+end
+
+function Icetip:GetClassColor(unit)
+    if (not UnitIsPlayer(unit)) then
+        return nil
+    end
+
+    local class = select(2, UnitClass(unit));
+
+    return class and Icetip:Hex(Icetip.db.profile.classColors[class]);
+end
+
+function Icetip:FormatShortTime(seconds)
+    if( seconds >= 3600 ) then
+        return string.format("%dh", seconds / 3600)
+    elseif( seconds >= 60 ) then
+        return string.format("%dm", seconds / 60)
+    end
+
+    return string.format("%ds", seconds)
+end
+
+function Icetip:GetGradientColor(unit)
+    local percent = UnitHealth(unit) / UnitHealthMax(unit)
+    local r1, g1, b1
+    local r2, g2, b2
+    if precent <= 0.5 then
+        precent = precent * 2
+        r1, g1, b1 = 1, 0, 0
+        r2, g2, b2 = 1, 1, 0
+    else
+        precent = precent * 2 - 1
+        r1, g1, b1 = 1, 1, 0
+        r2, g2, b2 = 0, 1, 0
+    end
+
+    return r1 +(r2-r1)*precent, g1 + (g2-g1)*precent,  b1 +(b2-b1)*precent
+end
+
+

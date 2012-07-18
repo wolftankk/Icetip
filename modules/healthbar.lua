@@ -58,22 +58,6 @@ function mod:CreateBar()
     end
 end
 
-local function HealthGradient(precent)
-    local r1, g1, b1
-    local r2, g2, b2
-    if precent <= 0.5 then
-        precent = precent * 2
-        r1, g1, b1 = 1, 0, 0
-        r2, g2, b2 = 1, 1, 0
-    else
-        precent = precent * 2 - 1
-        r1, g1, b1 = 1, 1, 0
-        r2, g2, b2 = 0, 1, 0
-    end
-
-    return r1 +(r2-r1)*precent, g1 + (g2-g1)*precent,  b1 +(b2-b1)*precent
-end
-
 function mod:SetBarPoint()
     if not healthbar then return end
 
@@ -168,7 +152,7 @@ function update(frame, elapsed, force)
         value = hp/hpmax
     end
     healthbar:SetValue(value);
-    healthbar:SetStatusBarColor(HealthGradient(value))
+    healthbar:SetStatusBarColor(Icetip:GetGradientColor(value))
 
     if db.showText then
         local hbtextformat;
@@ -179,9 +163,9 @@ function update(frame, elapsed, force)
         elseif db.style == "pernumber" then
             hbtextformat = format("%d / %d (%d%%)", hp, hpmax, value * 100);
 	elseif db.style == "short" then
-	    hbtextformat = format("%s / %s", Icetip:ShortValue(hp), Icetip:ShortValue(hpmax));
+	    hbtextformat = format("%s / %s", Icetip:FormatLargeNumber(hp), Icetip:FormatLargeNumber(hpmax));
 	elseif db.style == "pershort" then
-	    hbtextformat = format("%s / %s (%d%%)", Icetip:ShortValue(hp), Icetip:ShortValue(hpmax), value * 100);
+	    hbtextformat = format("%s / %s (%d%%)", Icetip:FormatLargeNumber(hp), Icetip:FormatLargeNumber(hpmax), value * 100);
         end
         hbtext:SetText(hbtextformat)
         hbtext:Show();
@@ -199,7 +183,7 @@ function mod:OnTooltipShow()
 	healthbar:SetMinMaxValues(min, max)
 	healthbar:SetValue(value)
 
-	healthbar:SetStatusBarColor(HealthGradient(value));
+	healthbar:SetStatusBarColor(Icetip:GetGradientColor(value));
 
 	healthbar:Show();
 	if db.showText then
