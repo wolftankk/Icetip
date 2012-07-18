@@ -441,24 +441,26 @@ function Icetip:Tooltip_OnShow(tooltip, ...)
 
         local modifiers = config.modifiers;
 	local checkFunc = {}
-	for modifier, mvalue in pairs(modifiers) do
-	    if mvalue then
-		tinsert(checkFunc, modifier);
+	if modifiers then
+	    for modifier, mvalue in pairs(modifiers) do
+		if mvalue then
+		    tinsert(checkFunc, modifier);
+		end
 	    end
-	end
 
-	--TODO: NEED OPTIMIZING!!
-	local canShow = true;
-	if #checkFunc then
-	    for _, modifier in pairs(checkFunc) do
-		canShow = canShow and modifierFuncs[modifier]()
-	    end
-	    
-	    if not canShow then
-	        tooltip.justHide = true
-	        tooltip:Hide();
-	        tooltip.justHide = nil
-	        return
+	    --TODO: NEED OPTIMIZING!!
+	    local canShow = true;
+	    if #checkFunc then
+		for _, modifier in pairs(checkFunc) do
+		    canShow = canShow and modifierFuncs[modifier]()
+		end
+		
+		if not canShow then
+		    tooltip.justHide = true
+		    tooltip:Hide();
+		    tooltip.justHide = nil
+		    return
+		end
 	    end
 	end
 

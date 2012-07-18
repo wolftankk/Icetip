@@ -54,16 +54,18 @@ end
 --hook event, PreTooltipSetUnit
 function mod:PreTooltipSetUnit(tooltip, ...)
     local _, unit = tooltip:GetUnit();
-    local _, cls, classid = UnitClass(unit)
-    local isPlayer = UnitIsPlayer(unit);
-    if unit and cls and isPlayer then
-	if db.displayMode == "icon" then
-	    local coords = CLASS_ICON_TCOORDS[cls];
-	    self.icon.icon:SetTexCoord(coords[1] , coords[2] , coords[3] , coords[4] );
-	    self.icon:Show();
-	elseif db.displayMode == "border" then
-	    local color = RAID_CLASS_COLORS[cls];
-	    tooltip:SetBackdropBorderColor(color.r, color.g, color.b)
+    if unit then
+	local _, cls, classid = UnitClass(unit)
+	local isPlayer = UnitIsPlayer(unit);
+	if unit and cls and isPlayer then
+	    if db.displayMode == "icon" then
+		local coords = CLASS_ICON_TCOORDS[cls];
+		self.icon.icon:SetTexCoord(coords[1] , coords[2] , coords[3] , coords[4] );
+		self.icon:Show();
+	    elseif db.displayMode == "border" then
+		local color = RAID_CLASS_COLORS[cls];
+		tooltip:SetBackdropBorderColor(color.r, color.g, color.b)
+	    end
 	end
     end
 end
