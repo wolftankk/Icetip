@@ -152,7 +152,7 @@ function update(frame, elapsed, force)
         value = hp/hpmax
     end
     healthbar:SetValue(value);
-    healthbar:SetStatusBarColor(Icetip:GetGradientColor(value))
+    healthbar:SetStatusBarColor(Icetip:GetGradientColor(Icetip:GetMouseoverUnit()))
 
     if db.showText then
         local hbtextformat;

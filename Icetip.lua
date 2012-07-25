@@ -603,20 +603,29 @@ function Icetip:FormatShortTime(seconds)
 end
 
 function Icetip:GetGradientColor(unit)
-    local percent = UnitHealth(unit) / UnitHealthMax(unit)
+    local hpmax = UnitHealthMax(unit)
+    local hp = UnitHealth(unit);
     local r1, g1, b1
     local r2, g2, b2
-    if precent <= 0.5 then
-        precent = precent * 2
+
+    local value;
+    if hpmax == 0 then
+        value = 0
+    else
+        value = hp/hpmax
+    end
+
+    if value <= 0.5 then
+        value = value * 2
         r1, g1, b1 = 1, 0, 0
         r2, g2, b2 = 1, 1, 0
     else
-        precent = precent * 2 - 1
+        value = value * 2 - 1
         r1, g1, b1 = 1, 1, 0
         r2, g2, b2 = 0, 1, 0
     end
 
-    return r1 +(r2-r1)*precent, g1 + (g2-g1)*precent,  b1 +(b2-b1)*precent
+    return r1 +(r2-r1)*value, g1 + (g2-g1)*value,  b1 +(b2-b1)*value
 end
 
 

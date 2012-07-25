@@ -206,7 +206,7 @@ function mod:SetTooltipInfo(unit)
             tmpString = format("%s |cff%s%s|r", tmpString, factionColor, unitRace);
 
             local class, enClass = UnitClass(unit)
-            tmpString = format("%s %s%s|r", tmpString, Icetip:GetClassColor(enClass), class);
+            tmpString = format("%s %s%s|r", tmpString, Icetip:GetClassColor(unit), class);
         elseif UnitPlayerControlled(unit) then
             tmpString = format("%s %s", tmpString, (UnitCreatureFamily(unit) or creatureType or ""));
         elseif creatureType then
