@@ -327,7 +327,10 @@ do
 
         if sum >= count and count > 0 then
             GameTooltip:AddDoubleLine("iLvl: ", round(sum/count, 0));
-            GameTooltip:Show()
+	    --flash
+	    if GameTooltip:IsShown() then
+		GameTooltip:Show()
+	    end
             return round(sum/count, 0)
         else
             return nil
@@ -415,7 +418,8 @@ do
         end
     end
 
-
+    
+    --async
     function mod:INSPECT_READY(event, guid)
         self:UnregisterEvent("INSPECT_READY");
         local unit = Icetip:GetUnitByGUID(guid);
@@ -442,7 +446,9 @@ do
 		if (talent_name2 ~= _G["NONE"] and talent_text2 ~= _G["NONE"]) then
 		    GameTooltip:AddDoubleLine(L["Sec Talent: "], talent_name2);
 		end
-		GameTooltip:Show();
+
+		--GameTooltip:Show();
+
 		--clear tbl
 		wipe(Icetip_InspectTalent);
 	    end
@@ -457,11 +463,18 @@ do
 		--if (talent_name2 ~= _G["NONE"] and talent_text2 ~= _G["NONE"]) then
 		--    GameTooltip:AddDoubleLine(L["Sec Talent: "], talent_name2);
 		--end
-		GameTooltip:Show();
+
+		--GameTooltip:Show();
+
 		----clear tbl
 		--wipe(Icetip_InspectTalent);
 	    end
         end
+
+	if (GameTooltip:IsShown()) then
+	    --update GameTooltip, and flash
+	    GameTooltip:Show()
+	end
     end
 end
 
