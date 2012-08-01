@@ -196,9 +196,10 @@ function Icetip:OnInitialize()
     SM:Register("font", "Myriad Condensed Web", [[Interface\AddOns\Icetip\media\Myriad Condensed Web.ttf]])
 
     local db = LibStub("AceDB-3.0"):New("IcetipDB", default, "Default");
-
     self.acedb = db;
     self.db = db.profile;
+
+    self:checkAndUpgrade();
 
     local iceLDB;
     if LDB then
@@ -291,33 +292,24 @@ function Icetip:OnEnable()
     self:RegisterEvent("MODIFIER_STATE_CHANGED");
 end
 
-function Icetip:GetMouseoverUnit()
-    local _, tooltipUnit = GameTooltip:GetUnit()
-    if not tooltipUnit or not UnitExists(tooltipUnit) or UnitIsUnit(tooltipUnit, "mouseover") then
-	return "mouseover"
-    else
-	return tooltipUnit
+--Check and upgrade IcetipDB
+function Icetip:checkAndUpgrade()
+    --Icetip 2.0, check tipmodifier
+    local _;
+    if (not self.db.tipmodifier) or (self.db.tipmodifier and not self.db.tipmodifier["units"].modifiers) then
+	--update
+	self.db.tipmodifier = {};
+	for _, unit in pairs({"units", "objects", "unitFrames", "otherFrames"}) do
+	    self.db.tipmodifier[unit] = {
+		show = "always",
+		modifiers = {
+		    ALT = false,
+		    SHIFT = false,
+		    CTRL = false
+		}
+	    }
+	end
     end
-end
-
-function Icetip:GetUnitByGUID(unitGUID)
-    local unitID
-    for i = 1, 4, 1 do
-	if UnitGUID("party"..i) == unitGUID then unitID = "party"..i end
-    end
-    for i = 1, 40, 1 do
-	if UnitGUID("raid"..i) == unitGUID then unitID = "raid"..i end
-    end
-    if UnitGUID("player") == unitGUID then
-	unitID = "player"
-    elseif UnitGUID("mouseover") == unitGUID then
-	unitID = "mouseover"
-    elseif UnitGUID("target") == unitGUID then
-	unitID = "target"
-    elseif UnitGUID("focus") == unitGUID then
-	unitID = "focus"
-    end
-    return unitID
 end
 
 -------------------------------
@@ -327,50 +319,54 @@ end
 -- need rewrite!
 -- update key status
 function Icetip:MODIFIER_STATE_CHANGED(event, modifier, down)
-    --if not GameTooltip._config then return end
-    --local config = GameTooltip._config;
-    --local modifiers = config.modifiers;
-    --local checkFunc = {}
-    --for modifier, mvalue in pairs(modifiers) do
-    --    if mvalue then
-    --        tinsert(checkFunc, modifier);
-    --    end
-    --end
+    --if not set
+    if not GameTooltip._config then return end
+    if (not GameTooltip._config.checkFunc) then return end
+    local checkFunc = GameTooltip._config.checkFunc;
 
-    ----TODO: NEED OPTIMIZING!!
-    --local canShow = true;
-    --if #checkFunc then
-    --    for _, modifier in pairs(checkFunc) do
-    --        canShow = canShow and modifierFuncs[modifier]()
-    --    end
-    --    
-    --    if not canShow then
-    --        return nil
-    --    end
-    --end
+    local mayIShow = true;--yep, You can show it!
+    --if it has key modifier
+    if #checkFunc then
+	for _, modifier in pairs(checkFunc) do
+	    --must all true
+	    mayIShow = mayIShow and modifierFuncs[modifier]()
+	end
 
-    local frame = GetMouseFocus();
-    if frame == WorldFrame or frame == UIParent then
-      local mouseover_unit = self:GetMouseoverUnit();
-      if not UnitExists(mouseover_unit) then
-          GameTooltip:Hide()
-      end
-      GameTooltip:Hide();
-      GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
-      GameTooltip:SetUnit(mouseover_unit);
-      GameTooltip:Show();
+	--Oops, you need hide.
+	if not mayIShow then
+	    return nil
+	end
     else
-      local onLeave, onEnter = frame:GetScript("OnLeave"), frame:GetScript("OnEnter");
-      if onLeave then
-          self.modifierFrame = frame;
-          onLeave(frame);
-          self.modifierFrame = nil;
-      end
-      if onEnter then
-          self.modifierFrame = frame;
-          onEnter(frame);
-          self.modifierFrame = nil;
-      end
+	--it's not include checkFunc, it will return ;
+	return nil;
+    end
+
+
+    --Ohahah, I can show!
+    if mayIShow then
+	local frame = GetMouseFocus();
+	if frame == WorldFrame or frame == UIParent then
+	  local mouseover_unit = self:GetMouseoverUnit();
+	  if not UnitExists(mouseover_unit) then
+	      GameTooltip:Hide()
+	  end
+	  GameTooltip:Hide();
+	  GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
+	  GameTooltip:SetUnit(mouseover_unit);
+	  GameTooltip:Show();
+	else
+	  local onLeave, onEnter = frame:GetScript("OnLeave"), frame:GetScript("OnEnter");
+	  if onLeave then
+	      self.modifierFrame = frame;
+	      onLeave(frame);
+	      self.modifierFrame = nil;
+	  end
+	  if onEnter then
+	      self.modifierFrame = frame;
+	      onEnter(frame);
+	      self.modifierFrame = nil;
+	  end
+	end
     end
 end
 
@@ -410,6 +406,8 @@ function Icetip:Tooltip_OnShow(tooltip, ...)
             end
         end
 
+
+	--get tooltip type, and get config
         local config;
         if tooltip:IsOwned(UIParent) then
             if tooltip:GetUnit() then
@@ -424,33 +422,42 @@ function Icetip:Tooltip_OnShow(tooltip, ...)
         	config = self.db.tipmodifier.otherFrames;
             end
 	end
-	tooltip._config = config;
+	--tooltip._config = config;
 
         local modifiers = config.modifiers;
 	local checkFunc = {}
-	if modifiers then
-	    for modifier, mvalue in pairs(modifiers) do
-		if mvalue then
-		    tinsert(checkFunc, modifier);
-		end
-	    end
-
-	    --TODO: NEED OPTIMIZING!!
-	    local canShow = true;
-	    if #checkFunc then
-		for _, modifier in pairs(checkFunc) do
-		    canShow = canShow and modifierFuncs[modifier]()
-		end
-		
-		if not canShow then
-		    tooltip.justHide = true
-		    tooltip:Hide();
-		    tooltip.justHide = nil
-		    return
-		end
+	--get checkfunc when you seted key modifier
+	for modifier, mvalue in pairs(modifiers) do
+	    if mvalue then
+		tinsert(checkFunc, modifier);
 	    end
 	end
+	
+	--temp config
+	tooltip._config = {
+	    config = config,
+	    checkFunc = checkFunc
+	}
 
+	--TODO: NEED OPTIMIZING!!
+	local mayIShow = true;--yep, You can show it!
+	--if it has key modifier
+	if #checkFunc then
+	    for _, modifier in pairs(checkFunc) do
+		--must all true
+		mayIShow = mayIShow and modifierFuncs[modifier]()
+	    end
+
+	    --Oops, you need hide.
+	    if not mayIShow then
+		tooltip.justHide = true
+		tooltip:Hide();
+		tooltip.justHide = nil
+		return
+	    end
+	end
+    
+	--now, check show type, incombat?
 	local show = config.show;
         if show == "notcombat" then
             if InCombatLockdown() then
@@ -548,6 +555,35 @@ end
 ---------------------------------------------
 -- Common function
 ---------------------------------------------
+function Icetip:GetMouseoverUnit()
+    local _, tooltipUnit = GameTooltip:GetUnit()
+    if not tooltipUnit or not UnitExists(tooltipUnit) or UnitIsUnit(tooltipUnit, "mouseover") then
+	return "mouseover"
+    else
+	return tooltipUnit
+    end
+end
+
+function Icetip:GetUnitByGUID(unitGUID)
+    local unitID
+    for i = 1, 4, 1 do
+	if UnitGUID("party"..i) == unitGUID then unitID = "party"..i end
+    end
+    for i = 1, 40, 1 do
+	if UnitGUID("raid"..i) == unitGUID then unitID = "raid"..i end
+    end
+    if UnitGUID("player") == unitGUID then
+	unitID = "player"
+    elseif UnitGUID("mouseover") == unitGUID then
+	unitID = "mouseover"
+    elseif UnitGUID("target") == unitGUID then
+	unitID = "target"
+    elseif UnitGUID("focus") == unitGUID then
+	unitID = "focus"
+    end
+    return unitID
+end
+
 function Icetip:Hex(r, g, b)
     if (type(r) == "table") then
         if (r.r) then
