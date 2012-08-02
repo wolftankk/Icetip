@@ -293,6 +293,10 @@ function mod:SetTooltipFont(value, tooltip)
 	    local v = select(i, tooltip:GetRegions());
 	    if (v:GetObjectType() == "FontString") then
 		local _, size, style = v:GetFont();
+		if (not size) or (size and size < 6) then
+		    --default size, need test
+		    size = 11;
+		end
 		v:SetFont(font, size, style);
 	    end
 	end
