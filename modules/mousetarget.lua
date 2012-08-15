@@ -282,13 +282,16 @@ function mod:SetTooltipInfo(unit)
     self:GetTargetLine(unit)
 
     if isPlayer and UnitIsConnected(unit) then
-        if UnitLevel(unit) >= 10 then
+        if UnitLevel(unit) >= 10 and CanInspect(unit) then
             local guid = UnitGUID(unit);
             mod:RegisterEvent("INSPECT_READY");
             --save it
             if not Icetip_InspectTalent[guid] then
                 Icetip_InspectTalent[guid] = {}
-            end
+	    end
+
+	    --Ends inspection of another character. After this function is called, data about the inspected unit may not be available or valid.
+	    ClearInspectPlayer();
             NotifyInspect(unit)
         end
     end
