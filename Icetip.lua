@@ -1,26 +1,12 @@
-------------------------------------------------
---Icetip
---Description: The tooltip addon for wow
---Author: wolftankk@gmail.com
-------------------------------------------------
 local addonName, Icetip = ...
-Icetip = LibStub("AceAddon-3.0"):NewAddon(Icetip, addonName, "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0");
-Icetip.vesion = GetAddOnMetadata(addonName, "Version") 
-local modules = {};
-Icetip.modules = modules;
 
+Icetip = LibStub("AceAddon-3.0"):NewAddon(Icetip, addonName, "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0");
+Icetip.vesion = GetAddOnMetadata(addonName, "Version");
+
+--load Libs
 local SM = LibStub("LibSharedMedia-3.0");
 local LDB = LibStub("LibDataBroker-1.1", true);
 local icon = LibStub("LibDBIcon-1.0", true);
-
-local tooltips = {
-    GameTooltip,
-    ItemRefTooltip,
-    ShoppingTooltip1,
-    ShoppingTooltip2,
-    ShoppingTooltip3,
-    WorldMapTooltip
-}
 
 local default = {
     profile = {
@@ -54,6 +40,9 @@ local default = {
 --------------------------------------------------------------
 --- icetip modules
 --------------------------------------------------------------
+local modules = {};
+Icetip.modules = modules;
+
 local modhandler = {};
 local CallbackHandler = LibStub:GetLibrary("CallbackHandler-1.0");
 modhandler.frame = CreateFrame("Frame");
@@ -227,6 +216,14 @@ function Icetip:OnInitialize()
     Icetip:RegisterOptions();
 end
 
+local tooltips = {
+    GameTooltip,
+    ItemRefTooltip,
+    ShoppingTooltip1,
+    ShoppingTooltip2,
+    ShoppingTooltip3,
+    WorldMapTooltip
+}
 function Icetip:OnEnable()
     for name, mod in self:GetModules() do
 	if (self.db.modules[name].enabled) then
@@ -244,7 +241,6 @@ function Icetip:OnEnable()
         self:HookScript(tooltip, "OnHide", "Tooltip_OnHide");
 	--OnUpdate
         self:HookScript(tooltip, "OnUpdate", "Tooltip_OnUpdate");
-
 	--fire when tooltip has cleared
         self:HookScript(tooltip, "OnTooltipCleared", "Tooltip_Cleared");
 	--fire when tooltip has SetUnit
@@ -257,7 +253,6 @@ function Icetip:OnEnable()
         self:HookScript(tooltip, "OnTooltipSetQuest", "Tooltip_SetQuest");
 	--SetAchievement
         self:HookScript(tooltip, "OnTooltipSetAchievement", "Tooltip_SetAchievement");
-
 	--tooltip position hook
         self:HookScript(tooltip, "OnTooltipSetDefaultAnchor", "Tooltip_SetDefaultAnchor");
 
@@ -312,12 +307,15 @@ function Icetip:checkAndUpgrade()
     end
 end
 
+local modifierFuncs = {
+    ALT = function() return IsAltKeyDown() end,
+    SHIFT = function() return IsShiftKeyDown() end,
+    CTRL = function() return IsControlKeyDown() end
+}
 -------------------------------
 --imporvide modifier
 --See http://wow.curseforge.com/addons/icetip/tickets/4-show-hide-logic-update-mouse-position/
 -------------------------------
--- need rewrite!
--- update key status
 function Icetip:MODIFIER_STATE_CHANGED(event, modifier, down)
     --if not set
     if not GameTooltip._config then return end
@@ -376,6 +374,7 @@ end
 local forgetNextOnTooltipMethod = false
 local doneOnTooltipMethod = false;
 
+--tooltip:Show
 function Icetip:Tooltip_Show(tooltip, ...)
     --self:CallMethodAllModules("PreTooltipShow", tooltip, ...)
     tooltip:SetHeight(0)
@@ -384,16 +383,13 @@ function Icetip:Tooltip_Show(tooltip, ...)
     self:CallMethodAllModules("PostTooltipShow", tooltip, ...)
 end
 
-local modifierFuncs = {
-    ALT = function() return IsAltKeyDown() end,
-    SHIFT = function() return IsShiftKeyDown() end,
-    CTRL = function() return IsControlKeyDown() end
-}
+--tooltip:OnShow
 function Icetip:Tooltip_OnShow(tooltip, ...)
     tooltip._offset = nil
+    tooltip._config = nil
     self:CallMethodAllModules("PreOnTooltipShow", tooltip, ...);
 
-    --Only handler GameTooltip OnShow
+    --Only for GameTooltip
     if tooltip == GameTooltip then
         if doneOnTooltipMethod then
             if tooltip:GetUnit() then
@@ -477,12 +473,12 @@ function Icetip:Tooltip_OnShow(tooltip, ...)
     self:CallMethodAllModules("OnTooltipShow", tooltip);
 end
 
+--tooltip:OnHide
 function Icetip:Tooltip_OnHide(tooltip, ...)
     --reset
     doneOnTooltipMethod = false;
     forgetNextOnTooltipMethod = false
     tooltip._offset = nil
-    tooltip._config = nil
 
     self:CallMethodAllModules("OnTooltipHide");
     if self.hooks[tooltip] and self.hooks[tooltip].OnHide then
@@ -492,6 +488,7 @@ function Icetip:Tooltip_OnHide(tooltip, ...)
     end
 end
 
+--Tooltip:SetUnit
 function Icetip:Tooltip_SetUnit(tooltip, ...)
     GameTooltipStatusBar:Hide();
     GameTooltipStatusBar:ClearAllPoints();
@@ -537,13 +534,16 @@ function Icetip:Tooltip_SetAchievement(tooltip, ...)
     end
 end
 
+--Tooltip:Cleared
 function Icetip:Tooltip_Cleared(tooltip, ...)
 
 end
 
+--Tooltip:SetDefaultAnchor
 function Icetip:Tooltip_SetDefaultAnchor(tooltip, ...)
 end
 
+--tooltip:OnUpdate
 function Icetip:Tooltip_OnUpdate(tooltip, elapsed)
     if tooltip._offset and tooltip._offset > 0 then
 	if tooltip:GetHeight() <= tooltip._offset then

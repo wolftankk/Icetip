@@ -60,7 +60,7 @@ function mod:PreTooltipSetUnit(tooltip, ...)
 	if unit and cls and isPlayer then
 	    if db.displayMode == "icon" then
 		local coords = CLASS_ICON_TCOORDS[cls];
-		self.icon.icon:SetTexCoord(coords[1] , coords[2] , coords[3] , coords[4] );
+		self.icon.icon:SetTexCoord(unpack(coords));
 		self.icon:Show();
 	    elseif db.displayMode == "border" then
 		local color = RAID_CLASS_COLORS[cls];
