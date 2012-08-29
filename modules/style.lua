@@ -183,7 +183,7 @@ function mod:SetBackgroundColor(given_kind, r, g,b,a, tooltip)
     local kind = given_kind
     if not kind then
         kind = "other"
-        local unit
+        local _, unit;
         if (type(tooltip.GetUnit) == "function") then
             _, unit = tooltip:GetUnit()
         end
