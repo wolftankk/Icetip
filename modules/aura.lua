@@ -61,16 +61,17 @@ end
 function mod:createAura(parent)
     local button = CreateFrame("Button", nil, parent);
     button:SetSize(db.size, db.size);
+
     button.count = button:CreateFontString(nil, "ARTWORK")
     button.count:SetPoint("BOTTOMRIGHT", 1, 0)
     button.count:SetFont(GameFontNormal:GetFont(), db.size /2, "OUTLINE");
+
     button.icon = button:CreateTexture(nil, "BACKGROUND")
     button.icon:SetAllPoints(button)
-    --remove icon border
     button.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
 
     button.cooldown = CreateFrame("Cooldown", nil, parent ,"CooldownFrameTemplate");
-    button.cooldown:SetReverse(1)
+    button.cooldown:SetReverse(false)
     button.cooldown:SetAllPoints(button)
     button.cooldown:SetFrameLevel(button:GetFrameLevel())
     button.cooldown.noCooldownCount = true
