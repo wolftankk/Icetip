@@ -59,8 +59,12 @@ function mod:PreTooltipSetUnit(tooltip, ...)
 	local isPlayer = UnitIsPlayer(unit);
 	if unit and cls and isPlayer then
 	    if db.displayMode == "icon" then
-		local coords = CLASS_ICON_TCOORDS[cls];
-		self.icon.icon:SetTexCoord(unpack(coords));
+		local left, right, top, bottom = unpack(CLASS_ICON_TCOORDS[cls]);
+		left = left + (right - left) * 0.07;
+		right = right - (right - left) * 0.07;
+		top = top + (bottom - top) * 0.07;
+		bottom = bottom - (bottom - top) * 0.07;
+		self.icon.icon:SetTexCoord(left, right, top, bottom);
 		self.icon:Show();
 	    elseif db.displayMode == "border" then
 		local color = RAID_CLASS_COLORS[cls];
