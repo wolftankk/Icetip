@@ -71,7 +71,7 @@ function mod:createAura(parent)
     button.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
 
     button.cooldown = CreateFrame("Cooldown", nil, parent ,"CooldownFrameTemplate");
-    button.cooldown:SetReverse(false)
+    button.cooldown:SetReverse(1)
     button.cooldown:SetAllPoints(button)
     button.cooldown:SetFrameLevel(button:GetFrameLevel())
     button.cooldown.noCooldownCount = true
