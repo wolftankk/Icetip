@@ -117,15 +117,17 @@ do
     local updatePoisition;
 
     local function createEditorBox()
+	--Create a editor window
 	editorbox = CreateFrame("Frame", nil, UIParent);
 	editorbox:SetSize(screenWidth / 2, screenHeight / 2);
 	editorbox:SetFrameStrata("TOOLTIP");
 	editorbox:SetPoint("CENTER", UIParent, "CENTER");
-
+	--set editorbox background;
 	local bg = editorbox:CreateTexture(nil, "BACKGROUND");
 	bg:SetTexture(0, 0, 0, 0.6);
 	bg:SetAllPoints(editorbox);
 
+	--create a editorbox's header
 	local header = CreateFrame("Frame", nil, editorbox);
 	header:SetSize(editorbox:GetWidth(), 32);
 	header:SetPoint("BOTTOM", editorbox, "TOP", 0, 0);
@@ -133,7 +135,7 @@ do
 	headerbg:SetTexture(0, 0, 0, 0.8);
 	headerbg:SetAllPoints(header);
 
-
+	--create a close button on the header
 	local close = CreateFrame("Button", nil, header);
 	close:SetSize(16, 16);
 	close:SetPoint("TOPRIGHT", header, "TOPRIGHT", -2, -2);
@@ -158,17 +160,7 @@ do
 	line:SetSize(editorbox:GetWidth(), 1);
 	line:SetPoint("TOPLEFT", editorbox, "TOPLEFT", 0, 0);
 	line:SetVertexColor(1, 1, 1, 0.7);
-	--top add options
-	--[[
-	-------------------------------------------------
-	  anchor                                      x
-	-------------------------------------------------
-	|						    |
-	|						    |
-	|						    |
-	|						    |
-	|_______________________________________________|
-	]]
+
 	local anchorText = header:CreateFontString(nil, "OVERLAY");
 	anchorText:SetFont(STANDARD_TEXT_FONT, 12, "OUTLINE");
 	anchorText:SetHeight(15);
@@ -176,6 +168,7 @@ do
 	anchorText:SetText("Anchor");
 	anchorText:SetPoint("LEFT", header, "LEFT", 10, 0);
 	
+	--add dropdown list
 	local dropdown = LibStub("AceGUI-3.0"):Create("Dropdown");
 	dropdown:SetWidth(150);
 	dropdown:ClearAllPoints();
@@ -208,12 +201,14 @@ do
 	cursor:SetParent(editorbox);
 	cursor:SetClampedToScreen(true);
 	cursor:RegisterForDrag("LeftButton");
-
+	
+	-----------------------------------------------------------
+	--  point func 
+	-----------------------------------------------------------
 	local onUpdate = function()
 	    --local _, _, _, x, y = cursor:GetPoint();
 	    --print(x, y)
 	end
-	
 	cursor:SetScript("OnDragStart", function()
 	    cursor:StartMoving();
 	    cursor:SetScript("OnUpdate", onUpdate);
@@ -224,14 +219,19 @@ do
 	    cursor:StopMovingOrSizing();
 	    cursor:SetScript("OnUpdate", nil);
 	end);
-
+	----------------------------------------------------------
+	----------------------------------------------------------
+	
+	----create a diamond
 	local cursor_tex = cursor:CreateTexture(nil, "OVERLAY");
 	cursor_tex:SetTexture(0.45, 0.6, 0, 0.5);
 	cursor_tex:SetAllPoints(cursor);
 	cursor:SetMovable(true);
 	editorbox.cursor = cursor;
 
-	--mouse
+	--------------------------------
+	--create a mouse in the screen
+	--------------------------------
 	local mouse = editorbox:CreateTexture(nil, "DIALOG", editorbox);
 	mouse:SetTexture("Interface\\CURSOR\\Point");
 	mouse:SetSize(32, 32);
@@ -239,6 +239,10 @@ do
 	mouse:Hide();
 	editorbox.mouse = mouse;
 	
+	editorbox:SetScript("OnShow", function(self)
+	    updatePoisition(kind);
+	end);
+
 	editorbox:Hide();
     end
 
@@ -253,7 +257,8 @@ do
 
 	editorbox.dropdown:SetValue(anchor);
 	editorbox.mouse:Hide();
-
+	
+	--calc offsetX / offsetY
 	if anchor:find("^CURSOR") or anchor:find("^PARENT") then
 	    --if anchor == "CURSOR_TOP" and math.abs(offsetX) < 1 and math.abs(offsetY) < 0 then
 	    --    --tooltip:SetOwner(parent, "ANCHOR_CURSOR");
@@ -281,12 +286,9 @@ do
 	if (not editorbox) then 
 	    createEditorBox();
 	end
-	editorbox:Hide();
 
+	editorbox:Hide();
 	editorbox.kind = kind
-	editorbox:SetScript("OnShow", function(self)
-	    updatePoisition(kind);
-	end);
 	editorbox:Show();
     end
 end
