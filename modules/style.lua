@@ -50,7 +50,6 @@ end
 local origin_GetBackdropColor = GameTooltip.GetBackdropColor
 local origin_GetBackdropBorderColor = GameTooltip.GetBackdropBorderColor
 local origin_backdrop = GameTooltip:GetBackdrop();
-
 local hookOnShow;
 do
     local hooked = {}

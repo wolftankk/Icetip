@@ -176,3 +176,4 @@ L["otherFrames_header"] = "Non-unit frames"
 L["otherFrames_desc"] = "Show the tooltip for non-unit framers if... (spells, items, etc.)"
 L["Show"] = true
 L["Show the tooltip if..."] = true
+L["Screen"] = true
