@@ -86,11 +86,6 @@ function mod:SetTooltipAnchor(tooltip, parent, ...)
     end
 end
 
-function mod:editPosition()
-
-end
-
-
 local anchorType = {
     ["CURSOR_BOTTOM"] = L["Mouse Top"],
     ["CURSOR_TOP"] = L["Mouse Bottom"],
@@ -118,6 +113,170 @@ local anchorType = {
     ["PARENT_BOTTOMLEFT"] = L["Parent Top Left"],
     ["PARENT_BOTTOMRIGHT"] = L["Parent Top Right"],
 }
+do
+    local editorbox;
+    local updatePoisition;
+
+    local function createEditorBox()
+	editorbox = CreateFrame("Frame", nil, UIParent);
+	editorbox:SetSize(screenWidth / 2, screenHeight / 2);
+	editorbox:SetFrameStrata("TOOLTIP");
+	editorbox:SetPoint("CENTER", UIParent, "CENTER");
+
+	local bg = editorbox:CreateTexture(nil, "BACKGROUND");
+	bg:SetTexture(0, 0, 0, 0.6);
+	bg:SetAllPoints(editorbox);
+
+	local header = CreateFrame("Frame", nil, editorbox);
+	header:SetSize(editorbox:GetWidth(), 32);
+	header:SetPoint("BOTTOM", editorbox, "TOP", 0, 0);
+	local headerbg = header:CreateTexture(nil, "BACKGROUND");
+	headerbg:SetTexture(0, 0, 0, 0.8);
+	headerbg:SetAllPoints(header);
+
+
+	local close = CreateFrame("Button", nil, header);
+	close:SetSize(16, 16);
+	close:SetPoint("TOPRIGHT", header, "TOPRIGHT", -2, -2);
+	close:SetNormalTexture("Interface\\AddOns\\Icetip\\media\\close.tga");
+	close:SetHighlightTexture("Interface\\AddOns\\Icetip\\media\\close.tga", "ADD");
+	close:SetScript("OnClick", function()
+	    editorbox.kind = nil;
+	    editorbox:Hide();
+	end);
+	close:SetScript("OnEnter", function(self)
+	    GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+	    GameTooltip:SetText("Icetip Visual Editor");
+	    GameTooltip:AddLine("Close the editor window");
+	    GameTooltip:Show();
+	end);
+	close:SetScript("OnLeave", function()
+	    GameTooltip:Hide();
+	end);
+
+	local line = editorbox:CreateTexture(nil, "BORDER");
+	line:SetTexture("Interface\\BUTTONS\\WHITE8X8");
+	line:SetSize(editorbox:GetWidth(), 1);
+	line:SetPoint("TOPLEFT", editorbox, "TOPLEFT", 0, 0);
+	line:SetVertexColor(1, 1, 1, 0.7);
+	--top add options
+	--[[
+	-------------------------------------------------
+	  anchor                                      x
+	-------------------------------------------------
+	|						    |
+	|						    |
+	|						    |
+	|						    |
+	|_______________________________________________|
+	]]
+	local anchorText = header:CreateFontString(nil, "OVERLAY");
+	anchorText:SetFont(STANDARD_TEXT_FONT, 12, "OUTLINE");
+	anchorText:SetHeight(15);
+	anchorText:SetTextColor(1, .82, 0);
+	anchorText:SetText("Anchor");
+	anchorText:SetPoint("LEFT", header, "LEFT", 10, 0);
+	
+	local dropdown = LibStub("AceGUI-3.0"):Create("Dropdown");
+	dropdown:SetWidth(150);
+	dropdown:ClearAllPoints();
+	dropdown.frame:SetParent(header);
+	dropdown:SetPoint("LEFT", anchorText, "RIGHT", 3, 0);
+	dropdown:SetList(anchorType);
+	dropdown:SetCallback("OnValueChanged", function(widget, event, key)
+	    local kind = editorbox.kind;
+	    if (kind) then
+		local db_anchorKey = kind.."Anchor";
+		db[db_anchorKey] = key;
+		LibStub("AceConfigRegistry-3.0"):NotifyChange("Icetip");
+		
+		--update position;
+		updatePoisition(kind);
+	    end
+	end);
+	editorbox.dropdown = dropdown;
+
+	--position button
+	local cursor = CreateFrame("Button", nil, editorbox);
+	cursor:SetSize(64, 64);
+	cursor:SetParent(editorbox);
+	cursor:SetClampedToScreen(true);
+	cursor:RegisterForDrag("LeftButton");
+	
+	--cursor:SetScript("OnDragStart", function()
+	--    cursor:StartMoving();
+	--    local _, _, _, x, y = cursor:GetPoint();
+	--    print(x, y)
+	--end)
+	--cursor:SetScript("OnDragStop", function()
+	--    cursor:StopMovingOrSizing();
+	--end);
+
+	local cursor_tex = cursor:CreateTexture(nil, "OVERLAY");
+	cursor_tex:SetTexture(0.45, 0.6, 0, 0.5);
+	cursor_tex:SetAllPoints(cursor);
+	cursor:SetMovable(true);
+	editorbox.cursor = cursor;
+
+	--mouse
+	local mouse = editorbox:CreateTexture(nil, "DIALOG", editorbox);
+	mouse:SetTexture("Interface\\CURSOR\\Point");
+	mouse:SetSize(32, 32);
+	mouse:SetPoint("CENTER", editorbox, "CENTER", 0, 0);
+	mouse:Hide();
+	editorbox.mouse = mouse;
+	
+	editorbox:Hide();
+    end
+
+    function updatePoisition(kind)
+	local db_anchorKey = kind.."Anchor";
+	local db_offsetX = kind.."OffsetX";
+	local db_offsetY = kind.."OffsetY";
+	local anchor = db[db_anchorKey];
+	local offsetX = db[db_offsetX];
+	local offsetY = db[db_offsetY];
+	local scale = GameTooltip:GetEffectiveScale();
+
+	editorbox.dropdown:SetValue(anchor);
+	editorbox.mouse:Hide();
+
+	if anchor:find("^CURSOR") or anchor:find("^PARENT") then
+	    --if anchor == "CURSOR_TOP" and math.abs(offsetX) < 1 and math.abs(offsetY) < 0 then
+	    --    --tooltip:SetOwner(parent, "ANCHOR_CURSOR");
+	    --else
+	    --    local cursorAnchor = anchor:sub(8);
+	    --    local anchorType = anchor:sub(1, 6);
+	    --    if anchorType == "PARENT" then
+	    --    --    GameTooltip:SetPoint(currentCursorAnchor, currentOwner, anchorOpposite[currentCursorAnchor], currentOffsetX, currentOffsetY)
+	    --    elseif anchorType == "CURSOR" then
+	    --        self.mouse:Show();
+	    --        local x, y = 0, 0
+	    --        self.cursor:SetPoint(cursorAnchor, self.mouse, "BOTTOMLEFT", x + (offsetX / 2), y + (offsetY / 2));
+	    --    end
+	    --end
+	else
+	    editorbox.cursor:ClearAllPoints();
+	    editorbox.cursor:SetPoint(anchor, editorbox, anchor, offsetX / 2, offsetY / 2)
+	end
+    end
+
+    function mod:editPosition(kind)
+	if (not kind) then
+	    return false;
+	end
+	if (not editorbox) then 
+	    createEditorBox();
+	end
+	editorbox.kind = kind
+	editorbox:SetScript("OnShow", function(self)
+	    updatePoisition(kind);
+	end);
+	editorbox:Show();
+    end
+end
+
+
 function mod:GetOptions()
     local options = {
 	header1 = {
@@ -172,19 +331,31 @@ function mod:GetOptions()
 		db.unitOffsetY = v
 	    end
 	},
+	unitGUI = {
+	    type = "execute",
+	    width = "full",
+	    order = 7,
+	    name = "Visual editor",
+	    desc = "Edit tooltip's position", --TODO
+	    func = function()
+		mod:editPosition("unit");
+	    end
+	},
+
+
 	header2 = {
 	    type = "header",
-	    order = 7,
+	    order = 8,
 	    name = L["Frame"],
 	},
 	desc_2 = {
 	    type = "description",
 	    name = L["Options for the frame mouseover tooltips(spells, items, etc.)"],
-	    order = 8
+	    order = 9
 	},
 	frameAnchor = {
 	    type = "select",
-	    order = 9,
+	    order = 10,
 	    name = L["Anchor"],
 	    desc = L["The anchor with which the tooltips are showed."],
 	    values = anchorType,
@@ -196,11 +367,11 @@ function mod:GetOptions()
 	space_2 = {
 	    type = "description",
 	    name = L["Sets anchor offset"],
-	    order = 10,
+	    order = 11,
 	},
 	framePosX = {
 	    type = "range",
-	    order = 11,
+	    order = 12,
 	    name = L["Horizontal offset"],
 	    desc = L["Sets offset of the X"],
 	    min = tonumber(-(floor(screenWidth/5 + 0.5) * 5)),
@@ -213,7 +384,7 @@ function mod:GetOptions()
 	},
 	framePoxY = {
 	    type = "range",
-	    order = 12,
+	    order = 13,
 	    name = L["Vertical offset"],
 	    desc = L["Sets offset of the Y"],
 	    min = tonumber(-(floor(screenHeight/5 + 0.5) * 5)),
