@@ -7,6 +7,8 @@ local currentOffsetX, currentOffsetY = 0, 0
 local currentCursorAnchor = "BOTTOM"
 local currentAnchorType = "CURSOR"
 local currentOwner = UIParent
+local screenHeight = GetScreenHeight();
+local screenWidth  = GetScreenWidth();
 
 local anchorOpposite = {
     BOTTOMLEFT = "TOPLEFT",
@@ -149,8 +151,8 @@ function mod:GetOptions()
 	    order = 5,
 	    name = L["Horizontal offset"],
 	    desc = L["Sets offset of the X"],
-	    min = tonumber(-(floor(GetScreenWidth()/5 + 0.5) * 5)),
-	    max = tonumber(floor(GetScreenWidth()/5 + 0.5) * 5),
+	    min = tonumber(-(floor(screenWidth/5 + 0.5) * 5)),
+	    max = tonumber(floor(screenWidth/5 + 0.5) * 5),
 	    step = 1,
 	    get = function() return db.unitOffsetX end,
 	    set = function(_, v)
@@ -162,8 +164,8 @@ function mod:GetOptions()
 	    order = 6,
 	    name = L["Vertical offset"],
 	    desc = L["Sets offset of the Y"],
-	    min = tonumber(-(floor(GetScreenHeight()/5 + 0.5) * 5)),
-	    max = tonumber(floor(GetScreenHeight()/5 + 0.5) * 5),
+	    min = tonumber(-(floor(screenHeight/5 + 0.5) * 5)),
+	    max = tonumber(floor(screenHeight/5 + 0.5) * 5),
 	    step = 1,
 	    get = function() return db.unitOffsetY end,
 	    set = function(_, v)
@@ -201,8 +203,8 @@ function mod:GetOptions()
 	    order = 11,
 	    name = L["Horizontal offset"],
 	    desc = L["Sets offset of the X"],
-	    min = tonumber(-(floor(GetScreenWidth()/5 + 0.5) * 5)),
-	    max = tonumber(floor(GetScreenWidth()/5 + 0.5) * 5),
+	    min = tonumber(-(floor(screenWidth/5 + 0.5) * 5)),
+	    max = tonumber(floor(screenWidth/5 + 0.5) * 5),
 	    step = 1,
 	    get = function() return db.frameOffsetX end,
 	    set = function(_, v)
@@ -214,8 +216,8 @@ function mod:GetOptions()
 	    order = 12,
 	    name = L["Vertical offset"],
 	    desc = L["Sets offset of the Y"],
-	    min = tonumber(-(floor(GetScreenHeight()/5 + 0.5) * 5)),
-	    max = tonumber(floor(GetScreenHeight()/5 + 0.5) * 5),
+	    min = tonumber(-(floor(screenHeight/5 + 0.5) * 5)),
+	    max = tonumber(floor(screenHeight/5 + 0.5) * 5),
 	    step = 1,
 	    get = function() return db.frameOffsetY end,
 	    set = function(_, v)
