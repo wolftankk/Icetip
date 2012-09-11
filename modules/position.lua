@@ -196,21 +196,35 @@ do
 	end);
 	editorbox.dropdown = dropdown;
 
+	local tipText = header:CreateFontString(nil, "OVERLAY");
+	tipText:SetFont(STANDARD_TEXT_FONT, 12, "OUTLINE");
+	tipText:SetHeight(15);
+	tipText:SetTextColor(1, .82, 0);
+	tipText:SetText("Drop the green diamond for positioning");
+	tipText:SetPoint("LEFT", dropdown.frame, "RIGHT", 10, 0);
+
 	--position button
 	local cursor = CreateFrame("Button", nil, editorbox);
 	cursor:SetSize(64, 64);
 	cursor:SetParent(editorbox);
 	cursor:SetClampedToScreen(true);
 	cursor:RegisterForDrag("LeftButton");
+
+	local onUpdate = function()
+	    --local _, _, _, x, y = cursor:GetPoint();
+	    --print(x, y)
+	end
 	
-	--cursor:SetScript("OnDragStart", function()
-	--    cursor:StartMoving();
-	--    local _, _, _, x, y = cursor:GetPoint();
-	--    print(x, y)
-	--end)
-	--cursor:SetScript("OnDragStop", function()
-	--    cursor:StopMovingOrSizing();
-	--end);
+	cursor:SetScript("OnDragStart", function()
+	    cursor:StartMoving();
+	    cursor:SetScript("OnUpdate", onUpdate);
+	    --local _, _, _, x, y = cursor:GetPoint();
+	    --print(x, y)
+	end)
+	cursor:SetScript("OnDragStop", function()
+	    cursor:StopMovingOrSizing();
+	    cursor:SetScript("OnUpdate", nil);
+	end);
 
 	local cursor_tex = cursor:CreateTexture(nil, "OVERLAY");
 	cursor_tex:SetTexture(0.45, 0.6, 0, 0.5);
@@ -268,6 +282,8 @@ do
 	if (not editorbox) then 
 	    createEditorBox();
 	end
+	editorbox:Hide();
+
 	editorbox.kind = kind
 	editorbox:SetScript("OnShow", function(self)
 	    updatePoisition(kind);
@@ -394,7 +410,17 @@ function mod:GetOptions()
 	    set = function(_, v)
 		db.frameOffsetY = v
 	    end
-	}
+	},
+	frameGUI = {
+	    type = "execute",
+	    width = "full",
+	    order = 14,
+	    name = "Visual editor",
+	    desc = "Edit tooltip's position", --TODO
+	    func = function()
+		mod:editPosition("frame");
+	    end
+	},
     }
 
     return options
