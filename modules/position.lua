@@ -20,7 +20,6 @@ local anchorOpposite = {
     TOP = "BOTTOM",
     TOPRIGHT = "BOTTOMRIGHT",
 }
-
 local defaults = {
     profile = {
 	unitAnchor = "BOTTOMRIGHT",
@@ -86,7 +85,7 @@ function mod:SetTooltipAnchor(tooltip, parent, ...)
     end
 end
 
-local anchorType = {
+local anchorTypeList = {
     ["CURSOR_BOTTOM"] = L["Mouse Top"],
     ["CURSOR_TOP"] = L["Mouse Bottom"],
     ["CURSOR_RIGHT"] = L["Mouse Left"],
@@ -182,7 +181,7 @@ do
 	dropdown:ClearAllPoints();
 	dropdown.frame:SetParent(header);
 	dropdown:SetPoint("LEFT", anchorText, "RIGHT", 3, 0);
-	dropdown:SetList(anchorType);
+	dropdown:SetList(anchorTypeList);
 	dropdown:SetCallback("OnValueChanged", function(widget, event, key)
 	    local kind = editorbox.kind;
 	    if (kind) then
@@ -310,7 +309,7 @@ function mod:GetOptions()
 	    order = 3,
 	    name = L["Anchor"],
 	    desc = L["The anchor with which the tooltips are showed."],
-	    values = anchorType,
+	    values = anchorTypeList,
 	    get = function() return db.unitAnchor end,
 	    set = function(_, v)
 		db.unitAnchor = v
@@ -374,7 +373,7 @@ function mod:GetOptions()
 	    order = 10,
 	    name = L["Anchor"],
 	    desc = L["The anchor with which the tooltips are showed."],
-	    values = anchorType,
+	    values = anchorTypeList,
 	    get = function() return db.frameAnchor end,
 	    set = function(_, v)
 		db.frameAnchor = v
