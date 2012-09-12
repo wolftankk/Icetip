@@ -130,7 +130,7 @@ do
 	--create a editorbox's header
 	local header = CreateFrame("Frame", nil, editorbox);
 	header:SetSize(editorbox:GetWidth(), 32);
-	header:SetPoint("BOTTOM", editorbox, "TOP", 0, 0);
+	header:SetPoint("BOTTOM", editorbox, "TOP", 0, 5);
 	local headerbg = header:CreateTexture(nil, "BACKGROUND");
 	headerbg:SetTexture(0, 0, 0, 0.8);
 	headerbg:SetAllPoints(header);
@@ -158,7 +158,7 @@ do
 	local line = editorbox:CreateTexture(nil, "BORDER");
 	line:SetTexture("Interface\\BUTTONS\\WHITE8X8");
 	line:SetSize(editorbox:GetWidth(), 1);
-	line:SetPoint("TOPLEFT", editorbox, "TOPLEFT", 0, 0);
+	line:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 0, 0);
 	line:SetVertexColor(1, 1, 1, 0.7);
 
 	local anchorText = header:CreateFontString(nil, "OVERLAY");
@@ -188,28 +188,113 @@ do
 	end);
 	editorbox.dropdown = dropdown;
 
-	local tipText = header:CreateFontString(nil, "OVERLAY");
-	tipText:SetFont(STANDARD_TEXT_FONT, 12, "OUTLINE");
-	tipText:SetHeight(15);
-	tipText:SetTextColor(1, .82, 0);
-	tipText:SetText("Drop the green diamond for positioning");
-	tipText:SetPoint("LEFT", dropdown.frame, "RIGHT", 10, 0);
+	local offset = header:CreateFontString(nil, "OVERLAY");
+	offset:SetFont(STANDARD_TEXT_FONT, 12, "OUTLINE");
+	offset:SetHeight(15);
+	offset:SetTextColor(1, .82, 0);
+	offset:SetText("Coord: ");
+	offset:SetPoint("LEFT", dropdown.frame, "RIGHT", 10, 0);
+
+	local coord = header:CreateFontString(nil, "OVERLAY");
+	coord:SetFont(STANDARD_TEXT_FONT, 12, "OUTLINE");
+	coord:SetHeight(15);
+	coord:SetTextColor(1, 1, 1);
+	coord:SetText("");
+	coord:SetPoint("LEFT", offset, "RIGHT", 10, 0);
+	editorbox.coord = coord;
 
 	--position button
 	local cursor = CreateFrame("Button", nil, editorbox);
-	cursor:SetSize(64, 64);
+	cursor:SetSize(32, 32);
 	cursor:SetParent(editorbox);
 	cursor:SetClampedToScreen(true);
 	cursor:RegisterForDrag("LeftButton");
-	
+	cursor:SetMovable(true);
+
+	cursor:SetScript("OnEnter", function(self)
+	    GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+	    GameTooltip:AddLine("Hold and drag the green diamond for positioning");
+	    GameTooltip:Show();
+	end)
+	cursor:SetScript("OnLeave", function()
+	    GameTooltip:Hide();
+	end);
 	-----------------------------------------------------------
 	--  point func 
 	-----------------------------------------------------------
 	local onUpdate = function()
-	    --local _, _, _, x, y = cursor:GetPoint();
-	    --print(x, y)
+	    local parentLeft = editorbox:GetLeft();
+	    local parentRight = editorbox:GetRight();
+	    local parentTop = editorbox:GetTop();
+	    local parentBottom = editorbox:GetBottom();
+
+	    local cursorLeft = cursor:GetLeft();
+	    local cursorRight = cursor:GetRight();
+	    local cursorTop = cursor:GetTop();
+	    local cursorBottom = cursor:GetBottom();
+
+	    local _point, _relativeTo, _relativePoint, _x, _y = cursor:GetPoint();
+
+	    --检测 X  是否超出边界
+	    if ((cursorLeft < parentLeft) or (cursorRight > parentRight)) then
+		--左边超出边界, 重置位置
+		if (cursorLeft < parentLeft) then
+		    cursor:SetPoint(_point, _relativeTo, _relativePoint, parentLeft, _y);
+		end
+		if (cursorRight > parentRight) then
+		    cursor:SetPoint(_point, _relativeTo, _relativePoint, parentRight - cursor:GetWidth(), _y);
+		end
+	    end
+
+	    --检查 Y 是否超出边界
+	    if ((cursorTop > parentTop) or (cursorBottom < parentBottom)) then
+		if (cursorTop > parentTop) then
+		    cursor:SetPoint(_point, _relativeTo, _relativePoint, _x, -parentBottom);
+		end
+		if (cursorBottom < parentBottom) then
+		    cursor:SetPoint(_point, _relativeTo, _relativePoint, _x, -parentTop + cursor:GetHeight());
+		end
+	    end
+	    
+	    ---------------------------------------------------------------------------------------------------------------------
+
+	    local kind = editorbox.kind;
+	    local anchor = db[kind.."Anchor"];
+	    local realX, realY = 0, 0;
+	    local db_offsetX = kind.."OffsetX";
+	    local db_offsetY = kind.."OffsetY";
+
+	    if anchor:find("^CURSOR") or anchor:find("^PARENT") then
+		--TODO
+	    else
+		--local points = {
+		--    -- x, y  : 0, 0
+		--    TOPLEFT= {},
+		--    TOPRIGHT= {},
+		--    TOP     = {},
+		--    CENTER  = {},
+		--    LEFT    = {},
+		--    RIGHT   = {},
+		--    BOTTOM  = {},
+		--    BOTTOMRIGHT = { parentRight - cursor:GetWidth(), -parentTop + cursor:GetHeight() },
+		--    BOTTOMLEFT = {}
+		--}
+		--local relativeX, relativeY = unpack(points[anchor]);
+		--if (relativeX and relativeY) then
+		--    realX = math.ceil((_x - relativeX) * 2);
+		--    realY = math.ceil((_y - relativeY) * 2);
+		--end
+	    end
+		
+	    --db[db_offsetX] = tonumber(realX);
+	    --db[db_offsetY] = tonumber(realY);
+
+	    --editorbox.coord:SetText(realX..", "..realY);
+
+	    --LibStub("AceConfigRegistry-3.0"):NotifyChange("Icetip");
 	end
 	cursor:SetScript("OnDragStart", function()
+	    GameTooltip:Hide();
 	    cursor:StartMoving();
 	    cursor:SetScript("OnUpdate", onUpdate);
 	    --local _, _, _, x, y = cursor:GetPoint();
@@ -226,7 +311,6 @@ do
 	local cursor_tex = cursor:CreateTexture(nil, "OVERLAY");
 	cursor_tex:SetTexture(0.45, 0.6, 0, 0.5);
 	cursor_tex:SetAllPoints(cursor);
-	cursor:SetMovable(true);
 	editorbox.cursor = cursor;
 
 	--------------------------------
@@ -240,7 +324,7 @@ do
 	editorbox.mouse = mouse;
 	
 	editorbox:SetScript("OnShow", function(self)
-	    updatePoisition(kind);
+	    updatePoisition(editorbox.kind);
 	end);
 
 	editorbox:Hide();
@@ -256,6 +340,7 @@ do
 	local scale = GameTooltip:GetEffectiveScale();
 
 	editorbox.dropdown:SetValue(anchor);
+	editorbox.coord:SetText(offsetX..", "..offsetY);
 	editorbox.mouse:Hide();
 	
 	--calc offsetX / offsetY
@@ -352,7 +437,7 @@ function mod:GetOptions()
 	    type = "execute",
 	    width = "full",
 	    order = 7,
-	    name = "Visual editor",
+	    name = "Visual editor (Alpha)",
 	    desc = "Edit tooltip's position", --TODO
 	    func = function()
 		mod:editPosition("unit");
@@ -416,7 +501,7 @@ function mod:GetOptions()
 	    type = "execute",
 	    width = "full",
 	    order = 14,
-	    name = "Visual editor",
+	    name = "Visual editor (Alpha)",
 	    desc = "Edit tooltip's position", --TODO
 	    func = function()
 		mod:editPosition("frame");
