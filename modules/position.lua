@@ -222,88 +222,90 @@ do
 	-----------------------------------------------------------
 	--  point func 
 	-----------------------------------------------------------
-	local onUpdate = function()
-	    local parentLeft = editorbox:GetLeft();
-	    local parentRight = editorbox:GetRight();
-	    local parentTop = editorbox:GetTop();
-	    local parentBottom = editorbox:GetBottom();
+	do
+	    local onUpdate = function()
+		local parentLeft = editorbox:GetLeft();
+		local parentRight = editorbox:GetRight();
+		local parentTop = editorbox:GetTop();
+		local parentBottom = editorbox:GetBottom();
 
-	    local cursorLeft = cursor:GetLeft();
-	    local cursorRight = cursor:GetRight();
-	    local cursorTop = cursor:GetTop();
-	    local cursorBottom = cursor:GetBottom();
+		local cursorLeft = cursor:GetLeft();
+		local cursorRight = cursor:GetRight();
+		local cursorTop = cursor:GetTop();
+		local cursorBottom = cursor:GetBottom();
 
-	    local _point, _relativeTo, _relativePoint, _x, _y = cursor:GetPoint();
+		local _point, _relativeTo, _relativePoint, _x, _y = cursor:GetPoint();
 
-	    --检测 X  是否超出边界
-	    if ((cursorLeft < parentLeft) or (cursorRight > parentRight)) then
-		--左边超出边界, 重置位置
-		if (cursorLeft < parentLeft) then
-		    cursor:SetPoint(_point, _relativeTo, _relativePoint, parentLeft, _y);
+		--检测 X  是否超出边界
+		if ((cursorLeft < parentLeft) or (cursorRight > parentRight)) then
+		    --左边超出边界, 重置位置
+		    if (cursorLeft < parentLeft) then
+			cursor:SetPoint(_point, _relativeTo, _relativePoint, parentLeft, _y);
+		    end
+		    if (cursorRight > parentRight) then
+			cursor:SetPoint(_point, _relativeTo, _relativePoint, parentRight - cursor:GetWidth(), _y);
+		    end
 		end
-		if (cursorRight > parentRight) then
-		    cursor:SetPoint(_point, _relativeTo, _relativePoint, parentRight - cursor:GetWidth(), _y);
-		end
-	    end
 
-	    --检查 Y 是否超出边界
-	    if ((cursorTop > parentTop) or (cursorBottom < parentBottom)) then
-		if (cursorTop > parentTop) then
-		    cursor:SetPoint(_point, _relativeTo, _relativePoint, _x, -parentBottom);
+		--检查 Y 是否超出边界
+		if ((cursorTop > parentTop) or (cursorBottom < parentBottom)) then
+		    if (cursorTop > parentTop) then
+			cursor:SetPoint(_point, _relativeTo, _relativePoint, _x, -parentBottom);
+		    end
+		    if (cursorBottom < parentBottom) then
+			cursor:SetPoint(_point, _relativeTo, _relativePoint, _x, -parentTop + cursor:GetHeight());
+		    end
 		end
-		if (cursorBottom < parentBottom) then
-		    cursor:SetPoint(_point, _relativeTo, _relativePoint, _x, -parentTop + cursor:GetHeight());
-		end
-	    end
-	    
-	    ---------------------------------------------------------------------------------------------------------------------
-
-	    local kind = editorbox.kind;
-	    local anchor = db[kind.."Anchor"];
-	    local realX, realY = 0, 0;
-	    local db_offsetX = kind.."OffsetX";
-	    local db_offsetY = kind.."OffsetY";
-
-	    if anchor:find("^CURSOR") or anchor:find("^PARENT") then
-		--TODO
-	    else
-		--local points = {
-		--    -- x, y  : 0, 0
-		--    TOPLEFT= {},
-		--    TOPRIGHT= {},
-		--    TOP     = {},
-		--    CENTER  = {},
-		--    LEFT    = {},
-		--    RIGHT   = {},
-		--    BOTTOM  = {},
-		--    BOTTOMRIGHT = { parentRight - cursor:GetWidth(), -parentTop + cursor:GetHeight() },
-		--    BOTTOMLEFT = {}
-		--}
-		--local relativeX, relativeY = unpack(points[anchor]);
-		--if (relativeX and relativeY) then
-		--    realX = math.ceil((_x - relativeX) * 2);
-		--    realY = math.ceil((_y - relativeY) * 2);
-		--end
-	    end
 		
-	    --db[db_offsetX] = tonumber(realX);
-	    --db[db_offsetY] = tonumber(realY);
+		---------------------------------------------------------------------------------------------------------------------
 
-	    --editorbox.coord:SetText(realX..", "..realY);
+		local kind = editorbox.kind;
+		local anchor = db[kind.."Anchor"];
+		local realX, realY = 0, 0;
+		local db_offsetX = kind.."OffsetX";
+		local db_offsetY = kind.."OffsetY";
 
-	    --LibStub("AceConfigRegistry-3.0"):NotifyChange("Icetip");
+		if anchor:find("^CURSOR") or anchor:find("^PARENT") then
+		    --TODO
+		else
+		    --local points = {
+		    --    -- x, y  : 0, 0
+		    --    TOPLEFT= {},
+		    --    TOPRIGHT= {},
+		    --    TOP     = {},
+		    --    CENTER  = {},
+		    --    LEFT    = {},
+		    --    RIGHT   = {},
+		    --    BOTTOM  = {},
+		    --    BOTTOMRIGHT = { parentRight - cursor:GetWidth(), -parentTop + cursor:GetHeight() },
+		    --    BOTTOMLEFT = {}
+		    --}
+		    --local relativeX, relativeY = unpack(points[anchor]);
+		    --if (relativeX and relativeY) then
+		    --    realX = math.ceil((_x - relativeX) * 2);
+		    --    realY = math.ceil((_y - relativeY) * 2);
+		    --end
+		end
+		    
+		--db[db_offsetX] = tonumber(realX);
+		--db[db_offsetY] = tonumber(realY);
+
+		--editorbox.coord:SetText(realX..", "..realY);
+
+		--LibStub("AceConfigRegistry-3.0"):NotifyChange("Icetip");
+	    end
+	    cursor:SetScript("OnDragStart", function()
+		GameTooltip:Hide();
+		cursor:StartMoving();
+		cursor:SetScript("OnUpdate", onUpdate);
+		--local _, _, _, x, y = cursor:GetPoint();
+		--print(x, y)
+	    end)
+	    cursor:SetScript("OnDragStop", function()
+		cursor:StopMovingOrSizing();
+		cursor:SetScript("OnUpdate", nil);
+	    end);
 	end
-	cursor:SetScript("OnDragStart", function()
-	    GameTooltip:Hide();
-	    cursor:StartMoving();
-	    cursor:SetScript("OnUpdate", onUpdate);
-	    --local _, _, _, x, y = cursor:GetPoint();
-	    --print(x, y)
-	end)
-	cursor:SetScript("OnDragStop", function()
-	    cursor:StopMovingOrSizing();
-	    cursor:SetScript("OnUpdate", nil);
-	end);
 	----------------------------------------------------------
 	----------------------------------------------------------
 	
