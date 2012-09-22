@@ -174,7 +174,7 @@ function mod:setTooltipBackgroundColor(given_kind, r, g,b,a, tooltip)
                 kind = "dead"
             elseif UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) then
                 kind = "tapped"
-            elseif tooltip == GameTooltip and currentSameFaction then--声望
+            elseif tooltip == GameTooltip and currentSameFaction then--same faction group
                 kind = "faction"
             elseif UnitIsPlayer(unit) then
                 if UnitIsFriend("player", unit) then

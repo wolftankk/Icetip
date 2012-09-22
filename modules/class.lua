@@ -1,11 +1,12 @@
 --[[
--- Icetip Module: class
+-- Icetip class module
 -- Display Class button / color tooltip border by class
 --]]
 
 local addonName, Icetip = ...
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local mod = Icetip:NewModule("Class", L["Class"]);
+local db;
 
 local defaults = {
     profile = {
@@ -14,7 +15,6 @@ local defaults = {
 	iconSize = 32
     }
 }
-local db;
 
 function mod:OnInitialize()
     self.db = mod:RegisterDB(defaults)
@@ -51,7 +51,6 @@ function mod:createIcon()
     end
 end
 
---hook event, PreTooltipSetUnit
 function mod:PreTooltipSetUnit(tooltip, ...)
     local _, unit = tooltip:GetUnit();
     if unit then
@@ -74,14 +73,12 @@ function mod:PreTooltipSetUnit(tooltip, ...)
     end
 end
 
---hook event, OnTooltipHide()
 function mod:OnTooltipHide()
     if self.icon then
 	self.icon:Hide();
     end
 end
 
---add options to Icetip's options panel
 function mod:GetOptions()
     local options = {
 	displayMode = {
