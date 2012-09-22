@@ -213,7 +213,7 @@ function Icetip:OnInitialize()
 	end
     end
 
-    Icetip:RegisterOptions();
+    self:RegisterOptions();
 end
 
 local tooltips = {

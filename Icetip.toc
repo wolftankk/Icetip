@@ -29,17 +29,17 @@ locale\zhTW.lua
 
 Icetip.lua
 
-modules\tags.lua
+#modules\tags.lua
 
-modules\position.lua
-modules\fade.lua
+#modules\position.lua
+#modules\fade.lua
 modules\style.lua
-modules\healthbar.lua
-modules\powerbar.lua
-modules\mousetarget.lua
-modules\class.lua
-modules\raidTarget.lua
-modules\itemref.lua
-modules\aura.lua
+#modules\healthbar.lua
+#modules\powerbar.lua
+#modules\mousetarget.lua
+#modules\class.lua
+#modules\raidTarget.lua
+#modules\itemref.lua
+#modules\aura.lua
 
 options.lua

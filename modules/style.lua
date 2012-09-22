@@ -1,9 +1,14 @@
+--[[
+--
+-- Tooltip style module
+-- Customize tooltip's border, font, scale, background, texture
+--
+--]]
 local addonName, Icetip = ...
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local SM = LibStub("LibSharedMedia-3.0");
 local mod = Icetip:NewModule("style", L["Style"]);
 mod.order = 2
-local backdrop = {insets = {}};
 local db
 
 local defaults = {
@@ -39,14 +44,6 @@ local defaults = {
     }
 }
 
-
-function mod:OnInitialize()
-    self.db = mod:RegisterDB(defaults)
-    db = self.db.profile
-
-    self:InitializeTooltips();
-end
-
 local origin_GetBackdropColor = GameTooltip.GetBackdropColor
 local origin_GetBackdropBorderColor = GameTooltip.GetBackdropBorderColor
 local origin_backdrop = GameTooltip:GetBackdrop();
@@ -64,10 +61,8 @@ do
 	    if onShow then
 		onShow(frame, ...);
 	    end
-	    --update scale
-	    mod:SetTooltipScale(nil, frame);
-	    --update font
-	    mod:SetTooltipFont(nil, frame);
+	    mod:setTooltipScale(nil, frame);
+	    mod:setTooltipFont(nil, frame);
 	end)
 
 	local Show = tooltip.Show;
@@ -75,10 +70,8 @@ do
 	    if Show then
 		Show(frame, ...)
 	    end
-	    --update scale
-	    mod:SetTooltipScale(nil, frame);
-	    --update font
-	    mod:SetTooltipFont(nil, frame);
+	    mod:setTooltipScale(nil, frame);
+	    mod:setTooltipFont(nil, frame);
 	end
 
 	if tooltip:IsShown() then
@@ -87,17 +80,24 @@ do
     end
 end
 
+function mod:OnInitialize()
+    self.db = mod:RegisterDB(defaults)
+    db = self.db.profile
+end
+
 function mod:OnEnable()
+    self:InitializeTooltips();
+
     GameTooltip.GetBackdropColor = function()
-	return unpack(db.bgColor["other"])
+        return unpack(db.bgColor["other"])
     end
     GameTooltip.GetBackdropBorderColor = function()
-	return db.border_color["r"], db.border_color["g"], db.border_color["b"], db.border_color["a"]
+        return db.border_color["r"], db.border_color["g"], db.border_color["b"], db.border_color["a"]
     end
 
-    mod:SetTooltipScale(nil);
-    mod:SetTooltipFont(nil)
-    mod:UpdateBackdrop(nil);
+    mod:setTooltipScale(nil);
+    mod:setTooltipFont(nil)
+    mod:setTooltipBackdrop();
 end
 
 function mod:OnDisable()
@@ -121,41 +121,23 @@ function mod:InitializeTooltips()
     run();
 end
 
-function mod:PreOnTooltipShow(tooltip, ...)
+function mod:PreOnTooltipShow(tooltip)
     hookOnShow(tooltip)
-    self:UpdateBackdrop(tooltip, ...)
+    self:setTooltipBackgroundColor()
     tooltip:SetBackdropBorderColor(db["border_color"].r, db["border_color"].g, db["border_color"].b, db["border_color"].a);
 end
 
-function mod:PostOnTooltipHide(tooltip, ...)
+function mod:PostOnTooltipHide(tooltip)
     --reset gametooltip style
     local ct = db.bgColor["other"];
     tooltip:SetBackdropColor(unpack(ct));
     tooltip:SetBackdropBorderColor(db.border_color["r"], db.border_color["g"], db.border_color["b"], db.border_color["a"]);
 end
 
-function mod:UpdateBackdrop(tooltip, ...)
-    if not tooltip then tooltip = GameTooltip end
-
-    local _db = db.tooltipStyle
-    backdrop.bgFile = SM:Fetch("background", _db.bgTexture);
-    backdrop.edgeFile = SM:Fetch("border", _db.borderTexture)
-    backdrop.tile = _db.tile
-    backdrop.tileSize = _db.tileSize
-    backdrop.edgeSize = _db.EdgeSize
-    local inset = floor(_db.EdgeSize/3);
-    backdrop.insets.left = inset
-    backdrop.insets.right = inset
-    backdrop.insets.top = inset
-    backdrop.insets.bottom = inset
-    tooltip:SetBackdrop(backdrop);
-end
-
 function mod:OnTooltipShow(tooltip)
     if db["tooltipStyle"].customColor then
-        self:SetBackgroundColor(nil, nil, nil, nil, nil, tooltip)
+        self:setTooltipBackgroundColor(nil, nil, nil, nil, nil, tooltip)
     end
-    self:SetTooltipScale(nil)
 end
 
 local currentSameFaction = false
@@ -175,7 +157,7 @@ function mod:PreTooltipSetUnit()
     end
 end
 
-function mod:SetBackgroundColor(given_kind, r, g,b,a, tooltip)
+function mod:setTooltipBackgroundColor(given_kind, r, g,b,a, tooltip)
     if not tooltip then
         tooltip = GameTooltip
     end
@@ -243,35 +225,48 @@ function mod:SetBackgroundColor(given_kind, r, g,b,a, tooltip)
     end
 
     if given_kind then
-        self:SetBackgroundColor(nil, nil, nil, nil, nil, tooltip)
+        self:setTooltipBackgroundColor(nil, nil, nil, nil, nil, tooltip)
         return
     end
     tooltip:SetBackdropColor(r, g, b, a)
 end
 
-function mod:SetTooltipScale(value, tooltip)
+function mod:setTooltipBackdrop(tooltip)
+    if not tooltip then tooltip = GameTooltip end
+    local backdrop = {insets = {}};
+    local _db = db.tooltipStyle
+    backdrop.bgFile = SM:Fetch("background", _db.bgTexture);
+    backdrop.edgeFile = SM:Fetch("border", _db.borderTexture)
+    backdrop.tile = _db.tile
+    backdrop.tileSize = _db.tileSize
+    backdrop.edgeSize = _db.EdgeSize
+    local inset = floor(_db.EdgeSize/3);
+    backdrop.insets.left = inset
+    backdrop.insets.right = inset
+    backdrop.insets.top = inset
+    backdrop.insets.bottom = inset
+    tooltip:SetBackdrop(backdrop);
+end
+
+function mod:setTooltipScale(value, tooltip)
     if value then
 	db.scale = value
     else
 	value = db.scale
     end
-
     if not tooltip then
         tooltip = GameTooltip
     end
-
     tooltip:SetScale(value)
 end
 
-function mod:SetTooltipFont(value, tooltip)
+function mod:setTooltipFont(value, tooltip)
     if value then
 	db.tooltipStyle.font = value
     else
 	value = db.tooltipStyle.font
     end
-
     local font = SM:Fetch('font', value);
-    
     if not tooltip then
 	local text = _G["GameTooltipTextLeft1"];
 	if text:GetFont() == font then
@@ -293,8 +288,8 @@ function mod:SetTooltipFont(value, tooltip)
 	    if (v:GetObjectType() == "FontString") then
 		local _, size, style = v:GetFont();
 		if (not size) or (size and size < 6) then
-		    --default size, need test
-		    size = 11;
+		    --default font size
+		    size = select(2, GameFontNormal:GetFont());
 		end
 		v:SetFont(font, size, style);
 	    end
@@ -319,7 +314,7 @@ function mod:GetOptions()
 		    values = AceGUIWidgetLSMlists.font,
 		    get = function() return db.tooltipStyle.font end,
 		    set = function(_, v)
-			self:SetTooltipFont(v);
+			self:setTooltipFont(v);
 		    end
 		},
 		bgtexture = {
@@ -332,7 +327,7 @@ function mod:GetOptions()
 		    get = function() return db["tooltipStyle"].bgTexture end,
 		    set = function(_, v)
 			db["tooltipStyle"].bgTexture = v
-			self:UpdateBackdrop()
+			self:setTooltipBackdrop()
 		    end,
 		},
 		bordertexture = {
@@ -345,22 +340,12 @@ function mod:GetOptions()
 		    get = function() return db["tooltipStyle"].borderTexture end,
 		    set = function(_, v)
 			db["tooltipStyle"].borderTexture = v
-			self:UpdateBackdrop()
+			self:setTooltipBackdrop()
 		    end,
-		},
-		bgcolor = {
-		    type = "toggle",
-		    order = 3,
-		    name = L["Toggle custom background color"],
-		    desc = L["Enable/Disable custom background color"],
-		    get = function() return db["tooltipStyle"].customColor end,
-		    set = function(_, v)
-			db["tooltipStyle"].customColor = v
-		    end
 		},
 		bordercolor = {
 		    type = "color",
-		    order = 4,
+		    order = 3,
 		    name = L["Border color"],
 		    desc = L["Sets what color the tooltip's border is."],
 		    hasAlpha = true,
@@ -368,6 +353,16 @@ function mod:GetOptions()
 		    set = function(_, r, g, b, a)
 			db.border_color.r, db.border_color.g, db.border_color.b, db.border_color.a = r,g,b,a
 		    end,
+		},
+		bgcolor = {
+		    type = "toggle",
+		    order = 4,
+		    name = L["Toggle custom background color"],
+		    desc = L["Enable/Disable custom background color"],
+		    get = function() return db["tooltipStyle"].customColor end,
+		    set = function(_, v)
+			db["tooltipStyle"].customColor = v
+		    end
 		},
 		tile = {
 		    type = "toggle",
@@ -377,7 +372,7 @@ function mod:GetOptions()
 		    get = function() return db["tooltipStyle"].tile end,
 		    set = function(_, v)
 			db["tooltipStyle"].tile = v
-			self:UpdateBackdrop()
+			self:setTooltipBackdrop()
 		    end,
 		},
 		tilesize = {
@@ -392,7 +387,7 @@ function mod:GetOptions()
 		    get = function() return db["tooltipStyle"].tileSize end,
 		    set = function(_, v)
 			db["tooltipStyle"].tileSize = v
-			self:UpdateBackdrop()
+			self:setTooltipBackdrop()
 		    end
 		},
 		edgesize = {
@@ -406,7 +401,7 @@ function mod:GetOptions()
 		    get = function() return db["tooltipStyle"].EdgeSize end,
 		    set = function(_, v)
 			db["tooltipStyle"].EdgeSize = v
-			self:UpdateBackdrop()
+			self:setTooltipBackdrop()
 		    end,
 		},
 		tooltipScale = {
@@ -421,7 +416,7 @@ function mod:GetOptions()
 		    get = function() return db.scale end,
 		    set = function(_, v) 
 			db.scale = v 
-			self:SetTooltipScale(v)
+			self:setTooltipScale(v)
 		    end,
 		},
 	    }

@@ -6,7 +6,7 @@ local tagEnviroment;
 
 
 --有些需要OnUpdate 触发, 比如Target, 也有一些需要事件
---local tagPool, functionPool, temp, regFontStrings, frequentUpdates, frequencyCache = {}, {}, {}, {}, {}, {};
+local tagPool, functionPool, temp, regFontStrings, frequentUpdates, frequencyCache = {}, {}, {}, {}, {}, {};
 
 --function Tags:RegisterEvents(parent, fontString, tags)
 --    for tag in string.gmatch(tags, "%[(.-)%]") do
@@ -56,10 +56,11 @@ local tagEnviroment;
 --        fontString:UpdateTags()
 --    end
 --end
---
----- Frequent updates
---local freqFrame = CreateFrame("Frame")
---freqFrame:SetScript("OnUpdate", function(self, elapsed)
+
+--Frequent updates
+local freqFrame = CreateFrame("Frame")
+freqFrame:SetScript("OnUpdate", function(self, elapsed)
+    -- OnUpdate,  ex: targetoftarget.  
 --    for fontString, timeLeft in pairs(frequentUpdates) do
 --        if( fontString.parent:IsVisible() ) then
 --            frequentUpdates[fontString] = timeLeft - elapsed
@@ -69,8 +70,8 @@ local tagEnviroment;
 --            end
 --        end
 --    end
---end)
---freqFrame:Hide();
+end)
+freqFrame:Hide();
 
 --[[
 -- Register
@@ -244,6 +245,9 @@ Tags.defaultTags = {
         elseif( state == 1 ) then
             return Icetip.L["Medium"]
         end
+    end]],
+    ["unit:target"] = [[function(unit, unitOwner)
+    
     end]],
     ["situation"] = [[function(unit, unitOwner)
         local state = UnitThreatSituation("player", "target")
@@ -460,20 +464,18 @@ Tags.defaultTags = {
     end]],
     ["levelcolor"] = [[function(unit, unitOwner)
         local level = UnitLevel(unit)
-        if( level < 0 and UnitClassification(unit) == "worldboss" ) then
-            return nil
-        end
+        --if( level < 0 and UnitClassification(unit) == "worldboss" ) then
+        --    return nil
+        --end
         
-        if( UnitCanAttack("player", unit) ) then
-            local color = Icetip:Hex(GetQuestDifficultyColor(level > 0 and level or 99))
-            if( not color ) then
-                return level > 0 and level or "??"
-            end
-            
-            return color .. (level > 0 and level or "??") .. "|r"
-        else
-            return level > 0 and level or "??"
-        end
+	--if (level > 0) then
+	--    if( UnitCanAttack("player", unit) or UnitCanAttack(unit, "player")) then
+	--	local color = GetDiffLevelColor(level > 0 and level or 99);
+	--	return color .. (level > 0 and level or "??") .. "|r"
+	--    else
+	--	return "|cff3377CC"..level.."|r
+	--    end
+	--end
     end]],
     ["faction"] = [[function(unit, unitOwner) return UnitFactionGroup(unitOwner) end]],
     ["level"] = [[function(unit, unitOwner)
@@ -707,17 +709,18 @@ Tags.defaultTags = {
 --    ["unit:color:sit"]        = "UNIT_THREAT_SITUATION_UPDATE",
 --    ["unit:situation"]        = "UNIT_THREAT_SITUATION_UPDATE",
 --}
---
+
 --Tags.defaultFrequents = {
---    ["afk"] = 1,
---    ["afk:time"] = 1,
---    ["status:time"] = 1,
---    ["pvp:time"] = 1,
---    ["scaled:threat"] = 1,
---    ["unit:scaled:threat"] = 1,
---    ["curmaxpp"] = .1,
+--	["afk"] = 1,
+--	["afk:time"] = 1,
+--	["status:time"] = 1,
+--	["pvp:time"] = 1,
+--	["scaled:threat"] = 1,
+--	["unit:scaled:threat"] = 1,
+--	["unit:raid:targeting"] = 0.50,
+--	["unit:raid:assist"] = 0.50,
 --}
---
+
 --Tags.defaultCategories = {
 --    ["hp:color"]            = "health",
 --    ["abs:incheal"]            = "health",
@@ -786,12 +789,8 @@ Tags.defaultTags = {
 --    ["unit:situation"]        = "threat",
 --    ["unit:color:aggro"]    = "threat",
 --}
---
---Tags.defaultHelps = {
---}
---
+
 --Tags.defaultNames = {
---    ["incheal:name"]        = L["Incoming heal/Name"],
 --    ["unit:scaled:threat"]    = L["Unit scaled threat"],
 --    ["unit:color:sit"]        = L["Unit colored situation"],
 --    ["unit:situation"]        = L["Unit situation name"],
@@ -858,31 +857,12 @@ Tags.defaultTags = {
 --    ["color:aggro"]            = L["Color code on aggro"],
 --    ["unit:color:aggro"]    = L["Unit color code on aggro"],
 --}
---
---Tags.eventType = {
---    ["UNIT_POWER"] = "power",
---    ["UNIT_MAXPOWER"] = "power",
---    ["UNIT_HEALTH"] = "health",
---    ["UNIT_MAXHEALTH"] = "health",
---    ["RAID_ROSTER_UPDATE"] = "unitless",
---    ["RAID_TARGET_UPDATE"] = "unitless",
---    ["PLAYER_TARGET_CHANGED"] = "unitless",
---    ["PARTY_MEMBERS_CHANGED"] = "unitless",
---    ["PARTY_LEADER_CHANGED"] = "unitless",
---    ["PLAYER_ENTERING_WORLD"] = "unitless",
---    ["PLAYER_XP_UPDATE"] = "unitless",
---    ["PLAYER_TOTEM_UPDATE"] = "unitless",
---    ["PLAYER_LEVEL_UP"] = "unitless",
---    ["UPDATE_EXHAUSTION"] = "unitless",
---    ["PLAYER_UPDATE_RESTING"] = "unitless",
---    ["UNIT_COMBO_POINTS"] = "unitless",
---}
---
+
 --Tags.unitBlacklist = {
 --    ["threat"]    = "%w+target",
 --}
---
---Tags.unitRestrictioIcetip = {
+
+--Tags.unitRestriction = {
 --    ["pvp:time"] = "player",    
 --}
 --
@@ -981,38 +961,63 @@ Tags.defaultTags = {
 --    return string.trim(eventList or "")
 --end
 
-
-if (not tagEnviroment) then
-    tagEnviroment=setmetatable({
-	--add local variable for TagFunc
-	Icetip = Icetip,
-	L = L,
-	Tags = Tags
-    }, {
-	__index = _G,
-	__newindex = function(t, k, v) 
-	    _G[k] = v
-	end
-    })
-end
-
---setup tag cache
-Tags.tagFunc = setmetatable({}, {
-    __index = function(t, key) 
-	if (not Tags.defaultTags[key]) then
-	    t[key] = false;
-	    return false;
+do
+    local function GetDiffLevelColor(level)
+	local playerLevel = UnitLevel("player")
+	local levelDiff = level - playerLevel;
+	local levRange = GetQuestGreenRange();
+	--player80 85
+	if (levelDiff >= 5 or level == -1) then
+	    color = {1, 0.2, 0.2}
+	elseif (levelDiff >= 3) then
+	    color = {1, 0.4, 0};
+	elseif (levelDiff >= -2) then
+	    color = {1, 1, 0}
+	elseif (-levelDiff <= levRange) then
+	    color = {0, 1, 0}
+	else
+	    color = {0.53, 0.53, 0.53}
 	end
 
-	local func, msg = loadstring("return "..(Tags.defaultTags[key] or ""));
-
-	if (func) then
-	    func = setfenv(func, tagEnviroment)();
-	elseif (msg) then
-	    error(msg, 1);
+	if color then
+	    hexcolor = Icetip:Hex(color);
 	end
-
-	t[key] = func;
-	return t[key]
+	return hexcolor
     end
-});
+
+    if (not tagEnviroment) then
+	tagEnviroment=setmetatable({
+	    --add local variable for TagFunc
+	    Icetip = Icetip,
+	    L = L,
+	    Tags = Tags,
+	    GetDiffLevelColor = GetDiffLevelColor
+	}, {
+	    __index = _G,
+	    __newindex = function(t, k, v) 
+		_G[k] = v
+	    end
+	})
+    end
+
+    --setup tag cache
+    Tags.tagFunc = setmetatable({}, {
+	__index = function(t, key) 
+	    if (not Tags.defaultTags[key]) then
+		t[key] = false;
+		return false;
+	    end
+
+	    local func, msg = loadstring("return "..(Tags.defaultTags[key] or ""));
+
+	    if (func) then
+		func = setfenv(func, tagEnviroment)();
+	    elseif (msg) then
+		error(msg, 1);
+	    end
+
+	    t[key] = func;
+	    return t[key]
+	end
+    });
+end
