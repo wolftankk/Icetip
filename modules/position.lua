@@ -126,7 +126,6 @@ do
 	--Create a editor window
 	editorbox = CreateFrame("Frame", nil, UIParent);
 	editorbox:SetSize(screenWidth / screenScale / 2, screenHeight / screenScale / 2);
-	print(screenHeight, screenHeight/screenScale, screenScale, UIParent:GetHeight());
 	editorbox:SetFrameStrata("TOOLTIP");
 	editorbox:SetPoint("CENTER", UIParent, "CENTER");
 	--set editorbox background;
@@ -167,13 +166,22 @@ do
 	line:SetSize(editorbox:GetWidth(), 1);
 	line:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 0, 0);
 	line:SetVertexColor(1, 1, 1, 0.7);
+	
+	local title = header:CreateFontString(nil, "OVERLAY");
+	title:SetFont(STANDARD_TEXT_FONT, 15, "OUTLINE");
+	title:SetHeight(15);
+	title:SetTextColor(0, 1, .59); --.96 .55 .73
+	title:SetShadowColor(0, 1, 0);
+	title:SetShadowOffset(2, 1)
+	title:SetText("Icetip position editor");
+	title:SetPoint("LEFT", header, "LEFT", 10, 0);
 
 	local anchorText = header:CreateFontString(nil, "OVERLAY");
 	anchorText:SetFont(STANDARD_TEXT_FONT, 12, "OUTLINE");
 	anchorText:SetHeight(15);
 	anchorText:SetTextColor(1, .82, 0);
 	anchorText:SetText("Anchor");
-	anchorText:SetPoint("LEFT", header, "LEFT", 10, 0);
+	anchorText:SetPoint("LEFT", title, "RIGHT", 10, 0);
 	
 	--add dropdown list
 	local dropdown = LibStub("AceGUI-3.0"):Create("Dropdown");
@@ -212,15 +220,30 @@ do
 
 	--position button
 	local tooltip = CreateFrame("Button", nil, editorbox);
-	tooltip:SetSize(32, 32);
+	tooltip:SetSize(150, 80);
 	tooltip:SetParent(editorbox);
 	tooltip:SetClampedToScreen(true);
 	tooltip:RegisterForDrag("LeftButton");
 	tooltip:SetMovable(true);
 	
-	local cursor_tex = tooltip:CreateTexture(nil, "OVERLAY");
-	cursor_tex:SetTexture(0.45, 0.6, 0, 0.5);
-	cursor_tex:SetAllPoints(tooltip);
+	local tooltip_tex = tooltip:CreateTexture(nil, "BACKGROUND");
+	tooltip_tex:SetTexture(0.3, 0.3, 0.3, 0.5);
+	tooltip_tex:SetAllPoints(tooltip);
+	
+	local tooltip_title = tooltip:CreateFontString(nil, "OVERLAY");
+	tooltip_title:SetFontObject(GameTooltipHeaderText);
+	tooltip_title:SetTextColor(1, .82, 0);
+	tooltip_title:SetText("Icetip");
+	tooltip_title:SetPoint("TOPLEFT", tooltip, "TOPLEFT", 5, -5);
+
+	local tooltip_context = tooltip:CreateFontString(nil, "OVERLAY");
+	tooltip_context:SetFontObject(GameTooltipText);
+	tooltip_context:SetShadowColor(0, 0, 0);
+	tooltip_context:SetShadowOffset(1 , 1);
+	tooltip_context:SetText("This is a test tooltip. Hold and drag me for positioning.");
+	tooltip_context:SetPoint("TOPLEFT", tooltip, "TOPLEFT", 5, -23);
+	tooltip_context:SetWidth(tooltip:GetWidth() - 5);
+	
 	editorbox.tooltip = tooltip;
 	--------------------------------
 	--create a mouse in the screen
@@ -231,16 +254,6 @@ do
 	mouse:SetPoint("CENTER", editorbox, "CENTER", 0, 0);
 	mouse:Hide();
 	editorbox.mouse = mouse;
-
-	tooltip:SetScript("OnEnter", function(self)
-	    GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
-	    GameTooltip:AddLine("Hold and drag the green diamond for positioning");
-	    GameTooltip:Show();
-	end)
-	tooltip:SetScript("OnLeave", function()
-	    GameTooltip:Hide();
-	end);
-
 
 	--[=[
 	tooltip:SetScript("OnDragStart", function()
