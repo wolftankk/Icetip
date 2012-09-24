@@ -112,10 +112,13 @@ local anchorTypeList = {
     ["PARENT_BOTTOMLEFT"] = L["Parent Top Left"],
     ["PARENT_BOTTOMRIGHT"] = L["Parent Top Right"],
 }
+
+
 do
     local editorbox;
-    local updatePoisition;
+    local updatePoisition, onUpdate;
 
+    --init editorbox
     local function createEditorBox()
 	--Create a editor window
 	editorbox = CreateFrame("Frame", nil, UIParent);
@@ -124,7 +127,7 @@ do
 	editorbox:SetPoint("CENTER", UIParent, "CENTER");
 	--set editorbox background;
 	local bg = editorbox:CreateTexture(nil, "BACKGROUND");
-	bg:SetTexture(0, 0, 0, 0.6);
+	bg:SetTexture(0, 0, 0, 0.9);
 	bg:SetAllPoints(editorbox);
 
 	--create a editorbox's header
@@ -180,9 +183,9 @@ do
 	    if (kind) then
 		local db_anchorKey = kind.."Anchor";
 		db[db_anchorKey] = key;
+
 		LibStub("AceConfigRegistry-3.0"):NotifyChange("Icetip");
-		
-		--update position;
+
 		updatePoisition(kind);
 	    end
 	end);
@@ -204,18 +207,17 @@ do
 	editorbox.coord = coord;
 
 	--position button
-	local cursor = CreateFrame("Button", nil, editorbox);
-	cursor:SetSize(32, 32);
-	cursor:SetParent(editorbox);
-	cursor:SetClampedToScreen(true);
-	cursor:RegisterForDrag("LeftButton");
-	cursor:SetMovable(true);
+	local tooltip = CreateFrame("Button", nil, editorbox);
+	tooltip:SetSize(32, 32);
+	tooltip:SetParent(editorbox);
+	tooltip:SetClampedToScreen(true);
+	tooltip:RegisterForDrag("LeftButton");
+	tooltip:SetMovable(true);
 	
-	----create a diamond
-	local cursor_tex = cursor:CreateTexture(nil, "OVERLAY");
+	local cursor_tex = tooltip:CreateTexture(nil, "OVERLAY");
 	cursor_tex:SetTexture(0.45, 0.6, 0, 0.5);
-	cursor_tex:SetAllPoints(cursor);
-	editorbox.cursor = cursor;
+	cursor_tex:SetAllPoints(tooltip);
+	editorbox.tooltip = tooltip;
 	--------------------------------
 	--create a mouse in the screen
 	--------------------------------
@@ -226,160 +228,175 @@ do
 	mouse:Hide();
 	editorbox.mouse = mouse;
 
-	cursor:SetScript("OnEnter", function(self)
+	tooltip:SetScript("OnEnter", function(self)
 	    GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
 	    GameTooltip:AddLine("Hold and drag the green diamond for positioning");
 	    GameTooltip:Show();
 	end)
-	cursor:SetScript("OnLeave", function()
+	tooltip:SetScript("OnLeave", function()
 	    GameTooltip:Hide();
 	end);
 
 
-	-----------------------------------------------------------
-	--  point func 
-	-----------------------------------------------------------
-	do
-	    local onUpdate = function()
-		local parentLeft = editorbox:GetLeft();
-		local parentRight = editorbox:GetRight();
-		local parentTop = editorbox:GetTop();
-		local parentBottom = editorbox:GetBottom();
+	--[=[
+	tooltip:SetScript("OnDragStart", function()
+	    --GameTooltip:Hide();
+	    --cursor:StartMoving();
+	    --cursor:SetScript("OnUpdate", onUpdate);
+	    --local _, _, _, x, y = cursor:GetPoint();
+	    --print(x, y)
+	end)
+	tooltip:SetScript("OnDragStop", function()
+	    cursor:StopMovingOrSizing();
+	    cursor:SetScript("OnUpdate", nil);
+	end);
+	]=]
 
-		local cursorLeft = cursor:GetLeft();
-		local cursorRight = cursor:GetRight();
-		local cursorTop = cursor:GetTop();
-		local cursorBottom = cursor:GetBottom();
-
-		local _point, _relativeTo, _relativePoint, _x, _y = cursor:GetPoint();
-
-		--检测 X  是否超出边界
-		if ((cursorLeft < parentLeft) or (cursorRight > parentRight)) then
-		    --左边超出边界, 重置位置
-		    if (cursorLeft < parentLeft) then
-			cursor:SetPoint(_point, _relativeTo, _relativePoint, parentLeft, _y);
-		    end
-		    if (cursorRight > parentRight) then
-			cursor:SetPoint(_point, _relativeTo, _relativePoint, parentRight - cursor:GetWidth(), _y);
-		    end
-		end
-
-		--检查 Y 是否超出边界
-		if ((cursorTop > parentTop) or (cursorBottom < parentBottom)) then
-		    if (cursorTop > parentTop) then
-			cursor:SetPoint(_point, _relativeTo, _relativePoint, _x, -parentBottom);
-		    end
-		    if (cursorBottom < parentBottom) then
-			cursor:SetPoint(_point, _relativeTo, _relativePoint, _x, -parentTop + cursor:GetHeight());
-		    end
-		end
-		
-		---------------------------------------------------------------------------------------------------------------------
-
-		local kind = editorbox.kind;
-		local anchor = db[kind.."Anchor"];
-		local realX, realY = 0, 0;
-		local db_offsetX = kind.."OffsetX";
-		local db_offsetY = kind.."OffsetY";
-
-		if anchor:find("^CURSOR") or anchor:find("^PARENT") then
-		    --TODO
-		else
-		    --print(_x, parentLeft, editorbox:GetWidth())
-		    local points = {
-		        -- x, y  : 0, 0
-		        TOPLEFT= { parentLeft, -parentBottom },
-		        TOPRIGHT= { parentRight - cursor:GetWidth(), -parentBottom },
-			--这里计算有误
-		        TOP     = { parentLeft - cursor:GetWidth() + editorbox:GetWidth() / 2 ,-parentBottom },
-		        CENTER  = {  },
-		        LEFT    = {  },
-		        RIGHT   = {  },
-		        BOTTOM  = {   },
-		        BOTTOMRIGHT = { parentRight - cursor:GetWidth(), -parentTop + cursor:GetWidth() },
-		        BOTTOMLEFT = { parentLeft,  -parentTop + cursor:GetWidth() }
-		    }
-		    local relativeX, relativeY = unpack(points[anchor]);
-		    if (relativeX and relativeY) then
-		        realX = math.ceil((_x - relativeX) * 2);
-		        realY = math.ceil((_y - relativeY) * 2);
-		    end
-		end
-		    
-		--db[db_offsetX] = tonumber(realX);
-		--db[db_offsetY] = tonumber(realY);
-		editorbox.coord:SetText(realX..", "..realY);
-		--LibStub("AceConfigRegistry-3.0"):NotifyChange("Icetip");
-	    end
-	    cursor:SetScript("OnDragStart", function()
-		--GameTooltip:Hide();
-		--cursor:StartMoving();
-		--cursor:SetScript("OnUpdate", onUpdate);
-		--local _, _, _, x, y = cursor:GetPoint();
-		--print(x, y)
-	    end)
-	    cursor:SetScript("OnDragStop", function()
-		cursor:StopMovingOrSizing();
-		cursor:SetScript("OnUpdate", nil);
-	    end);
-	end
-
-	
 	editorbox:SetScript("OnShow", function(self)
 	    updatePoisition(editorbox.kind);
 	end);
 
 	editorbox:Hide();
     end
+    
+    --[[
+    -- anchor: 
+    -- offsetX:
+    -- offsetY:
+    -- type:
+    --   simulator: from real world to the simulator
+    --   figure   : from the simulator to real world
+    --]]
+    local function calculatePosition(anchor, offsetX, offsetY, kind, mode)
+        if anchor:find("^CURSOR") or anchor:find("^PARENT") then
+            if anchor == "CURSOR_TOP" and math.abs(offsetX) < 1 and math.abs(offsetY) < 0 then
+                --tooltip:SetOwner(parent, "ANCHOR_CURSOR");
+            else
+                local cursorAnchor = anchor:sub(8);
+                local anchorType = anchor:sub(1, 6);
+		local currentOwner;
+		if (kind == "unit") then
+		    currentOwner = editorbox;--the unit's parent is UIParent
+		else
+		    --currentOwner = 
+		end
+                --if anchorType == "PARENT" then
+                --    GameTooltip:SetPoint(currentCursorAnchor, currentOwner, anchorOpposite[currentCursorAnchor], currentOffsetX, currentOffsetY)
+                --elseif anchorType == "CURSOR" then
+                --    self.mouse:Show();
+                --    local x, y = 0, 0
+                --    self.cursor:SetPoint(cursorAnchor, self.mouse, "BOTTOMLEFT", x + (offsetX / 2), y + (offsetY / 2));
+                --end
+            end
+        else
+	    -- tooltip's screen mode. Only set tooltip's point at the screen.
+	    -- So, in the simulator, the editorbox likes your screen
+	    if (mode == "simulator") then
+		editorbox.tooltip:ClearAllPoints();
+		editorbox.tooltip:SetPoint(anchor, editorbox, anchor, offsetX / 2, offsetY / 2)
 
-    function updatePoisition(kind)
-	local db_anchorKey = kind.."Anchor";
-	local db_offsetX = kind.."OffsetX";
-	local db_offsetY = kind.."OffsetY";
-	local anchor = db[db_anchorKey];
-	local offsetX = db[db_offsetX];
-	local offsetY = db[db_offsetY];
-	local scale = GameTooltip:GetEffectiveScale();
-
-	editorbox.dropdown:SetValue(anchor);
-	editorbox.coord:SetText(offsetX..", "..offsetY);
-	editorbox.mouse:Hide();
-	
-	--calc offsetX / offsetY
-	if anchor:find("^CURSOR") or anchor:find("^PARENT") then
-	    --if anchor == "CURSOR_TOP" and math.abs(offsetX) < 1 and math.abs(offsetY) < 0 then
-	    --    --tooltip:SetOwner(parent, "ANCHOR_CURSOR");
-	    --else
-	    --    local cursorAnchor = anchor:sub(8);
-	    --    local anchorType = anchor:sub(1, 6);
-	    --    if anchorType == "PARENT" then
-	    --    --    GameTooltip:SetPoint(currentCursorAnchor, currentOwner, anchorOpposite[currentCursorAnchor], currentOffsetX, currentOffsetY)
-	    --    elseif anchorType == "CURSOR" then
-	    --        self.mouse:Show();
-	    --        local x, y = 0, 0
-	    --        self.cursor:SetPoint(cursorAnchor, self.mouse, "BOTTOMLEFT", x + (offsetX / 2), y + (offsetY / 2));
-	    --    end
-	    --end
-	else
-	    editorbox.cursor:ClearAllPoints();
-	    editorbox.cursor:SetPoint(anchor, editorbox, anchor, offsetX / 2, offsetY / 2)
-	end
+	    end
+        end
     end
 
-    function mod:editPosition(kind)
+    --local function onUpdate()
+    --    local parentLeft = editorbox:GetLeft();
+    --    local parentRight = editorbox:GetRight();
+    --    local parentTop = editorbox:GetTop();
+    --    local parentBottom = editorbox:GetBottom();
+
+    --    local cursorLeft = tooltip:GetLeft();
+    --    local cursorRight = tooltip:GetRight();
+    --    local cursorTop = tooltip:GetTop();
+    --    local cursorBottom = tooltip:GetBottom();
+
+    --    local _point, _relativeTo, _relativePoint, _x, _y = tooltip:GetPoint();
+
+    --    --检测 X  是否超出边界
+    --    if ((cursorLeft < parentLeft) or (cursorRight > parentRight)) then
+    --        --左边超出边界, 重置位置
+    --        if (cursorLeft < parentLeft) then
+    --    	tooltip:SetPoint(_point, _relativeTo, _relativePoint, parentLeft, _y);
+    --        end
+    --        if (cursorRight > parentRight) then
+    --    	tooltip:SetPoint(_point, _relativeTo, _relativePoint, parentRight - tooltip:GetWidth(), _y);
+    --        end
+    --    end
+
+    --    --检查 Y 是否超出边界
+    --    if ((cursorTop > parentTop) or (cursorBottom < parentBottom)) then
+    --        if (cursorTop > parentTop) then
+    --    	tooltip:SetPoint(_point, _relativeTo, _relativePoint, _x, -parentBottom);
+    --        end
+    --        if (cursorBottom < parentBottom) then
+    --    	tooltip:SetPoint(_point, _relativeTo, _relativePoint, _x, -parentTop + tooltip:GetHeight());
+    --        end
+    --    end
+
+    --    ---------------------------------------------------------------------------------------------------------------------
+
+    --    local kind = editorbox.kind;
+    --    local anchor = db[kind.."Anchor"];
+    --    local realX, realY = 0, 0;
+    --    local db_offsetX = kind.."OffsetX";
+    --    local db_offsetY = kind.."OffsetY";
+
+    --    if anchor:find("^CURSOR") or anchor:find("^PARENT") then
+    --        --TODO
+    --    else
+    --        --print(_x, parentLeft, editorbox:GetWidth())
+    --        local points = {
+    --    	-- x, y  : 0, 0
+    --    	TOPLEFT= { parentLeft, -parentBottom },
+    --    	TOPRIGHT= { parentRight - tooltip:GetWidth(), -parentBottom },
+    --    	--这里计算有误
+    --    	TOP     = { parentLeft - tooltip:GetWidth() + editorbox:GetWidth() / 2 ,-parentBottom },
+    --    	CENTER  = {  },
+    --    	LEFT    = {  },
+    --    	RIGHT   = {  },
+    --    	BOTTOM  = {   },
+    --    	BOTTOMRIGHT = { parentRight - tooltip:GetWidth(), -parentTop + tooltip:GetWidth() },
+    --    	BOTTOMLEFT = { parentLeft,  -parentTop + tooltip:GetWidth() }
+    --        }
+    --        local relativeX, relativeY = unpack(points[anchor]);
+    --        if (relativeX and relativeY) then
+    --    	realX = math.ceil((_x - relativeX) * 2);
+    --    	realY = math.ceil((_y - relativeY) * 2);
+    --        end
+    --    end
+
+    --    --db[db_offsetX] = tonumber(realX);
+    --    --db[db_offsetY] = tonumber(realY);
+    --    editorbox.coord:SetText(realX..", "..realY);
+    --    --LibStub("AceConfigRegistry-3.0"):NotifyChange("Icetip");
+    --end
+
+    function updatePoisition(kind)
+        local db_anchorKey = kind.."Anchor";
+        local db_offsetX = kind.."OffsetX";
+        local db_offsetY = kind.."OffsetY";
+        local anchor = db[db_anchorKey];
+        local offsetX = db[db_offsetX];
+        local offsetY = db[db_offsetY];
+
+        editorbox.dropdown:SetValue(anchor);
+        editorbox.coord:SetText(offsetX..", "..offsetY);
+        editorbox.mouse:Hide();
+	calculatePosition(anchor, offsetX, offsetY, kind, "simulator");
+    end
+
+    function mod:openPositionEditor(kind)
 	if (not kind) then
 	    return false;
 	end
 	if (not editorbox) then 
 	    createEditorBox();
 	end
-
 	editorbox:Hide();
 	editorbox.kind = kind
 	editorbox:Show();
     end
 end
-
 
 function mod:GetOptions()
     local options = {
@@ -442,7 +459,7 @@ function mod:GetOptions()
 	    name = "Visual editor (Alpha)",
 	    desc = "Edit tooltip's position", --TODO
 	    func = function()
-		mod:editPosition("unit");
+		mod:openPositionEditor("unit");
 	    end
 	},
 
@@ -506,7 +523,7 @@ function mod:GetOptions()
 	    name = "Visual editor (Alpha)",
 	    desc = "Edit tooltip's position", --TODO
 	    func = function()
-		mod:editPosition("frame");
+		mod:openPositionEditor("frame");
 	    end
 	},
     }
