@@ -244,10 +244,17 @@ do
 	tooltip_context:SetPoint("TOPLEFT", tooltip, "TOPLEFT", 5, -23);
 	tooltip_context:SetWidth(tooltip:GetWidth() - 5);
 	
+	tooltip:SetScript("OnDragStart", function()
+	    tooltip:StartMoving();
+	    tooltip:SetScript("OnUpdate", onUpdate);
+	end)
+	tooltip:SetScript("OnDragStop", function()
+	    tooltip:StopMovingOrSizing();
+	    tooltip:SetScript("OnUpdate", nil);
+	end);
 	editorbox.tooltip = tooltip;
-	--------------------------------
-	--create a mouse in the screen
-	--------------------------------
+
+
 	local mouse = editorbox:CreateTexture(nil, "DIALOG", editorbox);
 	mouse:SetTexture("Interface\\CURSOR\\Point");
 	mouse:SetSize(32, 32);
@@ -255,19 +262,6 @@ do
 	mouse:Hide();
 	editorbox.mouse = mouse;
 
-	--[=[
-	tooltip:SetScript("OnDragStart", function()
-	    --GameTooltip:Hide();
-	    --cursor:StartMoving();
-	    --cursor:SetScript("OnUpdate", onUpdate);
-	    --local _, _, _, x, y = cursor:GetPoint();
-	    --print(x, y)
-	end)
-	tooltip:SetScript("OnDragStop", function()
-	    cursor:StopMovingOrSizing();
-	    cursor:SetScript("OnUpdate", nil);
-	end);
-	]=]
 
 	editorbox:SetScript("OnShow", function(self)
 	    updatePoisition(editorbox.kind);
@@ -285,6 +279,8 @@ do
     --   figure   : from the simulator to real world
     --]]
     local function calculatePosition(anchor, offsetX, offsetY, kind, mode)
+	--always clear
+	editorbox.tooltip:ClearAllPoints();
         if anchor:find("^CURSOR") or anchor:find("^PARENT") then
             if anchor == "CURSOR_TOP" and math.abs(offsetX) < 1 and math.abs(offsetY) < 0 then
                 --tooltip:SetOwner(parent, "ANCHOR_CURSOR");
@@ -302,15 +298,9 @@ do
 		    --currentOwner = 
 		end
                 if anchorType == "PARENT" then
-		    --top - 20
-		    --bottom + 20
-		    --left + 20
-		    --right - 20
-
-		    editorbox.tooltip:ClearAllPoints();
 		    editorbox.tooltip:SetPoint(currentCursorAnchor, currentOwner, anchorOpposite[currentCursorAnchor], currentOffsetX / 2, currentOffsetY / 2);
                 elseif anchorType == "CURSOR" then
-                --    self.mouse:Show();
+                    editorbox.mouse:Show();
                 --    local x, y = 0, 0
                 --    self.cursor:SetPoint(cursorAnchor, self.mouse, "BOTTOMLEFT", x + (offsetX / 2), y + (offsetY / 2));
                 end
@@ -319,14 +309,12 @@ do
 	    -- tooltip's screen mode. Only set tooltip's point at the screen.
 	    -- So, in the simulator, the editorbox likes your screen
 	    if (mode == "simulator") then
-		editorbox.tooltip:ClearAllPoints();
 		editorbox.tooltip:SetPoint(anchor, editorbox, anchor, offsetX / 2, offsetY / 2)
-
 	    end
         end
     end
 
-    --local function onUpdate()
+    local function onUpdate()
     --    local parentLeft = editorbox:GetLeft();
     --    local parentRight = editorbox:GetRight();
     --    local parentTop = editorbox:GetTop();
@@ -396,7 +384,7 @@ do
     --    --db[db_offsetY] = tonumber(realY);
     --    editorbox.coord:SetText(realX..", "..realY);
     --    --LibStub("AceConfigRegistry-3.0"):NotifyChange("Icetip");
-    --end
+    end
 
     function updatePoisition(kind)
         local db_anchorKey = kind.."Anchor";
