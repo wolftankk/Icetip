@@ -285,7 +285,7 @@ do
 		if anchor:find("^CURSOR") or anchor:find("^PARENT") then
 		    --TODO
 		else
-		    print(_x, parentLeft, editorbox:GetWidth())
+		    --print(_x, parentLeft, editorbox:GetWidth())
 		    local points = {
 		        -- x, y  : 0, 0
 		        TOPLEFT= { parentLeft, -parentBottom },
@@ -306,17 +306,15 @@ do
 		    end
 		end
 		    
-		db[db_offsetX] = tonumber(realX);
-		db[db_offsetY] = tonumber(realY);
-
+		--db[db_offsetX] = tonumber(realX);
+		--db[db_offsetY] = tonumber(realY);
 		editorbox.coord:SetText(realX..", "..realY);
-
 		--LibStub("AceConfigRegistry-3.0"):NotifyChange("Icetip");
 	    end
 	    cursor:SetScript("OnDragStart", function()
-		GameTooltip:Hide();
-		cursor:StartMoving();
-		cursor:SetScript("OnUpdate", onUpdate);
+		--GameTooltip:Hide();
+		--cursor:StartMoving();
+		--cursor:SetScript("OnUpdate", onUpdate);
 		--local _, _, _, x, y = cursor:GetPoint();
 		--print(x, y)
 	    end)
