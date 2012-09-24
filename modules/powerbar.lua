@@ -7,7 +7,7 @@ local powerbar, pbtext;
 local update;
 local db
 
-local Healthbar = Icetip:GetModule("healthbar", true);
+local HBModule = Icetip:GetModule("healthbar", true);
 local healthbar
 
 local default = {
@@ -67,8 +67,8 @@ function mod:SetBarPoint()
     powerbar:ClearAllPoints()
     powerbar.side = position
 
-    if Healthbar then
-	healthbar = Healthbar:GetBar();
+    if HBModule then
+	healthbar = HBModule:GetBar();
     end
 
     if position == "BOTTOM" then
@@ -137,8 +137,8 @@ end
 
 function mod:PostTooltipShow(tooltip, ...)
     if tooltip == GameTooltip and db.position == "INNER" and tooltip:GetUnit() then
-	if Healthbar then
-	    healthbar = Healthbar:GetBar();
+	if HBModule then
+	    healthbar = HBModule:GetBar();
 	end
 
 	if not powerbar.hasPower and healthbar and healthbar.side == "INNER" then 

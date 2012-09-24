@@ -7,7 +7,7 @@ local hbtext, healthbar
 local update
 local db
 
-local Powerbar = Icetip:GetModule("Powerbar", true);
+local PBModule = Icetip:GetModule("Powerbar", true);
 local powerbar
 
 local defaults = {
@@ -67,8 +67,8 @@ function mod:SetBarPoint()
     healthbar:ClearAllPoints();
     healthbar.side = position
     
-    if Powerbar then
-	powerbar = Powerbar:GetBar()
+    if PBModule then
+	powerbar = PBModule:GetBar()
     end
 
     if position == "BOTTOM" then
