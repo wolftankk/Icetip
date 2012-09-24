@@ -210,6 +210,21 @@ do
 	cursor:SetClampedToScreen(true);
 	cursor:RegisterForDrag("LeftButton");
 	cursor:SetMovable(true);
+	
+	----create a diamond
+	local cursor_tex = cursor:CreateTexture(nil, "OVERLAY");
+	cursor_tex:SetTexture(0.45, 0.6, 0, 0.5);
+	cursor_tex:SetAllPoints(cursor);
+	editorbox.cursor = cursor;
+	--------------------------------
+	--create a mouse in the screen
+	--------------------------------
+	local mouse = editorbox:CreateTexture(nil, "DIALOG", editorbox);
+	mouse:SetTexture("Interface\\CURSOR\\Point");
+	mouse:SetSize(32, 32);
+	mouse:SetPoint("CENTER", editorbox, "CENTER", 0, 0);
+	mouse:Hide();
+	editorbox.mouse = mouse;
 
 	cursor:SetScript("OnEnter", function(self)
 	    GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
@@ -219,6 +234,8 @@ do
 	cursor:SetScript("OnLeave", function()
 	    GameTooltip:Hide();
 	end);
+
+
 	-----------------------------------------------------------
 	--  point func 
 	-----------------------------------------------------------
@@ -268,29 +285,31 @@ do
 		if anchor:find("^CURSOR") or anchor:find("^PARENT") then
 		    --TODO
 		else
-		    --local points = {
-		    --    -- x, y  : 0, 0
-		    --    TOPLEFT= {},
-		    --    TOPRIGHT= {},
-		    --    TOP     = {},
-		    --    CENTER  = {},
-		    --    LEFT    = {},
-		    --    RIGHT   = {},
-		    --    BOTTOM  = {},
-		    --    BOTTOMRIGHT = { parentRight - cursor:GetWidth(), -parentTop + cursor:GetHeight() },
-		    --    BOTTOMLEFT = {}
-		    --}
-		    --local relativeX, relativeY = unpack(points[anchor]);
-		    --if (relativeX and relativeY) then
-		    --    realX = math.ceil((_x - relativeX) * 2);
-		    --    realY = math.ceil((_y - relativeY) * 2);
-		    --end
+		    print(_x, parentLeft, editorbox:GetWidth())
+		    local points = {
+		        -- x, y  : 0, 0
+		        TOPLEFT= { parentLeft, -parentBottom },
+		        TOPRIGHT= { parentRight - cursor:GetWidth(), -parentBottom },
+			--这里计算有误
+		        TOP     = { parentLeft - cursor:GetWidth() + editorbox:GetWidth() / 2 ,-parentBottom },
+		        CENTER  = {  },
+		        LEFT    = {  },
+		        RIGHT   = {  },
+		        BOTTOM  = {   },
+		        BOTTOMRIGHT = { parentRight - cursor:GetWidth(), -parentTop + cursor:GetWidth() },
+		        BOTTOMLEFT = { parentLeft,  -parentTop + cursor:GetWidth() }
+		    }
+		    local relativeX, relativeY = unpack(points[anchor]);
+		    if (relativeX and relativeY) then
+		        realX = math.ceil((_x - relativeX) * 2);
+		        realY = math.ceil((_y - relativeY) * 2);
+		    end
 		end
 		    
-		--db[db_offsetX] = tonumber(realX);
-		--db[db_offsetY] = tonumber(realY);
+		db[db_offsetX] = tonumber(realX);
+		db[db_offsetY] = tonumber(realY);
 
-		--editorbox.coord:SetText(realX..", "..realY);
+		editorbox.coord:SetText(realX..", "..realY);
 
 		--LibStub("AceConfigRegistry-3.0"):NotifyChange("Icetip");
 	    end
@@ -306,24 +325,7 @@ do
 		cursor:SetScript("OnUpdate", nil);
 	    end);
 	end
-	----------------------------------------------------------
-	----------------------------------------------------------
-	
-	----create a diamond
-	local cursor_tex = cursor:CreateTexture(nil, "OVERLAY");
-	cursor_tex:SetTexture(0.45, 0.6, 0, 0.5);
-	cursor_tex:SetAllPoints(cursor);
-	editorbox.cursor = cursor;
 
-	--------------------------------
-	--create a mouse in the screen
-	--------------------------------
-	local mouse = editorbox:CreateTexture(nil, "DIALOG", editorbox);
-	mouse:SetTexture("Interface\\CURSOR\\Point");
-	mouse:SetSize(32, 32);
-	mouse:SetPoint("CENTER", editorbox, "CENTER", 0, 0);
-	mouse:Hide();
-	editorbox.mouse = mouse;
 	
 	editorbox:SetScript("OnShow", function(self)
 	    updatePoisition(editorbox.kind);
