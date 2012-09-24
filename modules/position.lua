@@ -7,8 +7,7 @@ local currentOffsetX, currentOffsetY = 0, 0
 local currentCursorAnchor = "BOTTOM"
 local currentAnchorType = "CURSOR"
 local currentOwner = UIParent
-local screenHeight = GetScreenHeight();
-local screenWidth  = GetScreenWidth();
+local screenScale, screenHeight, screenScale;
 
 local anchorOpposite = {
     BOTTOMLEFT = "TOPLEFT",
@@ -38,6 +37,10 @@ end
 
 function mod:OnEnable()
     self:SecureHook("GameTooltip_SetDefaultAnchor", "SetTooltipAnchor");
+
+    screenScale = UIParent:GetEffectiveScale();
+    screenHeight = UIParent:GetHeight();
+    screenWidth  = UIParent:GetWidth();
 end
 
 function mod:OnDisable()
@@ -48,7 +51,7 @@ local function ReanchorTooltip()
     GameTooltip:ClearAllPoints();
     local scale = GameTooltip:GetEffectiveScale();
     if currentAnchorType == "PARENT" then
-        GameTooltip:SetPoint(currentCursorAnchor, currentOwner, anchorOpposite[currentCursorAnchor], currentOffsetX, currentOffsetY)
+	GameTooltip:SetPoint(currentCursorAnchor, currentOwner, anchorOpposite[currentCursorAnchor], currentOffsetX, currentOffsetY)
     elseif currentAnchorType == "CURSOR" then
         local x, y = GetCursorPosition();
         x, y = x/scale + currentOffsetX, y/scale +currentOffsetY;
@@ -122,7 +125,8 @@ do
     local function createEditorBox()
 	--Create a editor window
 	editorbox = CreateFrame("Frame", nil, UIParent);
-	editorbox:SetSize(screenWidth / 2, screenHeight / 2);
+	editorbox:SetSize(screenWidth / screenScale / 2, screenHeight / screenScale / 2);
+	print(screenHeight, screenHeight/screenScale, screenScale, UIParent:GetHeight());
 	editorbox:SetFrameStrata("TOOLTIP");
 	editorbox:SetPoint("CENTER", UIParent, "CENTER");
 	--set editorbox background;
@@ -275,18 +279,28 @@ do
                 local cursorAnchor = anchor:sub(8);
                 local anchorType = anchor:sub(1, 6);
 		local currentOwner;
+		local currentCursorAnchor = anchor:sub(8);
+		local currentAnchorType = anchor:sub(1, 6);
+
+
 		if (kind == "unit") then
 		    currentOwner = editorbox;--the unit's parent is UIParent
 		else
 		    --currentOwner = 
 		end
-                --if anchorType == "PARENT" then
-                --    GameTooltip:SetPoint(currentCursorAnchor, currentOwner, anchorOpposite[currentCursorAnchor], currentOffsetX, currentOffsetY)
-                --elseif anchorType == "CURSOR" then
+                if anchorType == "PARENT" then
+		    --top - 20
+		    --bottom + 20
+		    --left + 20
+		    --right - 20
+
+		    editorbox.tooltip:ClearAllPoints();
+		    editorbox.tooltip:SetPoint(currentCursorAnchor, currentOwner, anchorOpposite[currentCursorAnchor], currentOffsetX / 2, currentOffsetY / 2);
+                elseif anchorType == "CURSOR" then
                 --    self.mouse:Show();
                 --    local x, y = 0, 0
                 --    self.cursor:SetPoint(cursorAnchor, self.mouse, "BOTTOMLEFT", x + (offsetX / 2), y + (offsetY / 2));
-                --end
+                end
             end
         else
 	    -- tooltip's screen mode. Only set tooltip's point at the screen.
@@ -431,8 +445,8 @@ function mod:GetOptions()
 	    order = 5,
 	    name = L["Horizontal offset"],
 	    desc = L["Sets offset of the X"],
-	    min = tonumber(-(floor(screenWidth/5 + 0.5) * 5)),
-	    max = tonumber(floor(screenWidth/5 + 0.5) * 5),
+	    min = tonumber(-(floor(screenWidth/5 + 0.5) * 5 / 2)),
+	    max = tonumber(floor(screenWidth/5 + 0.5) * 5 / 2),
 	    step = 1,
 	    get = function() return db.unitOffsetX end,
 	    set = function(_, v)
@@ -444,8 +458,8 @@ function mod:GetOptions()
 	    order = 6,
 	    name = L["Vertical offset"],
 	    desc = L["Sets offset of the Y"],
-	    min = tonumber(-(floor(screenHeight/5 + 0.5) * 5)),
-	    max = tonumber(floor(screenHeight/5 + 0.5) * 5),
+	    min = tonumber(-(floor(screenHeight/5 + 0.5) * 5 / 2)),
+	    max = tonumber(floor(screenHeight/5 + 0.5) * 5 / 2),
 	    step = 1,
 	    get = function() return db.unitOffsetY end,
 	    set = function(_, v)
@@ -495,8 +509,8 @@ function mod:GetOptions()
 	    order = 12,
 	    name = L["Horizontal offset"],
 	    desc = L["Sets offset of the X"],
-	    min = tonumber(-(floor(screenWidth/5 + 0.5) * 5)),
-	    max = tonumber(floor(screenWidth/5 + 0.5) * 5),
+	    min = tonumber(-(floor(screenWidth/5 + 0.5) * 5 / 2)),
+	    max = tonumber(floor(screenWidth/5 + 0.5) * 5 / 2),
 	    step = 1,
 	    get = function() return db.frameOffsetX end,
 	    set = function(_, v)
@@ -508,8 +522,8 @@ function mod:GetOptions()
 	    order = 13,
 	    name = L["Vertical offset"],
 	    desc = L["Sets offset of the Y"],
-	    min = tonumber(-(floor(screenHeight/5 + 0.5) * 5)),
-	    max = tonumber(floor(screenHeight/5 + 0.5) * 5),
+	    min = tonumber(-(floor(screenHeight/5 + 0.5) * 5 / 2)),
+	    max = tonumber(floor(screenHeight/5 + 0.5) * 5 / 2),
 	    step = 1,
 	    get = function() return db.frameOffsetY end,
 	    set = function(_, v)
